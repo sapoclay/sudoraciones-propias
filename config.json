@@ -1,0 +1,289 @@
+{
+  "equipment": {
+    "dumbbells_10kg": 2,
+    "dumbbell_12kg": 1,
+    "bench_press_30kg": 1,
+    "stationary_bike": 1,
+    "floor_space": true
+  },
+  "training_principles": {
+    "rest_between_sets": "3-5 minutos",
+    "training_frequency": "3-4 veces por semana",
+    "intensity": "Alta intensidad hasta el fallo muscular",
+    "progression": "Incremento gradual de peso o repeticiones"
+  },
+  "exercises": {
+    "pecho": [
+      {
+        "name": "Press de Banca con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Acostado en el banco, presiona las mancuernas hacia arriba",
+        "youtube_url": "https://www.youtube.com/watch?v=VmB1G1K7v94"
+      },
+      {
+        "name": "Press de Banca con Barra",
+        "equipment": "bench_press_30kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Acostado en el banco, presiona la barra hacia arriba con control total",
+        "youtube_url": "https://www.youtube.com/watch?v=rT7DgCr-3pg"
+      },
+      {
+        "name": "Aperturas con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Acostado en el banco, abre los brazos en arco amplio",
+        "youtube_url": "https://www.youtube.com/watch?v=OrlXQdNwNwM"
+      },
+      {
+        "name": "Press Inclinado con Barra",
+        "equipment": "bench_press_30kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "En banco inclinado, presiona la barra trabajando pecho superior",
+        "youtube_url": "https://www.youtube.com/shorts/SqT0lZDPm-Y"
+      },
+      {
+        "name": "Flexiones en el Suelo",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-12",
+        "description": "Posición de plancha, baja el pecho hasta casi tocar el suelo",
+        "youtube_url": "https://www.youtube.com/watch?v=7AF6pkpzBgo"
+      }
+    ],
+    "espalda": [
+      {
+        "name": "Remo con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Torso paralelo al suelo, tira hacia las costillas",
+        "youtube_url": "https://www.youtube.com/shorts/OoG6XtJeygk"
+      },
+      {
+        "name": "Peso Muerto con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Pies separados, baja manteniendo espalda recta",
+        "youtube_url": "https://www.youtube.com/watch?v=7EFlWfvU59w"
+      }
+    ],
+    "hombros": [
+      {
+        "name": "Press Militar con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "De pie, empuja las mancuernas hacia arriba",
+        "youtube_url": "https://www.youtube.com/shorts/pvb7SYiaMAw"
+      },
+      {
+        "name": "Elevaciones Laterales",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Eleva los brazos lateralmente hasta la altura del hombro",
+        "youtube_url": "https://www.youtube.com/watch?v=hgLpdwMtEEs"
+      }
+    ],
+    "brazos": [
+      {
+        "name": "Curl de Bíceps",
+        "equipment": "dumbbell_12kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Flexiona los brazos llevando las mancuernas hacia los hombros",
+        "youtube_url": "https://www.youtube.com/shorts/MXpxtAbsm-o"
+      },
+      {
+        "name": "Extensiones de Tríceps",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Acostado, baja la mancuerna hacia la frente",
+        "youtube_url": "https://www.youtube.com/shorts/rGFXnq5aHQg"
+      },
+      {
+        "name": "Flexiones de Brazo",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-15",
+        "description": "Flexiones enfocadas en tríceps, manos más juntas que en flexiones de pecho",
+        "youtube_url": "https://www.youtube.com/watch?v=0GsVJsS6474"
+      }
+    ],
+    "piernas": [
+      {
+        "name": "Sentadillas con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "10-12",
+        "description": "Baja como si te sentaras, mantén el pecho erguido",
+        "youtube_url": "https://www.youtube.com/shorts/PFh39yoRSes"
+      },
+      {
+        "name": "Zancadas con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10 por pierna",
+        "description": "Paso largo adelante, baja hasta 90 grados",
+        "youtube_url": "https://www.youtube.com/watch?v=-iGRWD09Jn8"
+      }
+    ],
+    "gemelos": [
+      {
+        "name": "Elevaciones de Gemelos de Pie",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "15-20",
+        "description": "De pie con mancuernas, elévate en puntillas contrayendo los gemelos",
+        "youtube_url": "https://www.youtube.com/shorts/gwWv7aPcD7s"
+      },
+      {
+        "name": "Elevaciones de Gemelos Sentado",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "12-15",
+        "description": "Sentado en el banco, mancuernas en los muslos, elévate en puntillas",
+        "youtube_url": "https://www.youtube.com/shorts/3wK8FzqzOeA"
+      }
+    ],
+    "abs": [
+      {
+        "name": "Abdominales Tradicionales",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "15-20",
+        "description": "Eleva el torso hacia las rodillas sin tirar del cuello",
+        "youtube_url": "https://www.youtube.com/shorts/Dmfq8j6uR3A"
+      },
+      {
+        "name": "Plancha",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30-60 segundos",
+        "description": "Mantén el cuerpo recto como una tabla",
+        "youtube_url": "https://www.youtube.com/shorts/3AM7L2k7BEw"
+      }
+    ],
+    "abs_avanzados": [
+      {
+        "name": "Abdominales Bajas",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "12-15",
+        "description": "Acostado, eleva las piernas hacia el pecho manteniendo la espalda en el suelo",
+        "youtube_url": "https://www.youtube.com/shorts/nbAm7uHDl1w"
+      },
+      {
+        "name": "Abdominales Laterales",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10-12 por lado",
+        "description": "De lado, eleva el torso hacia la cadera trabajando los oblicuos",
+        "youtube_url": "https://www.youtube.com/watch?v=tMd9SZjTrmg"
+      }
+    ],
+    "cardio": [
+      {
+        "name": "Bicicleta Estática",
+        "equipment": "stationary_bike",
+        "sets": 1,
+        "reps": "20km",
+        "description": "Pedalea a ritmo moderado manteniendo buena postura",
+        "youtube_url": "https://www.youtube.com/shorts/w0mjPpxB9CE"
+      }
+    ]
+  },
+  "weekly_schedule": {
+    "semana1": {
+      "lunes": [
+        "pecho",
+        "espalda",
+        "abs"
+      ],
+      "martes": [],
+      "miercoles": [],
+      "jueves": [
+        "piernas",
+        "gemelos",
+        "abs"
+      ],
+      "viernes": [
+        "brazos",
+        "hombros",
+        "cardio"
+      ],
+      "sabado": [],
+      "domingo": []
+    },
+    "semana2": {
+      "lunes": [
+        "pecho",
+        "espalda",
+        "abs"
+      ],
+      "martes": [],
+      "miercoles": [],
+      "jueves": [
+        "piernas",
+        "gemelos",
+        "abs"
+      ],
+      "viernes": [
+        "brazos",
+        "hombros",
+        "cardio"
+      ],
+      "sabado": [],
+      "domingo": []
+    },
+    "semana3": {
+      "lunes": [
+        "piernas",
+        "gemelos",
+        "abs_avanzados"
+      ],
+      "martes": [],
+      "miercoles": [],
+      "jueves": [
+        "brazos",
+        "hombros",
+        "abs"
+      ],
+      "viernes": [
+        "pecho",
+        "espalda",
+        "cardio"
+      ],
+      "sabado": [],
+      "domingo": []
+    },
+    "semana4": {
+      "lunes": [
+        "piernas",
+        "gemelos",
+        "abs_avanzados"
+      ],
+      "martes": [],
+      "miercoles": [],
+      "jueves": [
+        "brazos",
+        "hombros",
+        "abs"
+      ],
+      "viernes": [
+        "pecho",
+        "espalda",
+        "cardio"
+      ],
+      "sabado": [],
+      "domingo": []
+    }
+  }
+}

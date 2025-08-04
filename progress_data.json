@@ -1,0 +1,73 @@
+{
+  "current_month": "2025-08",
+  "total_workouts": 3,
+  "completed_exercises": {
+    "2025-08-03": {
+      "cardio_Bicicleta Estática_sabado": true
+    },
+    "2025-08-02": {
+      "piernas_Sentadillas con Mancuernas_viernes": true,
+      "piernas_Zancadas con Mancuernas_viernes": false,
+      "gemelos_Elevaciones de Gemelos de Pie_viernes": true,
+      "gemelos_Elevaciones de Gemelos Sentado_viernes": true,
+      "abs_Abdominales Tradicionales_viernes": true,
+      "abs_Plancha_viernes": false,
+      "abs_Abdominales Bajas_viernes": false,
+      "abs_Abdominales Laterales_viernes": false
+    },
+    "2025-08-01": {
+      "pecho_Press de Banca con Mancuernas_lunes": true,
+      "pecho_Press de Banca con Barra_lunes": true,
+      "pecho_Aperturas con Mancuernas_lunes": false,
+      "pecho_Press Inclinado con Barra_lunes": true,
+      "pecho_Flexiones en el Suelo_lunes": false,
+      "brazos_Curl de Bíceps_lunes": true,
+      "brazos_Extensiones de Tríceps_lunes": false,
+      "abs_Abdominales Tradicionales_lunes": true,
+      "abs_Plancha_lunes": false,
+      "abs_Abdominales Bajas_lunes": false,
+      "abs_Abdominales Laterales_lunes": false
+    }
+  },
+  "muscle_groups_progress": {
+    "pecho": {
+      "total_completed": 4,
+      "last_workout": "2025-08-01"
+    },
+    "espalda": {
+      "total_completed": 0,
+      "last_workout": null
+    },
+    "hombros": {
+      "total_completed": 0,
+      "last_workout": null
+    },
+    "brazos": {
+      "total_completed": 1,
+      "last_workout": "2025-08-01"
+    },
+    "piernas": {
+      "total_completed": 1,
+      "last_workout": "2025-08-02"
+    },
+    "gemelos": {
+      "total_completed": 2,
+      "last_workout": "2025-08-02"
+    },
+    "abs": {
+      "total_completed": 2,
+      "last_workout": "2025-08-02"
+    },
+    "cardio": {
+      "total_completed": 1,
+      "last_workout": "2025-08-03"
+    }
+  },
+  "completed_workouts": {
+    "2025-08": [
+      "2025-08-01",
+      "2025-08-02",
+      "2025-08-03"
+    ]
+  }
+}

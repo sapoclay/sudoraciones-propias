@@ -1,0 +1,21 @@
+[global]
+developmentMode = false
+showWarningOnDirectExecution = false
+suppressDeprecationWarnings = true
+disableWatchdogWarning = true
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8508
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+port = 8508
+address = "0.0.0.0"
+
+[logger]
+level = "error"
+messageFormat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
