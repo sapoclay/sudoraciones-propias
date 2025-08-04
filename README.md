@@ -1,5 +1,7 @@
 # 💪 Sudoraciones propias - Sistema de entrenamiento personal
 
+<img width="200" height="200" alt="logo" src="https://github.com/user-attachments/assets/7993007a-557c-4e8f-8613-73968ad25b74" />
+
 ## 🎯 Descripción
 Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
