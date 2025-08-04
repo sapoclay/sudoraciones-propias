@@ -9,21 +9,21 @@ Sistema de entrenam#### Cardio (1 ejercicio)
 ### 📈 **Niveles de Entrenamiento (20 Semanas)**
 
 #### 🟢 **Nivel 1 - Principiante (Semanas 1-4)**
-- **Entrenamientos:** 3 días por semana (Lunes, Jueves, Viernes)
-- **Descanso:** 4 días (Martes, Miércoles, Sábado, Domingo)
+- **Entrenamientos:** 4 días por semana (Lunes, Miércoles, Viernes, Sábado)
+- **Descanso:** 3 días (Martes, Jueves, Domingo)
 - **Enfoque:** Adaptación suave y técnica correcta
 - **Abdominales:** Solo ejercicios básicos
 
 #### 🟡 **Nivel 2 - Intermedio (Semanas 5-8)**
-- **Entrenamientos:** 4 días por semana (se añaden Martes y Sábado)
-- **Descanso:** 3 días (Miércoles, Domingo, +1 flexible)
+- **Entrenamientos:** 5 días por semana (se añade Martes)
+- **Descanso:** 2 días (Miércoles, Domingo)
 - **Enfoque:** Incremento de frecuencia e intensidad
 - **Abdominales:** Mantiene ejercicios básicos
 
 #### 🟠 **Nivel 3 - Avanzado (Semanas 9-12)**
-- **Entrenamientos:** 5 días por semana
+- **Entrenamientos:** 5 días por semana intensificados
 - **Descanso:** 2 días (Miércoles, Domingo)
-- **Enfoque:** Incremento de volumen
+- **Enfoque:** Incremento de volumen por sesión
 - **Abdominales:** Introduce ejercicios avanzados
 
 #### 🔴 **Nivel 4+ - Experto (Semanas 13-20)**
@@ -38,15 +38,15 @@ Sistema de entrenam#### Cardio (1 ejercicio)
 |-----|---------|---------|---------|----------|
 | **Lunes** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Martes** | 🛌 Descanso | ✅ Entreno | ✅ Entreno | ✅ Entreno |
-| **Miércoles** | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso | ✅ Entreno |
-| **Jueves** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
+| **Miércoles** | ✅ Entreno | 🛌 Descanso | 🛌 Descanso | ✅ Entreno |
+| **Jueves** | 🛌 Descanso | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Viernes** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
-| **Sábado** | 🛌 Descanso | ✅ Entreno | ✅ Entreno | ✅ Entreno |
+| **Sábado** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Domingo** | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso |
 
 ### 💪 **Principios de Progresión**
 - **Recuperación garantizada:** Siempre al menos 1 día de descanso
-- **Progresión gradual:** De 3 a 6 entrenamientos semanales
+- **Progresión gradual:** De 4 a 6 entrenamientos semanales
 - **Adaptación inteligente:** Incremento controlado de la carga
 - **Sostenibilidad:** Programa de 20 semanas sin estancamiento
 

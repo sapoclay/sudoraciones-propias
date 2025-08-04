@@ -77,9 +77,9 @@ class BaseTrainer:
         }
         
         level_descriptions = {
-            1: "Plan básico - 3 entrenamientos, 4 días de descanso",
-            2: "Incremento de frecuencia - 4 entrenamientos, 3 días de descanso",
-            3: "Incremento de volumen - 5 entrenamientos, 2 días de descanso",
+            1: "Plan básico - 4 entrenamientos, 3 días de descanso",
+            2: "Incremento de frecuencia - 5 entrenamientos, 2 días de descanso",
+            3: "Incremento de volumen - 5 entrenamientos intensificados, 2 días de descanso",
             4: "Plan avanzado completo - 6 entrenamientos, 1 día de descanso"
         }
         

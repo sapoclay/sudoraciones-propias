@@ -126,26 +126,24 @@ class TrainingPlanModule(BaseTrainer):
         
         for day, muscle_groups in base_schedule.items():
             if mode == "frequency":
-                # Nivel 2: De 3 días descanso → 2 días descanso (agregar martes y sábado)
-                if day in ['martes', 'sabado'] and not muscle_groups:
-                    # Convertir martes y sábado en días de entrenamiento
-                    if day == 'martes':
-                        new_schedule[day] = ['brazos', 'hombros']
-                    elif day == 'sabado':
-                        new_schedule[day] = ['pecho', 'cardio']
+                # Nivel 2: De 3 días descanso → 2 días descanso (agregar martes)
+                if day == 'martes' and not muscle_groups:
+                    # Convertir martes en día de entrenamiento
+                    new_schedule[day] = ['hombros', 'abs']
                 else:
                     new_schedule[day] = muscle_groups
                     
             elif mode == "volume":
-                # Nivel 3: Mantener 2 días de descanso (miércoles y domingo)
-                if day in ['martes', 'sabado'] and not muscle_groups:
-                    # Asegurar que martes y sábado tengan entrenamiento del nivel 2
-                    if day == 'martes':
-                        new_schedule[day] = ['brazos', 'hombros', 'abs']
-                    elif day == 'sabado':
-                        new_schedule[day] = ['pecho', 'cardio', 'abs']
+                # Nivel 3: Mantener 2 días de descanso (miércoles y domingo), intensificar existentes
+                if day == 'martes' and not muscle_groups:
+                    # Asegurar que martes tenga entrenamiento del nivel 2
+                    new_schedule[day] = ['hombros', 'abs', 'cardio']
                 elif muscle_groups:  # Intensificar días existentes
-                    new_schedule[day] = muscle_groups + ['abs'] if 'abs' not in muscle_groups else muscle_groups
+                    # Añadir un grupo muscular extra a días que ya tienen entrenamiento
+                    if 'abs' not in muscle_groups and len(muscle_groups) < 3:
+                        new_schedule[day] = muscle_groups + ['abs']
+                    else:
+                        new_schedule[day] = muscle_groups
                 else:
                     new_schedule[day] = muscle_groups  # Mantener miércoles y domingo como descanso
                     

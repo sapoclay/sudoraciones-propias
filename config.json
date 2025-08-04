@@ -208,18 +208,21 @@
         "abs"
       ],
       "martes": [],
-      "miercoles": [],
-      "jueves": [
+      "miercoles": [
         "piernas",
         "gemelos",
         "abs"
       ],
+      "jueves": [],
       "viernes": [
         "brazos",
         "hombros",
         "cardio"
       ],
-      "sabado": [],
+      "sabado": [
+        "pecho",
+        "brazos"
+      ],
       "domingo": []
     },
     "semana2": {
@@ -229,18 +232,21 @@
         "abs"
       ],
       "martes": [],
-      "miercoles": [],
-      "jueves": [
+      "miercoles": [
         "piernas",
         "gemelos",
         "abs"
       ],
+      "jueves": [],
       "viernes": [
         "brazos",
         "hombros",
         "cardio"
       ],
-      "sabado": [],
+      "sabado": [
+        "pecho",
+        "brazos"
+      ],
       "domingo": []
     },
     "semana3": {
@@ -250,18 +256,21 @@
         "abs_avanzados"
       ],
       "martes": [],
-      "miercoles": [],
-      "jueves": [
+      "miercoles": [
         "brazos",
         "hombros",
         "abs"
       ],
+      "jueves": [],
       "viernes": [
         "pecho",
         "espalda",
         "cardio"
       ],
-      "sabado": [],
+      "sabado": [
+        "pecho",
+        "gemelos"
+      ],
       "domingo": []
     },
     "semana4": {
@@ -271,18 +280,21 @@
         "abs_avanzados"
       ],
       "martes": [],
-      "miercoles": [],
-      "jueves": [
+      "miercoles": [
         "brazos",
         "hombros",
         "abs"
       ],
+      "jueves": [],
       "viernes": [
         "pecho",
         "espalda",
         "cardio"
       ],
-      "sabado": [],
+      "sabado": [
+        "pecho",
+        "gemelos"
+      ],
       "domingo": []
     }
   }
