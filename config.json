@@ -101,6 +101,14 @@
         "youtube_url": "https://www.youtube.com/shorts/MXpxtAbsm-o"
       },
       {
+        "name": "Curl Martillo",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Curl con agarre neutro (palmas enfrentadas), enfoca braquial y braquiorradial",
+        "youtube_url": "https://www.youtube.com/watch?v=zC3nLlEvin4"
+      },
+      {
         "name": "Extensiones de Tríceps",
         "equipment": "dumbbells_10kg",
         "sets": 1,

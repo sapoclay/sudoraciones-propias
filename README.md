@@ -1,12 +1,11 @@
-# 💪 Sudoraciones Propias - Sistema de Entrenamiento Personal
+# 💪 Sudoraciones propias - Sistema de entrenamiento personal
 
 ## 🎯 Descripción
-Sistema de entrenam#### Cardio (1 ejercicio)
-- Bicicleta Estática
+Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
-## 🏋️ Sistema de Progresión Inteligente
+## 🏋️ Sistema de progresión inteligente
 
-### 📈 **Niveles de Entrenamiento (20 Semanas)**
+### 📈 **Niveles de entrenamiento (20 Semanas)**
 
 #### 🟢 **Nivel 1 - Principiante (Semanas 1-4)**
 - **Entrenamientos:** 4 días por semana (Lunes, Miércoles, Viernes, Sábado)
@@ -32,7 +31,7 @@ Sistema de entrenam#### Cardio (1 ejercicio)
 - **Enfoque:** Máxima intensidad y plan de élite
 - **Abdominales:** Alternancia completa básicos/avanzados
 
-### 📅 **Distribución Semanal por Nivel**
+### 📅 **Distribución semanal por nivel**
 
 | Día | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4+ |
 |-----|---------|---------|---------|----------|
@@ -44,7 +43,7 @@ Sistema de entrenam#### Cardio (1 ejercicio)
 | **Sábado** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Domingo** | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso |
 
-### 💪 **Principios de Progresión**
+### 💪 **Principios de progresión**
 - **Recuperación garantizada:** Siempre al menos 1 día de descanso
 - **Progresión gradual:** De 4 a 6 entrenamientos semanales
 - **Adaptación inteligente:** Incremento controlado de la carga
@@ -64,118 +63,6 @@ python3 run_app.py
 ```
 
 **La aplicación utiliza arquitectura modular optimizada** - Código organizado por pestañas con mejor rendimiento y mantenibilidad.
-
-## 🏗️ Arquitectura Modular
-
-### Estructura de Módulos
-```
-modules/
-├── __init__.py              # Configuración del paquete
-├── base_trainer.py         # Funcionalidad core del sistema
-├── training_plan.py        # Lógica del plan de entrenamiento
-├── progress_calendar.py    # Progreso y calendario
-├── statistics.py           # Análisis y estadísticas
-└── info.py                # Información del programa
-```
-
-### Beneficios de la Modularización
-- ✅ **Separación clara de responsabilidades** por pestaña
-- ✅ **Código más legible** y fácil de mantener
-- ✅ **Facilita el desarrollo en equipo**
-- ✅ **Testing individual** de cada módulo
-- ✅ **Reutilización de código** entre módulos
-
-## 💪 Características Principales
-
-### Entrenamiento
-- **21 ejercicios especializados** (5 pecho + 4 abdominales + 3 brazos + 2 gemelos + otros)
-- **Progresión automática inteligente** hasta 20 semanas
-- **Sistema de 4 niveles** con días de descanso adaptativos
-- **Seguimiento automático** por ejercicio individual
-- **Distribución inteligente de abdominales** (básicos vs avanzados)
-
-### Tecnología
-- **Streamlit 1.47.1** para la interfaz web
-- **Python 3.12** como base
-- **Entorno virtual automático** (venv_sudoraciones)
-- **Interfaz completamente en español**
-
-### Funcionalidades
-- 🎥 **Videos YouTube integrados** (normales + Shorts)
-- 📅 **Calendario inteligente** con porcentajes automáticos
-- 📊 **Estadísticas avanzadas** con gráficos Plotly
-- 💡 **Instrucciones detalladas** y consejos de técnica
-- 🏆 **Sistema de progresión** automático e inteligente
-
-## 📊 Grupos Musculares y Progresión
-
-### 🎯 **Distribución de Ejercicios (21 Total)**
-
-#### Pecho (5 ejercicios)
-- Press de Banca con Mancuernas
-- Press de Banca con Barra
-- Aperturas con Mancuernas
-- Press Inclinado con Barra
-- Flexiones en el Suelo
-
-#### Espalda (2 ejercicios)
-- Remo con Mancuernas
-- Peso Muerto con Mancuernas
-
-#### Hombros (2 ejercicios)
-- Press Militar con Mancuernas
-- Elevaciones Laterales
-
-#### Brazos (3 ejercicios)
-- Curl de Bíceps
-- Extensiones de Tríceps
-- Flexiones de Brazo (enfoque tríceps)
-
-#### Piernas (2 ejercicios)
-- Sentadillas con Mancuernas
-- Zancadas con Mancuernas
-
-#### Gemelos (2 ejercicios)
-- Elevaciones de Gemelos de Pie
-- Elevaciones de Gemelos Sentado
-
-#### Abdominales (4 ejercicios divididos en básicos y avanzados)
-**Abs Básicos (Nivel 1-2):**
-- Abdominales Tradicionales
-- Plancha
-
-**Abs Avanzados (Nivel 3+):**
-- Abdominales Bajas
-- Abdominales Laterales
-
-#### Cardio (1 ejercicio)
-- Bicicleta Estática
-
-## � Configuración Manual (Opcional)
-
-Si prefieres configurar manualmente:
-
-### 1. Crear entorno virtual
-```bash
-python3 -m venv venv_sudoraciones
-source venv_sudoraciones/bin/activate  # Linux/Mac
-# o
-venv_sudoraciones\Scripts\activate     # Windows
-```
-
-### 2. Instalar dependencias
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Ejecutar aplicación
-```bash
-# Aplicación modular (única versión disponible)
-streamlit run main_app.py --server.port 8508 --server.address 0.0.0.0
-
-# O usar el launcher automático (recomendado)
-python3 run_app.py
-```
 
 ## 📱 Acceso a la Aplicación
 
@@ -199,9 +86,96 @@ Una vez iniciada, accede desde tu navegador:
 - `img/` - Imágenes y logos (opcional)
 - `modules/` - Módulos de la aplicación modular
 
-## 🔄 Funcionamiento del Programa
+## 🏗️ Arquitectura Modular
 
-### 📅 Sistema de Progresión Semanal
+### Estructura de Módulos
+```
+modules/
+├── __init__.py              # Configuración del paquete
+├── base_trainer.py         # Funcionalidad core del sistema
+├── training_plan.py        # Lógica del plan de entrenamiento
+├── progress_calendar.py    # Progreso y calendario
+├── statistics.py           # Análisis y estadísticas
+└── info.py                # Información del programa
+```
+
+### Beneficios de la modularización
+- ✅ **Separación clara de responsabilidades** por pestaña
+- ✅ **Código más legible** y fácil de mantener
+- ✅ **Facilita el desarrollo en equipo**
+- ✅ **Testing individual** de cada módulo
+- ✅ **Reutilización de código** entre módulos
+
+## 💪 Características principales
+
+### Entrenamiento
+- **22 ejercicios especializados** (5 pecho + 4 abdominales + 4 brazos + 2 gemelos + otros)
+- **Progresión automática inteligente** hasta 20 semanas
+- **Sistema de 4 niveles** con días de descanso adaptativos
+- **Seguimiento automático** por ejercicio individual
+- **Distribución inteligente de abdominales** (básicos vs avanzados)
+
+### Tecnología
+- **Streamlit 1.47.1** para la interfaz web
+- **Python 3.12** como base
+- **Entorno virtual automático** (venv_sudoraciones)
+- **Interfaz completamente en español**
+
+### Funcionalidades
+- 🎥 **Videos YouTube integrados** (normales + Shorts)
+- 📅 **Calendario inteligente** con porcentajes automáticos
+- 📊 **Estadísticas avanzadas** con gráficos Plotly
+- 💡 **Instrucciones detalladas** y consejos de técnica
+- 🏆 **Sistema de progresión** automático e inteligente
+
+## 📊 Grupos Musculares y Progresión
+
+### 🎯 **Distribución de Ejercicios (22 Total)**
+
+#### Pecho (5 ejercicios)
+- Press de banca con mancuernas
+- Press de banca con barra
+- Aperturas con mancuernas
+- Press inclinado con barra
+- Flexiones en el suelo
+
+#### Espalda (2 ejercicios)
+- Remo con mancuernas
+- Peso muerto con mancuernas
+
+#### Hombros (2 ejercicios)
+- Press militar con mancuernas
+- Elevaciones laterales
+
+#### Brazos (4 ejercicios)
+- Curl de bíceps
+- Curl martillo
+- Extensiones de tríceps
+- Flexiones de brazo (enfoque tríceps)
+
+#### Piernas (2 ejercicios)
+- Sentadillas con mancuernas
+- Zancadas con mancuernas
+
+#### Gemelos (2 ejercicios)
+- Elevaciones de gemelos de pie
+- Elevaciones de gemelos sentado
+
+#### Abdominales (4 ejercicios divididos en básicos y avanzados)
+**Abs básicos (Nivel 1-2):**
+- Abdominales tradicionales
+- Plancha
+
+**Abs avanzados (Nivel 3+):**
+- Abdominales bajas
+- Abdominales laterales
+
+#### Cardio (1 ejercicio)
+- Bicicleta estática
+
+## 🔄 Funcionamiento del programa
+
+### 📅 Sistema de progresión semanal
 
 El programa utiliza un **sistema inteligente de progresión por niveles** que cambia automáticamente cada 4 semanas:
 
@@ -237,7 +211,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
   - Entrenamientos de élite personalizados
   - Progresión continua sin límite
 
-### 🔄 **Cambios Entre Semanas**
+### 🔄 **Cambios entre semanas**
 
 **¿Qué sucede al cambiar de semana?**
 
@@ -246,40 +220,40 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 3. **Ciclo Base**: Se repite cada 4 semanas pero con **mayor intensidad** en cada nivel
 4. **Sin Reseteo**: Tu progreso se mantiene - ejercicios completados, estadísticas y calendario se conservan
 
-### 🎯 **Control de Progresión**
+### 🎯 **Control de progresión**
 
-#### **Progresión Automática**:
+#### **Progresión automática**:
 - El programa avanza automáticamente cada semana
 - Los entrenamientos se intensifican progresivamente
 - No es necesaria intervención manual
 
-#### **Control Manual**:
+#### **Control manual**:
 - Selector de semana en la barra lateral (1-20)
 - Puedes revisar semanas pasadas
 - Posibilidad de saltar a semanas futuras
 - Información detallada de cada nivel
 
-### 📊 **Seguimiento del Progreso**
+### 📊 **Seguimiento del progreso**
 
-#### **Por Ejercicio**:
+#### **Por ejercicio**:
 - Marca individual cada ejercicio como "Completado"
 - Sistema inteligente: día completado al 80% de ejercicios
 - Flexibilidad para desmarcar si es necesario
 
-#### **Por Día**:
+#### **Por día**:
 - Colores en el calendario según porcentaje completado:
   - 🟢 Verde: 100% completado
   - 🟡 Amarillo: 80-99% completado
   - 🟠 Naranja: 1-79% completado
   - ⚪ Blanco: 0% completado
 
-#### **Estadísticas Globales**:
+#### **Estadísticas globales**:
 - Total de entrenamientos realizados
 - Rachas de entrenamiento consecutivas
 - Gráficos de progreso mensual
 - Recomendaciones personalizadas
 
-### 🏋️ **Métodos de Intensificación**
+### 🏋️ **Métodos de intensificación**
 
 El sistema utiliza tres métodos para intensificar los entrenamientos:
 
@@ -287,23 +261,23 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 2. **Volumen**: Convierte días de descanso en días de entrenamiento activo
 3. **Avanzado**: Combina ambos métodos para máxima intensidad
 
-### 💾 **Persistencia de Datos**
+### 💾 **Persistencia de datos**
 
 - **Configuración**: `config.json` - Ejercicios, planes de entrenamiento, URLs de videos
 - **Progreso**: `progress_data.json` - Ejercicios completados, estadísticas, historial
 - **Sincronización**: Los datos se guardan automáticamente entre sesiones
 - **Respaldo**: El progreso nunca se pierde al cambiar de semana o nivel
 
-## 🎯 Metodología de Entrenamiento
+## 🎯 Metodología de entrenamiento
 
-### Principios
+### Principios a seguir
 - **Alta Intensidad**: Cada serie hasta el fallo muscular
 - **Frecuencia Óptima**: 3-4 entrenamientos por semana
 - **Sesiones Efectivas**: Sesiones enfocadas e intensas
 - **Progresión Gradual**: Incremento constante de peso/repeticiones
 - **Descanso Completo**: Recuperación total entre entrenamientos
 
-### Sistema de Progresión
+### Sistema de progresión
 1. **🟢 Nivel 1 (Semanas 1-4)**: Plan básico de adaptación
 2. **🟡 Nivel 2 (Semanas 5-8)**: Incremento de frecuencia
 3. **🟠 Nivel 3 (Semanas 9-12)**: Incremento de volumen
@@ -322,33 +296,33 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 - Solo necesitas marcar ejercicios como "Completado"
 - El sistema calcula automáticamente todo lo demás
 
-## 📱 Guía de Uso Práctica
+## 📱 Guía de uso práctica
 
-### 🚀 **Primer Uso**
+### 🚀 **Primer uso**
 1. **Iniciar aplicación**: Ejecuta `python3 run_app.py`
 2. **Acceder**: Abre http://localhost:8508 en tu navegador
 3. **Revisar barra lateral**: Verifica que estás en "Semana 1" (🟢 Principiante)
 4. **Explorar pestañas**: Familiarízate con las 4 secciones principales
 
-### 🏋️ **Durante el Entrenamiento**
-1. **Pestaña "Plan de Entrenamiento"**:
+### 🏋️ **Durante el entrenamiento**
+1. **Pestaña "plan de entrenamiento"**:
    - Ve los ejercicios del día actual
    - Mira los videos tutorial haciendo clic en "ℹ️ Detalles"
    - Lee las instrucciones y consejos de técnica
    - Marca como "✅ Completado" cada ejercicio que hagas
 
-2. **Seguimiento en Tiempo Real**:
+2. **Seguimiento en tiempo real**:
    - El sistema calcula automáticamente tu progreso diario
    - Verde = día completado, Amarillo = parcial, etc.
    - Las estadísticas se actualizan instantáneamente
 
-### 📅 **Progresión Semanal**
+### 📅 **Progresión semanal**
 1. **Semana actual**: Se muestra en la barra lateral
 2. **Cambio automático**: Cada 7 días reales o manual con el selector
 3. **Nuevos entrenamientos**: El sistema genera automáticamente nuevos ejercicios (semana 5+)
 4. **Sin pérdida de datos**: Tu progreso anterior se mantiene siempre
 
-### 📊 **Monitoreo del Progreso**
+### 📊 **Monitorización del progreso**
 1. **Pestaña "Progreso"**: 
    - Calendario visual con tu historial completo
    - Estadísticas de días entrenados
@@ -360,23 +334,23 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
    - Análisis de rendimiento
 
 ### ⚙️ **Personalización**
-1. **Opciones de Vista** (barra lateral):
+1. **Opciones de vista** (barra lateral):
    - ☑️ Mostrar videos: Activa/desactiva reproductores YouTube
    - ☑️ Mostrar instrucciones: Detalles de cada ejercicio
    - ☑️ Mostrar consejos: Tips de técnica y seguridad
 
-2. **Configurar Videos**:
+2. **Configurar videos**:
    - Haz clic en "ℹ️ Detalles" de cualquier ejercicio
    - Sección "🔗 Configurar Video Tutorial"
    - Pega URL de YouTube (normal o Shorts)
    - Haz clic en "💾 Guardar URL"
 
-3. **Gestión del Progreso**:
+3. **Gestión del progreso**:
    - 📊 Vista del progreso actual en la barra lateral
    - 🗑️ Botón de reinicio completo con confirmación de seguridad
    - ⚠️ Advertencias claras sobre acciones irreversibles
 
-### 🔄 **Casos de Uso Comunes**
+### 🔄 **Casos de uso comunes**
 
 #### **"¿Qué hago hoy?"**
 → Ve a "Plan de Entrenamiento", mira los ejercicios destacados para hoy
@@ -399,9 +373,9 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 #### **"Quiero empezar de nuevo desde cero"**
 → Ve a la barra lateral → "🔄 Gestión de Progreso" → "🗑️ Reiniciar Todo el Progreso"
 
-### 🔄 **Gestión del Progreso**
+### 🔄 **Gestión del progreso**
 
-#### **Reinicio Completo**
+#### **Reinicio completo**
 La aplicación incluye una función de reinicio completo que permite:
 - **Eliminar todos los ejercicios completados** 
 - **Borrar el historial del calendario**
@@ -409,7 +383,7 @@ La aplicación incluye una función de reinicio completo que permite:
 - **Volver a la Semana 1** (🟢 Principiante)
 - **Mantener la configuración de ejercicios** y videos
 
-#### **Cómo Reiniciar el Progreso**
+#### **Cómo reiniciar el progreso**
 1. **Ir a la barra lateral** → Sección "🔄 Gestión de Progreso"
 2. **Hacer clic** en "🗑️ Reiniciar Todo el Progreso"
 3. **Confirmar la acción** (⚠️ Es irreversible)
@@ -417,26 +391,21 @@ La aplicación incluye una función de reinicio completo que permite:
 
 **⚠️ Importante**: Esta acción es **irreversible**. Una vez confirmada, todo el progreso se perderá permanentemente.
 
-### 🎯 **Consejos para Máximo Rendimiento**
+### 🎯 **Consejos para máximo rendimiento**
 1. **Consistencia**: Mejor entrenar 15 min diarios que 2 horas esporádicas
 2. **Técnica primero**: Mira los videos antes de aumentar peso
 3. **Escucha tu cuerpo**: Usa días de descanso cuando sea necesario
 4. **Progresión gradual**: Confía en el sistema de 20 semanas
 5. **Registro constante**: Marca ejercicios inmediatamente después de hacerlos
 
-## 🏋️ Equipo Necesario
+## 🏋️ Equipo necesario
 
-### Mínimo Recomendado
+### Mínimo recomendado
 - 2 Mancuernas de 10kg
 - 1 Mancuerna de 12kg
 - 1 Banco de pectoral con 30kg
 - 1 Bicicleta estática
 - Espacio en el suelo para ejercicios de core
-
-### Alternativas para Principiantes
-- Mancuernas ajustables (5-15kg)
-- Banco básico o superficie estable
-- Esterilla para ejercicios en suelo
 
 ## 🤝 Contribuir
 
@@ -477,44 +446,6 @@ pip install -r requirements.txt
 ### Puerto ocupado
 Si el puerto 8508 está ocupado, el sistema intentará automáticamente terminar procesos previos.
 
-## 📊 Estadísticas del Proyecto
-
-- **Ejercicios**: 21 especializados
-- **Grupos musculares**: 8 categorías (incluye gemelos y abs básicos/avanzados)
-- **Semanas de progresión**: 20
-- **Niveles de dificultad**: 4+ (Principiante → Experto)
-- **Módulos de código**: 6
-- **Líneas de código**: 2000+
-- **Videos integrados**: 21 (YouTube + Shorts)
-
-## 🎯 Beneficios del Sistema SUDORACIONES
-
-### Para Principiantes
-- **✅ Progresión gradual** sin sobrecargar (3 días iniciales)
-- **✅ Técnica correcta** con videos instructivos paso a paso
-- **✅ Motivación constante** con seguimiento visual automático
-- **✅ Flexibilidad horaria** para entrenar desde casa
-- **✅ Sin intimidación** - programa adaptado a tu nivel
-
-### Para Intermedios
-- **✅ Desafío progresivo** que evita estancamiento
-- **✅ Variedad inteligente** con introducción gradual de ejercicios
-- **✅ Seguimiento preciso** del rendimiento semanal
-- **✅ Optimización continua** basada en progreso real
-
-### Para Avanzados
-- **✅ Plan de élite** hasta 6 entrenamientos semanales
-- **✅ Intensidad máxima** con recuperación garantizada
-- **✅ Métricas detalladas** para optimización fina
-- **✅ Sostenibilidad** a largo plazo sin burnout
-
-### Para Todos los Niveles
-- **🛌 Recuperación garantizada** con días de descanso adaptativos
-- **🚫 Prevención de lesiones** mediante progresión controlada
-- **📈 Sostenibilidad** con programa de 20 semanas completas
-- **� Resultados medibles** con métricas automáticas
-- **🎥 Aprendizaje continuo** con biblioteca de videos integrada
-
 ## 🏆 Resultados Esperados
 
 ### Semanas 1-4 (Principiante)
@@ -543,6 +474,6 @@ Si el puerto 8508 está ocupado, el sistema intentará automáticamente terminar
 
 ---
 
-**💪 ¡Comienza tu transformación con SUDORACIONES!**
+**💪 ¡Comienza tu transformación con SUDORACIONES propias!**
 
 *Desarrollado con ❤️ usando Python y Streamlit - Sistema de entrenamiento inteligente para resultados reales*

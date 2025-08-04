@@ -1,6 +1,6 @@
 {
   "current_month": "2025-08",
-  "total_workouts": 13,
+  "total_workouts": 14,
   "completed_exercises": {
     "2025-08-03": {
       "cardio_Bicicleta Estática_sabado": true
@@ -30,7 +30,14 @@
     },
     "2025-08-04": {
       "pecho_Press de Banca con Mancuernas_lunes": true,
-      "pecho_Aperturas con Mancuernas_lunes": true
+      "pecho_Aperturas con Mancuernas_lunes": true,
+      "pecho_Press de Banca con Barra_lunes": true,
+      "pecho_Press Inclinado con Barra_lunes": true,
+      "pecho_Flexiones en el Suelo_lunes": true,
+      "espalda_Remo con Mancuernas_lunes": true,
+      "espalda_Peso Muerto con Mancuernas_lunes": true,
+      "abs_Abdominales Tradicionales_lunes": true,
+      "abs_Plancha_lunes": true
     }
   },
   "muscle_groups_progress": {
@@ -69,20 +76,21 @@
   },
   "completed_workouts": {
     "2025-07": [
+      "2025-07-15",
+      "2025-07-17",
+      "2025-07-13",
+      "2025-07-06",
+      "2025-07-10",
       "2025-07-08",
       "2025-07-22",
-      "2025-07-15",
+      "2025-07-31",
       "2025-07-24",
       "2025-07-27",
       "2025-07-29",
-      "2025-07-31",
-      "2025-07-13",
-      "2025-07-06",
-      "2025-07-17",
-      "2025-07-20",
-      "2025-07-10"
+      "2025-07-20"
     ],
     "2025-08": [
+      "2025-08-04",
       "2025-08-03"
     ]
   }
