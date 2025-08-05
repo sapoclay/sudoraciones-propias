@@ -53,9 +53,36 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 ## 🔧 Configuración Manual (Opcional)o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación paquete .deb
 
-### Lanzar la Aplicación
+El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
+```bash
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/1.0.0/sudoraciones_1.0.0_amd64.deb
+```
+
+Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
+```bash
+   sudo dpkg -i sudoraciones_1.0.0_amd64.deb
+```
+En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
+```bash
+   sudo apt-get install -f  # Si hay dependencias faltantes
+```
+
+### Utilizar el programa Python
+
+Tras descargar el repositorio con:
+
+```bash
+   git clone https://github.com/sapoclay/sudoraciones-propias.git
+```
+
+Tras la descarga, solo hay que meterse en el directorio:
+```bash
+   cd sudoraciones-propias
+```
+Después se puede iniciar el programa con:
+
 ```bash
 # Método principal (recomendado)
 python3 run_app.py
