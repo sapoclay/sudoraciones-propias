@@ -69,6 +69,12 @@ En caso de que encontremos dependencias faltantes, en la misma terminal solo es 
    sudo apt-get install -f  # Si hay dependencias faltantes
 ```
 
+Tras la instalación, ya se puede buscar el lanzador en el sistema.
+
+<img width="765" height="243" alt="lanzador-sudoraciones" src="https://github.com/user-attachments/assets/f4701246-eafe-435c-a340-3141425c8e82" />
+
+El programa se puede iniciar, parar o reiniciar, haciendo clic derecho sobre el icono del programa
+
 ### Utilizar el programa Python
 
 Tras descargar el repositorio con:
