@@ -164,7 +164,6 @@ def check_files():
     required_files = [
         'main_app.py',  # Aplicación modular principal
         'config.json', 
-        'progress_data.json',
         'requirements.txt'
     ]
     
@@ -175,6 +174,25 @@ def check_files():
             print(f"  ✅ {file} ({size} bytes)")
         else:
             print(f"  ❌ {file} no encontrado")
+            return False
+    
+    # Verificar/crear progress_data.json
+    if os.path.exists('progress_data.json'):
+        size = os.path.getsize('progress_data.json')
+        print(f"  ✅ progress_data.json ({size} bytes)")
+    else:
+        print("  ⚠️  progress_data.json no encontrado, creando archivo inicial...")
+        try:
+            import json
+            initial_data = {
+                "completed_exercises": [],
+                "exercise_weeks": {}
+            }
+            with open('progress_data.json', 'w', encoding='utf-8') as f:
+                json.dump(initial_data, f, indent=2, ensure_ascii=False)
+            print("  ✅ progress_data.json creado exitosamente")
+        except Exception as e:
+            print(f"  ❌ Error creando progress_data.json: {e}")
             return False
     
     # Verificar directorio de módulos (obligatorio para app modular)

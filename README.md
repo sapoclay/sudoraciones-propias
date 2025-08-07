@@ -58,12 +58,12 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/1.0.0/sudoraciones_1.0.0_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.1.0/sudoraciones_1.1.0_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
 ```bash
-   sudo dpkg -i sudoraciones_1.0.0_amd64.deb
+   sudo dpkg -i sudoraciones_1.1.0_amd64.deb
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash
@@ -74,7 +74,15 @@ Tras la instalación, ya se puede buscar el lanzador en el sistema.
 
 <img width="765" height="243" alt="lanzador-sudoraciones" src="https://github.com/user-attachments/assets/f4701246-eafe-435c-a340-3141425c8e82" />
 
-El programa se puede iniciar, parar o reiniciar, haciendo clic derecho sobre el icono del programa
+### 🖱️ Control del programa desde el icono
+
+El programa se puede **iniciar, parar o reiniciar** haciendo **clic derecho** sobre el icono del programa. Aparecerán las siguientes opciones:
+
+- **▶️ Iniciar SUDORACIONES**: Ejecuta la aplicación web
+- **⏹️ Parar SUDORACIONES**: Detiene todos los procesos del programa  
+- **🔄 Reiniciar SUDORACIONES**: Para y vuelve a iniciar la aplicación
+
+Esta funcionalidad permite un **control completo** del programa sin necesidad de usar la terminal.
 
 ### Utilizar el programa Python
 
