@@ -219,7 +219,8 @@
       "miercoles": [
         "piernas",
         "gemelos",
-        "abs"
+        "abs",
+        "cardio"
       ],
       "jueves": [],
       "viernes": [
@@ -243,7 +244,8 @@
       "miercoles": [
         "piernas",
         "gemelos",
-        "abs"
+        "abs",
+        "cardio"
       ],
       "jueves": [],
       "viernes": [
@@ -261,13 +263,15 @@
       "lunes": [
         "piernas",
         "gemelos",
-        "abs_avanzados"
+        "abs_avanzados",
+        "cardio"
       ],
       "martes": [],
       "miercoles": [
         "brazos",
         "hombros",
-        "abs"
+        "abs",
+        "cardio"
       ],
       "jueves": [],
       "viernes": [
@@ -285,13 +289,15 @@
       "lunes": [
         "piernas",
         "gemelos",
-        "abs_avanzados"
+        "abs_avanzados",
+        "cardio"
       ],
       "martes": [],
       "miercoles": [
         "brazos",
         "hombros",
-        "abs"
+        "abs",
+        "cardio"
       ],
       "jueves": [],
       "viernes": [

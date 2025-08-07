@@ -1,3 +1,17 @@
 venv_sudoraciones/
 __pycache__/
+*.pyc
 debian-package/
+build_deb.sh
+test_*.py
+check_*.py
+MEJORAS_*.md
+PROBLEMAS_SOLUCIONADOS.md
+CAMBIOS_APLICADOS.md
+migrate_*.py
+progress_data_backup_*.json
+*.log
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp

@@ -43,7 +43,7 @@ class TrainingPlanModule(BaseTrainer):
             if muscle_group in self.config.get('exercises', {}):
                 for exercise in self.config['exercises'][muscle_group]:
                     exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
-                    is_completed = self.is_exercise_completed(date_str, exercise_id)
+                    is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
                     
                     exercise_list.append({
                         'name': exercise['name'],
@@ -66,6 +66,57 @@ class TrainingPlanModule(BaseTrainer):
             'is_rest_day': False
         }
 
+    def get_week_number_for_date(self, date_str: str) -> int:
+        """Determinar qué número de semana corresponde a una fecha específica"""
+        # Primero, verificar si tenemos la semana guardada explícitamente
+        if 'exercise_weeks' in self.progress_data and date_str in self.progress_data['exercise_weeks']:
+            return self.progress_data['exercise_weeks'][date_str]
+        
+        # Si la fecha tiene ejercicios registrados, intentar determinar la semana basándose en los IDs de ejercicios
+        if 'completed_exercises' in self.progress_data and date_str in self.progress_data['completed_exercises']:
+            exercise_ids = list(self.progress_data['completed_exercises'][date_str].keys())
+            if exercise_ids:
+                # Los IDs de ejercicio incluyen el día de la semana al final
+                # Podemos intentar hacer coincidir con diferentes semanas
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+                day_key = day_names[date_obj.weekday()]
+                
+                # Buscar en qué semana estos ejercicios tienen sentido
+                for week_num in range(1, 21):  # Revisar semanas 1-20
+                    week_info = self.get_week_info(week_num)
+                    
+                    if week_num <= 4:
+                        week_key = f"semana{week_num}"
+                        if week_key not in self.config.get('weekly_schedule', {}):
+                            continue
+                        week_plan = self.config['weekly_schedule'][week_key]
+                    else:
+                        week_plan = self.generate_advanced_week(week_num)
+                    
+                    muscle_groups = week_plan.get(day_key, [])
+                    
+                    # Verificar si los ejercicios registrados coinciden con esta semana
+                    expected_exercises = set()
+                    for muscle_group in muscle_groups:
+                        if muscle_group in self.config.get('exercises', {}):
+                            for exercise in self.config['exercises'][muscle_group]:
+                                exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
+                                expected_exercises.add(exercise_id)
+                    
+                    # Si al menos el 50% de los ejercicios registrados coinciden con esta semana
+                    registered_exercises = set(exercise_ids)
+                    if expected_exercises and len(registered_exercises & expected_exercises) >= len(registered_exercises) * 0.5:
+                        # Guardar esta información para futura referencia
+                        if 'exercise_weeks' not in self.progress_data:
+                            self.progress_data['exercise_weeks'] = {}
+                        self.progress_data['exercise_weeks'][date_str] = week_num
+                        self.save_progress_data()
+                        return week_num
+        
+        # Fallback: usar la semana actual
+        return st.session_state.get('current_week', 1)
+
     def update_completed_workouts(self):
         """Actualizar lista de entrenamientos completados basándose en ejercicios"""
         if 'completed_exercises' not in self.progress_data:
@@ -87,9 +138,9 @@ class TrainingPlanModule(BaseTrainer):
         for date_str in all_dates:
             month_key = date_str[:7]  # YYYY-MM
             
-            # Obtener estadísticas del día (usar semana actual por defecto)
-            current_week = st.session_state.get('current_week', 1)
-            day_stats = self.get_day_completion_stats(date_str, current_week)
+            # Determinar qué semana corresponde a esta fecha específica
+            week_for_date = self.get_week_number_for_date(date_str)
+            day_stats = self.get_day_completion_stats(date_str, week_for_date)
             
             # Considerar completado si:
             # 1. Es día de descanso (is_rest_day = True), O
@@ -128,19 +179,22 @@ class TrainingPlanModule(BaseTrainer):
             if mode == "frequency":
                 # Nivel 2: De 3 días descanso → 2 días descanso (agregar martes)
                 if day == 'martes' and not muscle_groups:
-                    # Convertir martes en día de entrenamiento
-                    new_schedule[day] = ['hombros', 'abs']
+                    # Convertir martes en día de entrenamiento con cardio
+                    new_schedule[day] = ['hombros', 'abs', 'cardio']
                 else:
                     new_schedule[day] = muscle_groups
                     
             elif mode == "volume":
                 # Nivel 3: Mantener 2 días de descanso (miércoles y domingo), intensificar existentes
                 if day == 'martes' and not muscle_groups:
-                    # Asegurar que martes tenga entrenamiento del nivel 2
+                    # Asegurar que martes tenga entrenamiento del nivel 2 con cardio
                     new_schedule[day] = ['hombros', 'abs', 'cardio']
                 elif muscle_groups:  # Intensificar días existentes
+                    # Añadir cardio a lunes y sábado si no lo tienen
+                    if day in ['lunes', 'sabado'] and 'cardio' not in muscle_groups:
+                        new_schedule[day] = muscle_groups + ['cardio']
                     # Añadir un grupo muscular extra a días que ya tienen entrenamiento
-                    if 'abs' not in muscle_groups and len(muscle_groups) < 3:
+                    elif 'abs' not in muscle_groups and len(muscle_groups) < 3:
                         new_schedule[day] = muscle_groups + ['abs']
                     else:
                         new_schedule[day] = muscle_groups
@@ -148,14 +202,14 @@ class TrainingPlanModule(BaseTrainer):
                     new_schedule[day] = muscle_groups  # Mantener miércoles y domingo como descanso
                     
             elif mode == "advanced":
-                # Nivel 4+: Solo 1 día de descanso (domingo)
+                # Nivel 4+: Solo 1 día de descanso (domingo) con cardio distribuido
                 advanced_plan = {
-                    'lunes': ['pecho', 'hombros', 'abs'],
-                    'martes': ['espalda', 'brazos'],
-                    'miercoles': ['piernas', 'abs'],  # Convierte miércoles en día de entrenamiento
+                    'lunes': ['pecho', 'hombros', 'abs', 'cardio'],
+                    'martes': ['espalda', 'brazos', 'cardio'],
+                    'miercoles': ['piernas', 'abs', 'cardio'],  # Convierte miércoles en día de entrenamiento
                     'jueves': ['pecho', 'brazos'],
                     'viernes': ['espalda', 'hombros', 'abs'],
-                    'sabado': ['piernas', 'cardio'],
+                    'sabado': ['piernas', 'gemelos', 'cardio'],
                     'domingo': []  # ÚNICO DÍA DE DESCANSO
                 }
                 new_schedule = advanced_plan
@@ -277,14 +331,17 @@ class TrainingPlanModule(BaseTrainer):
         }
         return tips.get(exercise_name, f"Consejos para '{exercise_name}' próximamente disponibles.")
 
-    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool):
+    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None):
         """Renderizar detalles de un ejercicio completo"""
+        if week_number is None:
+            week_number = st.session_state.get('current_week', 1)
+            
         exercise_name = exercise['name']
         exercise_id = f"{muscle_group}_{exercise_name}_{day_key}"
         
         # Obtener fecha actual para marcar progreso
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        is_completed = self.is_exercise_completed(current_date, exercise_id)
+        is_completed = self.is_exercise_completed(current_date, exercise_id, week_number)
         
         # Checkbox de completado prominente
         col_checkbox, col_title = st.columns([1, 4])
@@ -298,7 +355,7 @@ class TrainingPlanModule(BaseTrainer):
             
             # Actualizar estado si cambió
             if completed != is_completed:
-                self.mark_exercise_completed(current_date, exercise_id, completed)
+                self.mark_exercise_completed(current_date, exercise_id, completed, week_number)
                 if completed:
                     st.success(f"🎉 ¡{exercise_name} completado!")
                 else:
@@ -469,7 +526,7 @@ class TrainingPlanModule(BaseTrainer):
             if not muscle_groups:  # Día de descanso
                 st.markdown("""
                 <div class="rest-day">
-                    <h3>🛌 Día de Descanso</h3>
+                    <h3>🛌 Día de descanso 🛌</h3>
                     <p>Recuperación activa - Estiramiento ligero, caminata o yoga</p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -480,4 +537,4 @@ class TrainingPlanModule(BaseTrainer):
                     st.markdown(f"#### 💪 {muscle_group.title()}")
                     
                     for exercise in self.config['exercises'][muscle_group]:
-                        self.render_exercise_details(exercise, muscle_group, day_key, show_videos, show_instructions, show_tips)
+                        self.render_exercise_details(exercise, muscle_group, day_key, show_videos, show_instructions, show_tips, current_week)

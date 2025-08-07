@@ -12,6 +12,10 @@ class InfoModule(BaseTrainer):
 
     def render_info_tab(self):
         """Renderizar pestaña de información"""
+        # Logo al principio de la pestaña
+        if os.path.exists("img/logo.png"):
+            st.image("img/logo.png", width=200)
+        
         st.header("ℹ️ Información del Programa")
         
         # Título y descripción principal

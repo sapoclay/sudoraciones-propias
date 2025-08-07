@@ -1,4 +1,4 @@
-# 💪 Sudoraciones propias - Sistema de entrenamiento personal
+# 💪 Sudoraciones propias 💪 - Sistema de entrenamiento personal
 
 <img width="200" height="200" alt="logo" src="https://github.com/user-attachments/assets/7993007a-557c-4e8f-8613-73968ad25b74" />
 
@@ -48,10 +48,11 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 ### 💪 **Principios de progresión**
 - **Recuperación garantizada:** Siempre al menos 1 día de descanso
 - **Progresión gradual:** De 4 a 6 entrenamientos semanales
+- **Cardio progresivo:** De 2 a 4+ sesiones semanales según nivel
 - **Adaptación inteligente:** Incremento controlado de la carga
 - **Sostenibilidad:** Programa de 20 semanas sin estancamiento
 
-## 🔧 Configuración Manual (Opcional)o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
+## 🔧 Configuración manual (Opcional) o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
 
 ## 🚀 Instalación paquete .deb
 
@@ -66,7 +67,7 @@ Después solo hay que instalar el paquete .deb escribiendo en una terminal el co
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash
-   sudo apt-get install -f  # Si hay dependencias faltantes
+   sudo apt-get install -f  
 ```
 
 Tras la instalación, ya se puede buscar el lanzador en el sistema.
@@ -105,15 +106,15 @@ Una vez iniciada, accede desde tu navegador:
 - **URL Local**: http://localhost:8508
 - **URL Externa**: http://0.0.0.0:8508
 
-## 🗂️ Archivos del Sistema
+## 🗂️ Archivos del sistema
 
-### Archivos Principales
+### Archivos principales
 - `run_app.py` - Launcher principal automático
 - `main_app.py` - Aplicación modular principal
 - `config.json` - Configuración de ejercicios y planes
 - `progress_data.json` - Datos de progreso del usuario
 
-### Archivos de Configuración
+### Archivos de configuración
 - `requirements.txt` - Dependencias de Python
 - `.streamlit/config.toml` - Configuración de Streamlit (opcional)
 
@@ -121,9 +122,9 @@ Una vez iniciada, accede desde tu navegador:
 - `img/` - Imágenes y logos (opcional)
 - `modules/` - Módulos de la aplicación modular
 
-## 🏗️ Arquitectura Modular
+## 🏗️ Arquitectura modular
 
-### Estructura de Módulos
+### Estructura de módulos
 ```
 modules/
 ├── __init__.py              # Configuración del paquete
@@ -163,9 +164,9 @@ modules/
 - 💡 **Instrucciones detalladas** y consejos de técnica
 - 🏆 **Sistema de progresión** automático e inteligente
 
-## 📊 Grupos Musculares y Progresión
+## 📊 Grupos musculares y progresión
 
-### 🎯 **Distribución de Ejercicios (22 Total)**
+### 🎯 **Distribución de ejercicios (22 Total)**
 
 #### Pecho (5 ejercicios)
 - Press de banca con mancuernas
@@ -207,6 +208,11 @@ modules/
 
 #### Cardio (1 ejercicio)
 - Bicicleta estática
+
+**📈 Distribución de cardio por semana:**
+- **Semanas 1-2**: 2 sesiones (miércoles + viernes)
+- **Semanas 3-4**: 3 sesiones (lunes + miércoles + viernes)  
+- **Semanas 5+**: Cardio distribuido inteligentemente según nivel de progresión
 
 ## 🔄 Funcionamiento del programa
 
@@ -252,8 +258,8 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 
 1. **Semanas 1-4**: Cada semana tiene un **plan fijo diferente** definido en la configuración
 2. **Semanas 5+**: El sistema **genera automáticamente** nuevos entrenamientos usando algoritmos de progresión
-3. **Ciclo Base**: Se repite cada 4 semanas pero con **mayor intensidad** en cada nivel
-4. **Sin Reseteo**: Tu progreso se mantiene - ejercicios completados, estadísticas y calendario se conservan
+3. **Ciclo base**: Se repite cada 4 semanas pero con **mayor intensidad** en cada nivel
+4. **Sin reseteo**: Tu progreso se mantiene - ejercicios completados, estadísticas y calendario se conservan
 
 ### 🎯 **Control de progresión**
 
@@ -319,7 +325,7 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 4. **🔴 Nivel 4 (Semanas 13-16)**: Plan avanzado completo
 5. **🔥 Nivel 5+ (Semanas 17+)**: Entrenamiento de élite
 
-## 🔄 Sistema de Seguimiento
+## 🔄 Sistema de seguimiento
 
 ### Automático
 - **Progreso por ejercicio**: Marca individual cada ejercicio
@@ -442,29 +448,14 @@ La aplicación incluye una función de reinicio completo que permite:
 - 1 Bicicleta estática
 - Espacio en el suelo para ejercicios de core
 
-## 🤝 Contribuir
-
-### Formas de Contribuir
-- 🐛 **Reportar bugs**: Describe problemas encontrados
-- 💡 **Sugerir mejoras**: Ideas para nuevas funcionalidades
-- 🎥 **Agregar videos**: URLs de YouTube para ejercicios
-- 📝 **Mejorar documentación**: Clarificar instrucciones
-- 🏋️ **Nuevos ejercicios**: Proponer rutinas adicionales
-
-### Desarrollo
-La arquitectura modular facilita el desarrollo:
-- Cada módulo maneja una pestaña específica
-- Código bien organizado y documentado
-- Fácil testing y mantenimiento
-
-## 📋 Requisitos del Sistema
+## 📋 Requisitos del sistema
 
 - **Python 3.12+**
 - **Sistema operativo**: Linux, Mac, Windows
 - **Navegador web moderno**
 - **Conexión a internet** (para videos de YouTube)
 
-## 🔧 Solución de Problemas
+## 🔧 Solución de problemas
 
 ### La aplicación no inicia
 1. Verifica que Python 3.12+ esté instalado
@@ -511,4 +502,4 @@ Si el puerto 8508 está ocupado, el sistema intentará automáticamente terminar
 
 **💪 ¡Comienza tu transformación con SUDORACIONES propias!**
 
-*Desarrollado con ❤️ usando Python y Streamlit - Sistema de entrenamiento inteligente para resultados reales*
+*Desarrollado con un poco de ☕ y 🚬 usando Python y Streamlit - Sistema de entrenamiento inteligente*

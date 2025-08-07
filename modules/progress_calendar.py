@@ -48,14 +48,67 @@ class ProgressModule(BaseTrainer):
             'completed_dates': completed_days
         }
 
+    def get_week_number_for_date(self, date_str: str) -> int:
+        """Determinar qué número de semana corresponde a una fecha específica"""
+        # Primero, verificar si tenemos la semana guardada explícitamente
+        if 'exercise_weeks' in self.progress_data and date_str in self.progress_data['exercise_weeks']:
+            return self.progress_data['exercise_weeks'][date_str]
+        
+        # Si la fecha tiene ejercicios registrados, intentar determinar la semana basándose en los IDs de ejercicios
+        if 'completed_exercises' in self.progress_data and date_str in self.progress_data['completed_exercises']:
+            exercise_ids = list(self.progress_data['completed_exercises'][date_str].keys())
+            if exercise_ids:
+                # Los IDs de ejercicio incluyen el día de la semana al final
+                # Podemos intentar hacer coincidir con diferentes semanas
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+                day_key = day_names[date_obj.weekday()]
+                
+                # Buscar en qué semana estos ejercicios tienen sentido
+                for week_num in range(1, 21):  # Revisar semanas 1-20
+                    week_info = self.get_week_info(week_num)
+                    
+                    if week_num <= 4:
+                        week_key = f"semana{week_num}"
+                        if week_key not in self.config.get('weekly_schedule', {}):
+                            continue
+                        week_plan = self.config['weekly_schedule'][week_key]
+                    else:
+                        # Para semanas avanzadas, usar el primer módulo de training
+                        from .training_plan import TrainingPlanModule
+                        trainer = TrainingPlanModule()
+                        trainer.config = self.config
+                        trainer.progress_data = self.progress_data
+                        week_plan = trainer.generate_advanced_week(week_num)
+                    
+                    muscle_groups = week_plan.get(day_key, [])
+                    
+                    # Verificar si los ejercicios registrados coinciden con esta semana
+                    expected_exercises = set()
+                    for muscle_group in muscle_groups:
+                        if muscle_group in self.config.get('exercises', {}):
+                            for exercise in self.config['exercises'][muscle_group]:
+                                exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
+                                expected_exercises.add(exercise_id)
+                    
+                    # Si al menos el 50% de los ejercicios registrados coinciden con esta semana
+                    registered_exercises = set(exercise_ids)
+                    if expected_exercises and len(registered_exercises & expected_exercises) >= len(registered_exercises) * 0.5:
+                        # Guardar esta información para futura referencia
+                        if 'exercise_weeks' not in self.progress_data:
+                            self.progress_data['exercise_weeks'] = {}
+                        self.progress_data['exercise_weeks'][date_str] = week_num
+                        self.save_progress_data()
+                        return week_num
+        
+        # Fallback: usar la semana actual
+        return st.session_state.get('current_week', 1)
+
     def get_day_completion_stats(self, date_str: str, week_number: int = None) -> Dict[str, Any]:
         """Obtener estadísticas de finalización para un día específico"""
-        # Si no se proporciona week_number, calcularlo desde la fecha
+        # Si no se proporciona week_number, calcularlo inteligentemente
         if week_number is None:
-            # Calcular automáticamente la semana basándose en la fecha
-            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-            # Usar semana actual como base (esto se puede mejorar con lógica de fechas más avanzada)
-            week_number = st.session_state.get('current_week', 1)
+            week_number = self.get_week_number_for_date(date_str)
         
         # Obtener plan del día
         week_info = self.get_week_info(week_number)
@@ -92,7 +145,7 @@ class ProgressModule(BaseTrainer):
             if muscle_group in self.config.get('exercises', {}):
                 for exercise in self.config['exercises'][muscle_group]:
                     exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
-                    is_completed = self.is_exercise_completed(date_str, exercise_id)
+                    is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
                     
                     exercise_list.append({
                         'name': exercise['name'],
