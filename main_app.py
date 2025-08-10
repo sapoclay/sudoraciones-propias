@@ -212,7 +212,7 @@ class ModernHeavyDutyTrainer:
         st.markdown("""
         <div class="main-header">
             <h1>💪 Sudoraciones Propias</h1>
-            <h3>Plan optimizado para principiantes con 21 ejercicios + Videos YouTube</h3>
+            <h3>Sistema de entrenamiento con 25 ejercicios especializados + Videos YouTube</h3>
         </div>
         """, unsafe_allow_html=True)
     

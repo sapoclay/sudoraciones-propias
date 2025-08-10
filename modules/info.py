@@ -35,7 +35,7 @@ class InfoModule(BaseTrainer):
             
             st.subheader("💡 Características Principales")
             st.markdown("""
-            - **Plan Optimizado**: 22 ejercicios especializados
+            - **Plan Optimizado**: 25 ejercicios especializados
             - **Seguimiento Automático**: Progreso basado en completado
             - **Calendario Dinámico**: Visualización de entrenamiento mensual
             - **Videos Integrados**: Tutoriales YouTube y Shorts
@@ -45,9 +45,9 @@ class InfoModule(BaseTrainer):
         with col2:
             st.subheader("📅 Estructura del Programa")
             st.markdown("""
-            - **Progresión automática**: 5 niveles de dificultad
+            - **Progresión automática**: 4 niveles de dificultad
             - **20 semanas** de entrenamiento continuo
-            - **22 ejercicios base** optimizados para principiantes
+            - **25 ejercicios** en 8 grupos musculares especializados
             - **Adaptación inteligente** según el progreso
             - **Sistema de niveles** desde principiante a experto
             """)
@@ -55,10 +55,9 @@ class InfoModule(BaseTrainer):
             st.subheader("🎯 Sistema de Progresión")
             st.markdown("""
             - **Nivel 1**: Principiante (Semanas 1-4)
-            - **Nivel 2**: Básico (Semanas 5-8)  
-            - **Nivel 3**: Intermedio (Semanas 9-12)
-            - **Nivel 4**: Avanzado (Semanas 13-16)
-            - **Nivel 5**: Experto (Semanas 17-20)
+            - **Nivel 2**: Intermedio (Semanas 5-8)
+            - **Nivel 3**: Avanzado (Semanas 9-12)
+            - **Nivel 4**: Experto (Semanas 13-20)
             """)
 
         # Equipamiento necesario
@@ -117,26 +116,26 @@ class InfoModule(BaseTrainer):
         with muscle_col1:
             st.markdown("""
             **Tren Superior:**
-            - 🫸 Pecho
-            - 🔙 Espalda
-            - 🤷 Hombros
-            - 💪 Brazos
+            - 🫸 Pecho (4 ejercicios)
+            - 🔙 Espalda (2 ejercicios)
+            - 🤷 Hombros (3 ejercicios)
+            - 💪 Brazos (7 ejercicios con antebrazos)
             """)
         
         with muscle_col2:
             st.markdown("""
             **Tren Inferior:**
-            - 🦵 Piernas
-            - 🦶 Gemelos
-            - 🏃 Cardio
+            - 🦵 Piernas (2 ejercicios)
+            - 🦶 Gemelos (2 ejercicios)
+            - 🏃 Cardio (1 ejercicio)
             """)
         
         with muscle_col3:
             st.markdown("""
-            **Core:**
-            - 🔥 Abdominales
-            - 🏋️ Abdominales Laterales
-            - 🏪 Plancha
+            **Core y Abs:**
+            - 🔥 Abdominales (4 ejercicios)
+            - 🏋️ Ejercicios de plancha incluidos
+            - 💪 Trabajo de core completo
             """)
 
         # Estadísticas del programa
