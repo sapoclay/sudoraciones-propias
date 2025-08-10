@@ -146,7 +146,7 @@ class BaseTrainer:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     def get_exercise_completion_count(self, muscle_group: str, exercise_name: str) -> int:
-        """Contar cuántas veces se ha completado un ejercicio específico"""
+        """Contar cuántas veces se ha completado un ejercicio específico (todas las semanas)"""
         count = 0
         if 'completed_exercises' not in self.progress_data:
             return count
@@ -154,13 +154,13 @@ class BaseTrainer:
         for date_str, exercises_day in self.progress_data['completed_exercises'].items():
             for exercise_id, is_completed in exercises_day.items():
                 if is_completed:
-                    # Verificar si este exercise_id corresponde exactamente al ejercicio buscado
                     # Formato esperado: muscle_group_exercise_name_day_weekN
+                    # Necesitamos extraer grupo y ejercicio, ignorando día y semana
                     parts = exercise_id.split('_')
                     if len(parts) >= 4:  # al menos: grupo_ejercicio_dia_weekN
                         # El grupo muscular es la primera parte
                         id_muscle_group = parts[0]
-                        # El ejercicio puede tener múltiples partes (ej: "Press de Banca con Mancuernas")
+                        
                         # Buscar dónde termina el nombre del ejercicio y empieza el día
                         day_parts = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
                         
@@ -172,10 +172,10 @@ class BaseTrainer:
                                 break
                         
                         if day_index > 1:  # debe haber al menos grupo_ejercicio_dia
-                            # Reconstruir el nombre del ejercicio
+                            # Reconstruir el nombre del ejercicio (sin día ni semana)
                             id_exercise_name = '_'.join(parts[1:day_index])
                             
-                            # Verificar coincidencia exacta
+                            # Verificar coincidencia exacta (ignorando semana)
                             if (id_muscle_group == muscle_group and 
                                 id_exercise_name == exercise_name):
                                 count += 1
@@ -267,8 +267,13 @@ class BaseTrainer:
         if week_number is None:
             week_number = st.session_state.get('current_week', 1)
         
-        # Crear ID único que incluya la semana
-        unique_exercise_id = f"{exercise_id}_week{week_number}"
+        # Determinar el ID correcto según el formato
+        if '_week' in exercise_id:
+            # Ya tiene sufijo de semana, usar tal como está
+            unique_exercise_id = exercise_id
+        else:
+            # No tiene sufijo, añadir el de la semana actual
+            unique_exercise_id = f"{exercise_id}_week{week_number}"
         
         self.progress_data['completed_exercises'][date_str][unique_exercise_id] = completed
         
@@ -361,7 +366,7 @@ class BaseTrainer:
                 # USAR lista planificada que alterna antebrazos
                 planned = self.get_planned_exercises_for_group(muscle_group, day_key, week_number)
                 for exercise in planned:
-                    exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
+                    exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}_week{week_number}"
                     is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
                     
                     exercise_list.append({
@@ -391,7 +396,7 @@ class BaseTrainer:
             week_number = st.session_state.get('current_week', 1)
         
         exercise_name = exercise['name']
-        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}"
+        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{week_number}"
         
         # Obtener fecha actual para marcar progreso
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
@@ -401,7 +406,7 @@ class BaseTrainer:
         col_checkbox, col_title = st.columns([1, 4])
         with col_checkbox:
             completed = st.checkbox(
-                "✅ Completado",
+                "✅ Marcar",
                 value=is_completed,
                 key=self.generate_unique_key("exercise_completed", exercise_id, current_date),
                 help=f"Marcar {exercise_name} como completado hoy"
@@ -453,17 +458,25 @@ class BaseTrainer:
         if week_number is None:
             week_number = st.session_state.get('current_week', 1)
         day_map = self.progress_data.get('completed_exercises', {}).get(date_str, {})
-        # ID con sufijo de semana (formato actual)
-        unique_id = f"{exercise_id}_week{week_number}"
+        
+        # Determinar el ID correcto según el formato
+        if '_week' in exercise_id:
+            # Ya tiene sufijo de semana, usar tal como está
+            unique_id = exercise_id
+        else:
+            # No tiene sufijo, añadir el de la semana actual
+            unique_id = f"{exercise_id}_week{week_number}"
+        
+        # Buscar ÚNICAMENTE el ID con sufijo de semana específico (formato actual)
         if unique_id in day_map:
             return bool(day_map.get(unique_id))
-        # Compatibilidad: si existiera un ID sin sufijo (formatos antiguos)
-        if exercise_id in day_map:
-            return bool(day_map.get(exercise_id))
-        # Compatibilidad: buscar cualquier week si viene sin week_number preciso
-        for k, v in day_map.items():
-            if k.startswith(exercise_id + "_week"):
-                return bool(v)
+        
+        # Compatibilidad SOLO para formato antiguo sin sufijos (no buscar otras semanas)
+        base_id = exercise_id.replace(f"_week{week_number}", "") if '_week' in exercise_id else exercise_id
+        if base_id in day_map and '_week' not in base_id:
+            return bool(day_map.get(base_id))
+        
+        # NO buscar en otras semanas - garantizar independencia semanal
         return False
 
     def validate_youtube_url(self, url: str) -> tuple[bool, str]:
