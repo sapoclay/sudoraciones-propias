@@ -101,7 +101,51 @@ class ProgressModule(BaseTrainer):
                         self.save_progress_data()
                         return week_num
         
-        # Fallback: usar la semana actual
+        # NUEVO: Inferir semana desde otros días de la MISMA semana calendario (Lun-Dom)
+        try:
+            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+            start_of_week = date_obj - datetime.timedelta(days=date_obj.weekday())  # lunes
+            dates_in_week = [(start_of_week + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+
+            # 1) Si cualquiera de esos días ya tiene mapeo, usarlo
+            weeks_map = self.progress_data.get('exercise_weeks', {})
+            for d in dates_in_week:
+                if d in weeks_map:
+                    inferred = weeks_map[d]
+                    # Persistir para la fecha consultada
+                    self.progress_data.setdefault('exercise_weeks', {})[date_str] = inferred
+                    self.save_progress_data()
+                    return inferred
+
+            # 2) Si alguno tiene ejercicios con sufijo _weekN, extraer N y usar la moda
+            from collections import Counter
+            week_nums = []
+            for d in dates_in_week:
+                ex_data = self.progress_data.get('completed_exercises', {}).get(d, {})
+                for ex_id in ex_data.keys():
+                    # Buscar patrón _week<number> al final
+                    if '_week' in ex_id:
+                        try:
+                            suffix = ex_id.split('_week')[-1]
+                            n = ''
+                            for ch in suffix:
+                                if ch.isdigit():
+                                    n += ch
+                                else:
+                                    break
+                            if n:
+                                week_nums.append(int(n))
+                        except Exception:
+                            pass
+            if week_nums:
+                inferred = Counter(week_nums).most_common(1)[0][0]
+                self.progress_data.setdefault('exercise_weeks', {})[date_str] = inferred
+                self.save_progress_data()
+                return inferred
+        except Exception:
+            pass
+        
+        # Fallback: usar la semana actual SOLO si no se pudo inferir de ninguna forma
         return st.session_state.get('current_week', 1)
 
     def get_day_completion_stats(self, date_str: str, week_number: int = None) -> Dict[str, Any]:
@@ -110,62 +154,99 @@ class ProgressModule(BaseTrainer):
         if week_number is None:
             week_number = self.get_week_number_for_date(date_str)
         
-        # Obtener plan del día
-        week_info = self.get_week_info(week_number)
+        # Determinar día de la semana (clave en español)
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+        day_key = day_names[date_obj.weekday()]
         
+        # Obtener plan de la semana correspondiente
+        week_plan = {}
         if week_number <= 4:
             week_key = f"semana{week_number}"
-            if week_key not in self.config.get('weekly_schedule', {}):
-                return {'completed': 0, 'total': 0, 'percentage': 100, 'exercises': [], 'muscle_groups': [], 'is_rest_day': True}
-            week_plan = self.config['weekly_schedule'][week_key]
+            week_plan = self.config.get('weekly_schedule', {}).get(week_key, {})
         else:
-            # Para semanas avanzadas, usar el primer módulo de training
             from .training_plan import TrainingPlanModule
             trainer = TrainingPlanModule()
             trainer.config = self.config
             trainer.progress_data = self.progress_data
             week_plan = trainer.generate_advanced_week(week_number)
         
-        # Determinar día de la semana
-        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-        day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
-        day_key = day_names[date_obj.weekday()]
+        muscle_groups_planned = week_plan.get(day_key, []) or []
+        is_rest_day_planned = len(muscle_groups_planned) == 0
         
-        muscle_groups = week_plan.get(day_key, [])
+        # Prioridad: si el plan marca descanso, devolver descanso SIEMPRE
+        if is_rest_day_planned:
+            return {
+                'completed': 0,
+                'total': 0,
+                'percentage': 0,
+                'exercises': [],
+                'muscle_groups': [],
+                'is_rest_day': True,
+                'is_empty_day': False
+            }
         
-        # Si no hay grupos musculares programados, es día de descanso
-        if not muscle_groups:
-            return {'completed': 0, 'total': 0, 'percentage': 100, 'exercises': [], 'muscle_groups': [], 'is_rest_day': True}
+        # 1) Si hay datos en la fecha, calcular en base a los ejercicios reales de ese día
+        exercises_data = self.progress_data.get('completed_exercises', {}).get(date_str)
+        if exercises_data:
+            total_exercises = len(exercises_data)
+            completed_exercises = sum(1 for completed in exercises_data.values() if completed)
+            
+            # Extraer grupos musculares presentes en los IDs
+            muscle_groups = set()
+            exercise_list = []
+            for exercise_id, is_completed in exercises_data.items():
+                parts = exercise_id.split('_')
+                if len(parts) >= 2:
+                    mg = parts[0]
+                    name = '_'.join(parts[1:-2]) if len(parts) > 3 else parts[1]
+                    muscle_groups.add(mg)
+                    exercise_list.append({'name': name, 'muscle_group': mg, 'completed': is_completed})
+            percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 0
+            return {
+                'completed': completed_exercises,
+                'total': total_exercises,
+                'percentage': percentage,
+                'exercises': exercise_list,
+                'muscle_groups': list(muscle_groups),
+                'is_rest_day': False,
+                'is_empty_day': False
+            }
         
-        total_exercises = 0
-        completed_exercises = 0
-        exercise_list = []
+        # 2) Si NO hay datos en la fecha actual
+        # (el caso de descanso ya se gestionó arriba)
+        # Rango lunes-domingo de la semana de date_str
+        start_of_week = date_obj - datetime.timedelta(days=date_obj.weekday())  # lunes
+        dates_in_week = [(start_of_week + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
         
-        for muscle_group in muscle_groups:
-            if muscle_group in self.config.get('exercises', {}):
-                for exercise in self.config['exercises'][muscle_group]:
-                    exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
-                    is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
-                    
-                    exercise_list.append({
-                        'name': exercise['name'],
-                        'muscle_group': muscle_group,
-                        'completed': is_completed
-                    })
-                    
-                    total_exercises += 1
-                    if is_completed:
-                        completed_exercises += 1
+        # Calcular ejercicios esperados según el plan del día usando la lista planificada (alternancia antebrazos)
+        planned_ids = set()
+        expected_total = 0
+        for mg in muscle_groups_planned:
+            # Construir lista planificada aplicando alternancia de antebrazos cuando corresponda
+            planned_list = self.get_planned_exercises_for_group(mg, day_key, week_number)
+            expected_total += len(planned_list)
+            for ex in planned_list:
+                planned_ids.add(f"{mg}_{ex['name']}_{day_key}_week{week_number}")
         
-        percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 100
+        # Contar completados en otros días de la misma semana calendario SOLO si pertenecen a la lista planificada
+        completed_ids = set()
+        for d in dates_in_week:
+            ex_data = self.progress_data.get('completed_exercises', {}).get(d, {})
+            for ex_id, done in ex_data.items():
+                if done and ex_id in planned_ids:
+                    completed_ids.add(ex_id)
         
+        completed_count = min(len(completed_ids), expected_total)
+        percentage = (completed_count / expected_total * 100) if expected_total > 0 else 0
         return {
-            'completed': completed_exercises,
-            'total': total_exercises,
+            'completed': completed_count,
+            'total': expected_total,
             'percentage': percentage,
-            'exercises': exercise_list,
-            'muscle_groups': muscle_groups,
-            'is_rest_day': False
+            'exercises': [],
+            'muscle_groups': muscle_groups_planned,
+            'is_rest_day': False,
+            'is_empty_day': (expected_total == 0) or (completed_count == 0)
         }
 
     def render_calendar(self, year: int, month: int):
@@ -213,6 +294,11 @@ class ProgressModule(BaseTrainer):
         .day-none {
             background: #ddd;
             color: #666;
+        }
+        .day-rest {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #1b5e20;
+            border: 2px solid #43a047;
         }
         .day-today {
             border: 3px solid #0984e3;
@@ -272,12 +358,17 @@ class ProgressModule(BaseTrainer):
                         st.markdown('<div class="calendar-day day-empty"></div>', unsafe_allow_html=True)
                     else:
                         date_str = f"{year:04d}-{month:02d}-{day:02d}"
+                        # Siempre usar la semana inferida por fecha (persistida o deducida); para días sin info caerá en current_week internamente
                         day_stats = self.get_day_completion_stats(date_str)
                         
                         # Determinar clase CSS según porcentaje y tipo de día
                         if day_stats.get('is_rest_day', False):
-                            css_class = "day-perfect"  # Días de descanso se muestran como completados
-                            percentage_text = "✓"  # Mostrar checkmark en lugar de porcentaje
+                            css_class = "day-rest"
+                            percentage_text = "✓"
+                        elif day_stats.get('is_empty_day', False):
+                            # Día sin entrenar - mostrarlo en blanco/gris
+                            css_class = "day-none"
+                            percentage_text = ""  # Sin texto
                         elif day_stats['percentage'] == 100:
                             css_class = "day-perfect"
                             percentage_text = f"{day_stats['percentage']:.0f}%"
@@ -298,18 +389,17 @@ class ProgressModule(BaseTrainer):
                         
                         # Crear tooltip con información
                         if day_stats.get('is_rest_day', False):
-                            tooltip = f"Día {day}: Día de descanso - Completado automáticamente"
+                            tooltip = f"Día {day}: Día de descanso ✓"
+                        elif day_stats.get('is_empty_day', False):
+                            tooltip = f"Día {day}: Sin entrenar"
                         else:
                             tooltip = f"Día {day}: {day_stats['percentage']:.0f}% completado"
                             if day_stats['total'] > 0:
-                                tooltip += f"\\nEjercicios: {day_stats['completed']}/{day_stats['total']}"
-                                tooltip += f"\\nGrupos: {', '.join(day_stats['muscle_groups'])}"
+                                tooltip += f"\nEjercicios: {day_stats['completed']}/{day_stats['total']}"
+                                tooltip += f"\nGrupos: {', '.join(day_stats['muscle_groups'])}"
                         
                         st.markdown(f"""
-                        <div class="calendar-day {css_class}{today_class}" title="{tooltip}">
-                            <div>{day}</div>
-                            <div class="percentage-text">{percentage_text}</div>
-                        </div>
+                        <div class=\"calendar-day {css_class}{today_class}\" title=\"{tooltip}\">\n                            <div>{day}</div>\n                            <div class=\"percentage-text\">{percentage_text}</div>\n                        </div>
                         """, unsafe_allow_html=True)
         
         # Información adicional

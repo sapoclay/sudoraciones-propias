@@ -23,6 +23,55 @@ class BaseTrainer:
             st.session_state.current_week = 1
         if 'current_tab' not in st.session_state:
             st.session_state.current_tab = 0
+        
+        # Invalidar cache para asegurar datos frescos
+        if hasattr(st, 'cache_data'):
+            st.cache_data.clear()
+    
+    # --- NUEVO: Utilidades para alternar antebrazos y progresión por nivel ---
+    def _get_forearm_exercises(self) -> list[dict]:
+        exercises = self.config.get('exercises', {}).get('brazos', [])
+        return [e for e in exercises if e.get('category') == 'forearm']
+    
+    def _choose_forearm_exercise_name(self, day_key: str, week_number: int) -> str | None:
+        forearms = self._get_forearm_exercises()
+        if not forearms:
+            return None
+        # Rotación determinística por semana y día (0=lun..6=dom)
+        day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+        day_idx = day_names.index(day_key) if day_key in day_names else 0
+        idx = ((week_number - 1) * 7 + day_idx) % len(forearms)
+        return forearms[idx]['name']
+    
+    def _get_level_for_week(self, week_number: int) -> int:
+        info = self.get_week_info(week_number)
+        return info.get('level', 1)
+    
+    def get_forearm_progression(self, level: int) -> tuple[int, str]:
+        """Progresión para antebrazos según nivel"""
+        if level <= 1:
+            return 1, '8-10'
+        if level == 2:
+            return 1, '10-12'
+        if level == 3:
+            return 2, '10-12'
+        # nivel 4+
+        return 2, '12-15'
+    
+    def get_planned_exercises_for_group(self, muscle_group: str, day_key: str, week_number: int) -> list[dict]:
+        """Devolver ejercicios planificados aplicando alternancia de antebrazos en 'brazos'"""
+        all_ex = self.config.get('exercises', {}).get(muscle_group, [])
+        if muscle_group != 'brazos':
+            return all_ex
+        # En brazos: mantener todos menos los de antebrazo, y añadir solo 1 de antebrazo seleccionado
+        non_forearm = [e for e in all_ex if e.get('category') != 'forearm']
+        chosen = self._choose_forearm_exercise_name(day_key, week_number)
+        if not chosen:
+            return all_ex  # no hay antebrazos definidos
+        selected_forearm = [e for e in all_ex if e.get('name') == chosen]
+        return non_forearm + selected_forearm
+    
+    # --- FIN utilidades nuevas ---
 
     def load_config(self) -> Dict[str, Any]:
         """Cargar configuración desde config.json"""
@@ -45,16 +94,32 @@ class BaseTrainer:
                 # Migrar datos antiguos que no tienen exercise_weeks
                 self.migrate_progress_data(data)
                 return data
-            except:
-                pass
+            except Exception as e:
+                st.warning(f"Error cargando progress_data.json: {e}")
+                # Crear archivo de backup
+                backup_name = f"progress_data_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                try:
+                    import shutil
+                    shutil.copy('progress_data.json', backup_name)
+                    st.info(f"Backup creado: {backup_name}")
+                except:
+                    pass
         
         # Datos por defecto
         current_month = datetime.datetime.now().strftime('%Y-%m')
-        return {
+        default_data = {
             "months": {},
             "current_month": current_month,
-            "total_workouts": 0
+            "total_workouts": 0,
+            "completed_exercises": {},
+            "exercise_weeks": {}
         }
+        
+        # Crear archivo inicial si no existe
+        if not os.path.exists('progress_data.json'):
+            self.save_progress_data_internal(default_data)
+        
+        return default_data
 
     def migrate_progress_data(self, data: Dict[str, Any]):
         """Migrar datos de progreso antiguos para añadir información de semanas"""
@@ -80,10 +145,82 @@ class BaseTrainer:
         with open('progress_data.json', 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
+    def get_exercise_completion_count(self, muscle_group: str, exercise_name: str) -> int:
+        """Contar cuántas veces se ha completado un ejercicio específico"""
+        count = 0
+        if 'completed_exercises' not in self.progress_data:
+            return count
+        
+        for date_str, exercises_day in self.progress_data['completed_exercises'].items():
+            for exercise_id, is_completed in exercises_day.items():
+                if is_completed:
+                    # Verificar si este exercise_id corresponde exactamente al ejercicio buscado
+                    # Formato esperado: muscle_group_exercise_name_day_weekN
+                    parts = exercise_id.split('_')
+                    if len(parts) >= 4:  # al menos: grupo_ejercicio_dia_weekN
+                        # El grupo muscular es la primera parte
+                        id_muscle_group = parts[0]
+                        # El ejercicio puede tener múltiples partes (ej: "Press de Banca con Mancuernas")
+                        # Buscar dónde termina el nombre del ejercicio y empieza el día
+                        day_parts = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+                        
+                        # Encontrar el día en el ID
+                        day_index = -1
+                        for i, part in enumerate(parts):
+                            if part in day_parts:
+                                day_index = i
+                                break
+                        
+                        if day_index > 1:  # debe haber al menos grupo_ejercicio_dia
+                            # Reconstruir el nombre del ejercicio
+                            id_exercise_name = '_'.join(parts[1:day_index])
+                            
+                            # Verificar coincidencia exacta
+                            if (id_muscle_group == muscle_group and 
+                                id_exercise_name == exercise_name):
+                                count += 1
+        
+        return count
+
+    def get_total_exercise_completions(self) -> Dict[str, int]:
+        """Obtener el conteo total de completados para todos los ejercicios"""
+        completion_counts = {}
+        
+        for muscle_group, exercises in self.config.get('exercises', {}).items():
+            for exercise in exercises:
+                exercise_key = f"{muscle_group}_{exercise['name']}"
+                completion_counts[exercise_key] = self.get_exercise_completion_count(
+                    muscle_group, exercise['name']
+                )
+        
+        return completion_counts
+
     def save_progress_data(self):
         """Guardar datos de progreso"""
-        with open('progress_data.json', 'w', encoding='utf-8') as f:
-            json.dump(self.progress_data, f, indent=2, ensure_ascii=False)
+        # Añadir timestamp para debug
+        self.progress_data['last_saved'] = datetime.datetime.now().isoformat()
+        
+        try:
+            with open('progress_data.json', 'w', encoding='utf-8') as f:
+                json.dump(self.progress_data, f, indent=2, ensure_ascii=False)
+            
+            # Forzar recarga en streamlit
+            if hasattr(st, 'cache_data'):
+                st.cache_data.clear()
+            
+            # Debug: verificar que se guardó correctamente
+            if os.path.exists('progress_data.json'):
+                file_size = os.path.getsize('progress_data.json')
+                if file_size < 50:  # Archivo muy pequeño, posible error
+                    st.error(f"⚠️ Advertencia: progress_data.json parece estar corrupto (tamaño: {file_size} bytes)")
+                    
+        except Exception as e:
+            st.error(f"❌ Error guardando progress_data.json: {e}")
+
+    def reload_progress_data(self):
+        """Recargar datos de progreso desde archivo"""
+        self.progress_data = self.load_progress_data()
+        return self.progress_data
 
     def generate_unique_key(self, *args) -> str:
         """Generar clave única basada en argumentos"""
@@ -221,7 +358,9 @@ class BaseTrainer:
         
         for muscle_group in muscle_groups:
             if muscle_group in self.config.get('exercises', {}):
-                for exercise in self.config['exercises'][muscle_group]:
+                # USAR lista planificada que alterna antebrazos
+                planned = self.get_planned_exercises_for_group(muscle_group, day_key, week_number)
+                for exercise in planned:
                     exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
                     is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
                     
@@ -246,111 +385,134 @@ class BaseTrainer:
             'is_rest_day': False
         }
 
-    def is_exercise_completed(self, date_str: str, exercise_id: str, week_number: int = None) -> bool:
-        """Verificar si un ejercicio está completado en una fecha específica"""
-        if 'completed_exercises' not in self.progress_data:
-            return False
-        
-        # Si no se proporciona week_number, usar la semana actual
+    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None):
+        """Renderizar detalles de un ejercicio completo"""
         if week_number is None:
             week_number = st.session_state.get('current_week', 1)
         
-        # Crear ID único que incluya la semana
-        unique_exercise_id = f"{exercise_id}_week{week_number}"
+        exercise_name = exercise['name']
+        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}"
         
-        return self.progress_data['completed_exercises'].get(date_str, {}).get(unique_exercise_id, False)
+        # Obtener fecha actual para marcar progreso
+        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        is_completed = self.is_exercise_completed(current_date, exercise_id, week_number)
+        
+        # Checkbox de completado prominente
+        col_checkbox, col_title = st.columns([1, 4])
+        with col_checkbox:
+            completed = st.checkbox(
+                "✅ Completado",
+                value=is_completed,
+                key=self.generate_unique_key("exercise_completed", exercise_id, current_date),
+                help=f"Marcar {exercise_name} como completado hoy"
+            )
+            if completed != is_completed:
+                self.mark_exercise_completed(current_date, exercise_id, completed, week_number)
+                self.reload_progress_data()
+                if completed:
+                    st.success(f"🎉 ¡{exercise_name} completado!")
+                else:
+                    st.info(f"📋 {exercise_name} marcado como pendiente")
+                st.rerun()
+        
+        # Progresión dinámica para antebrazos
+        display_sets = exercise.get('sets', 1)
+        display_reps = exercise.get('reps', '')
+        if exercise.get('category') == 'forearm':
+            level = self._get_level_for_week(week_number)
+            s, r = self.get_forearm_progression(level)
+            display_sets, display_reps = s, r
+        
+        with col_title:
+            status_emoji = "✅" if completed else "⭕"
+            st.markdown(f"### {status_emoji} {exercise_name}")
+            st.markdown(f"**Series:** {display_sets} | **Reps:** {display_reps} | **Grupo:** {muscle_group.title()}")
+        
+        with st.expander(f"ℹ️ Ver detalles de {exercise_name}", expanded=False):
+            # Información del ejercicio
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.markdown("**📊 Información:**")
+                st.write(f"• Series: {display_sets}")
+                st.write(f"• Repeticiones: {display_reps}")
+                st.write(f"• Grupo Muscular: {muscle_group.title()}")
+                
+                st.markdown("**📝 Descripción:**")
+                st.write(exercise.get('description', ''))
+            
+            with col2:
+                # ...existing code...
+                pass
 
-    def update_exercise_youtube_url(self, muscle_group: str, exercise_name: str, youtube_url: str) -> bool:
-        """Actualizar la URL de YouTube de un ejercicio específico"""
-        try:
-            # Buscar el ejercicio en la configuración
-            if muscle_group in self.config['exercises']:
-                for exercise in self.config['exercises'][muscle_group]:
-                    if exercise['name'] == exercise_name:
-                        exercise['youtube_url'] = youtube_url
-                        
-                        # Guardar la configuración actualizada
-                        with open('config.json', 'w', encoding='utf-8') as f:
-                            json.dump(self.config, f, indent=2, ensure_ascii=False)
-                        return True
+    # --- NUEVOS MÉTODOS: estado de ejercicios y utilidades de YouTube ---
+    def is_exercise_completed(self, date_str: str, exercise_id: str, week_number: int | None = None) -> bool:
+        """Comprobar si un ejercicio (con sufijo de semana) está marcado como completado para una fecha dada."""
+        if 'completed_exercises' not in self.progress_data:
             return False
-        except Exception as e:
-            st.error(f"Error al actualizar URL: {e}")
-            return False
-
-    def extract_video_id(self, url: str) -> str:
-        """Extraer ID de video de diferentes formatos de URL de YouTube"""
-        if 'youtube.com/watch?v=' in url:
-            return url.split('watch?v=')[1].split('&')[0]
-        elif 'youtu.be/' in url:
-            return url.split('youtu.be/')[1].split('?')[0]
-        elif 'youtube.com/shorts/' in url:
-            return url.split('shorts/')[1].split('?')[0]
-        return ""
+        if week_number is None:
+            week_number = st.session_state.get('current_week', 1)
+        day_map = self.progress_data.get('completed_exercises', {}).get(date_str, {})
+        # ID con sufijo de semana (formato actual)
+        unique_id = f"{exercise_id}_week{week_number}"
+        if unique_id in day_map:
+            return bool(day_map.get(unique_id))
+        # Compatibilidad: si existiera un ID sin sufijo (formatos antiguos)
+        if exercise_id in day_map:
+            return bool(day_map.get(exercise_id))
+        # Compatibilidad: buscar cualquier week si viene sin week_number preciso
+        for k, v in day_map.items():
+            if k.startswith(exercise_id + "_week"):
+                return bool(v)
+        return False
 
     def validate_youtube_url(self, url: str) -> tuple[bool, str]:
-        """Validar y clasificar URLs de YouTube"""
-        if not url.strip():
-            return True, "empty"
-        
-        url = url.strip()
-        
-        if 'youtube.com/watch?v=' in url:
-            try:
-                video_id = url.split('watch?v=')[1].split('&')[0]
-                if len(video_id) == 11:
-                    return True, "video"
-            except:
-                pass
-        elif 'youtu.be/' in url:
-            try:
-                video_id = url.split('youtu.be/')[1].split('?')[0]
-                if len(video_id) == 11:
-                    return True, "short_url"
-            except:
-                pass
-        elif 'youtube.com/shorts/' in url:
-            try:
-                video_id = url.split('shorts/')[1].split('?')[0]
-                if len(video_id) == 11:
-                    return True, "shorts"
-            except:
-                pass
-        
-        return False, "invalid"
+        """Validar URL de YouTube. Devuelve (es_valida, tipo)."""
+        if not url or not isinstance(url, str):
+            return False, 'empty'
+        u = url.strip()
+        # Tipos soportados
+        if 'youtube.com/shorts/' in u:
+            return True, 'shorts'
+        if 'youtube.com/watch' in u and ('v=' in u or 'list=' in u or 'feature=' in u):
+            return True, 'video'
+        if 'youtu.be/' in u:
+            return True, 'short_url'
+        # Aceptar urls de youtube sin query estricta
+        if 'youtube.com' in u or 'youtu.be' in u:
+            return True, 'video'
+        return False, 'invalid'
 
-    def render_youtube_video(self, url: str) -> None:
-        """Renderizar video de YouTube con soporte optimizado para Shorts"""
+    def render_youtube_video(self, url: str):
+        """Renderizar video de YouTube (acepta watch, shorts y youtu.be)."""
+        if not url:
+            return
+        # Streamlit soporta directamente st.video con URLs de YouTube
         try:
-            video_id = self.extract_video_id(url)
-            if not video_id:
-                st.error("No se pudo extraer el ID del video")
-                return
-                
-            if 'youtube.com/shorts/' in url:
-                # Para YouTube Shorts, usar iframe optimizado
-                embed_url = f"https://www.youtube.com/embed/{video_id}"
-                st.markdown(f"""
-                <div style="display: flex; justify-content: center; margin: 20px 0;">
-                    <div style="position: relative; width: 100%; max-width: 400px; height: 500px; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                        <iframe 
-                            src="{embed_url}" 
-                            width="100%" 
-                            height="100%" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            allowfullscreen
-                            style="border-radius: 15px;">
-                        </iframe>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                st.success("📱 YouTube Short cargado")
-            else:
-                # Para videos normales, usar st.video
-                st.video(url)
-                st.info("🎥 Video cargado")
-                
+            st.video(url)
         except Exception as e:
-            st.error(f"Error al cargar el video: {str(e)}")
-            st.markdown(f"[Ver en YouTube]({url})")
+            st.warning(f"No se pudo renderizar el video: {e}")
+
+    def update_exercise_youtube_url(self, muscle_group: str, exercise_name: str, new_url: str) -> bool:
+        """Actualizar la URL de YouTube de un ejercicio tanto en memoria como en config.json"""
+        try:
+            exercises = self.config.get('exercises', {}).get(muscle_group, [])
+            updated = False
+            for ex in exercises:
+                if ex.get('name') == exercise_name:
+                    ex['youtube_url'] = new_url
+                    updated = True
+                    break
+            if not updated:
+                st.error("Ejercicio no encontrado en la configuración")
+                return False
+            # Guardar en disco
+            with open('config.json', 'w', encoding='utf-8') as f:
+                json.dump(self.config, f, indent=2, ensure_ascii=False)
+            # Limpiar cache para reflejar cambios
+            if hasattr(st, 'cache_data'):
+                st.cache_data.clear()
+            return True
+        except Exception as e:
+            st.error(f"No se pudo actualizar la URL: {e}")
+            return False

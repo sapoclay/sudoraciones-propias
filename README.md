@@ -58,12 +58,12 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.1.0/sudoraciones_1.1.0_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.1/sudoraciones_1.2.1_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
 ```bash
-   sudo dpkg -i sudoraciones_1.1.0_amd64.deb
+   sudo dpkg -i sudoraciones_1.2.1_amd64.deb
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash
@@ -153,7 +153,7 @@ modules/
 ## 💪 Características principales
 
 ### Entrenamiento
-- **22 ejercicios especializados** (5 pecho + 4 abdominales + 4 brazos + 2 gemelos + otros)
+- **25 ejercicios especializados** (4 pecho + 4 abdominales + 7 brazos + 2 gemelos + otros)
 - **Progresión automática inteligente** hasta 20 semanas
 - **Sistema de 4 niveles** con días de descanso adaptativos
 - **Seguimiento automático** por ejercicio individual
@@ -174,48 +174,53 @@ modules/
 
 ## 📊 Grupos musculares y progresión
 
-### 🎯 **Distribución de ejercicios (22 Total)**
+### 🎯 **Distribución de ejercicios (25 Total)**
 
-#### Pecho (5 ejercicios)
-- Press de banca con mancuernas
-- Press de banca con barra
-- Aperturas con mancuernas
-- Press inclinado con barra
-- Flexiones en el suelo
+#### Pecho (4 ejercicios)
+- Press de Banca con Mancuernas
+- Press de Banca con Barra
+- Aperturas con Mancuernas
+- Press Inclinado con Barra
 
 #### Espalda (2 ejercicios)
-- Remo con mancuernas
-- Peso muerto con mancuernas
+- Remo con Mancuernas
+- Peso Muerto con Mancuernas
 
-#### Hombros (2 ejercicios)
-- Press militar con mancuernas
-- Elevaciones laterales
+#### Hombros (3 ejercicios)
+- Press Militar con Mancuernas
+- Elevaciones Laterales
+- Elevaciones Frontales
 
-#### Brazos (4 ejercicios)
-- Curl de bíceps
-- Curl martillo
-- Extensiones de tríceps
-- Flexiones de brazo (enfoque tríceps)
+#### Brazos (7 ejercicios)
+- Curl de Bíceps
+- Curl Martillo
+- Extensiones de Tríceps
+- Fondos en Silla
+- Curl de Muñeca (antebrazo)
+- Curl de Muñeca Inverso (antebrazo)
+- Pronación/Supinación con Mancuerna (antebrazo)
+
+> Nota: en los días de brazos, se muestra automáticamente solo 1 ejercicio de antebrazo alternado de forma inteligente. La progresión por nivel ajusta series y repeticiones: Nivel 1 (1×8-10), Nivel 2 (1×10-12), Nivel 3 (2×10-12), Nivel 4+ (2×12-15).
 
 #### Piernas (2 ejercicios)
-- Sentadillas con mancuernas
-- Zancadas con mancuernas
+- Sentadillas con Mancuernas
+- Zancadas con Mancuernas
 
 #### Gemelos (2 ejercicios)
-- Elevaciones de gemelos de pie
-- Elevaciones de gemelos sentado
+- Elevaciones de Gemelos de Pie
+- Elevaciones de Gemelos Sentado
 
 #### Abdominales (4 ejercicios divididos en básicos y avanzados)
 **Abs básicos (Nivel 1-2):**
-- Abdominales tradicionales
+- Abdominales Tradicionales
 - Plancha
 
 **Abs avanzados (Nivel 3+):**
-- Abdominales bajas
-- Abdominales laterales
+- Abdominales Bajas
+- Abdominales Laterales
 
 #### Cardio (1 ejercicio)
-- Bicicleta estática
+- Bicicleta Estática
 
 **📈 Distribución de cardio por semana:**
 - **Semanas 1-2**: 2 sesiones (miércoles + viernes)

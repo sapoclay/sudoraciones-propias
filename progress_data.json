@@ -1,6 +1,6 @@
 {
   "current_month": "2025-08",
-  "total_workouts": 14,
+  "total_workouts": 15,
   "completed_exercises": {
     "2025-08-03": {
       "cardio_Bicicleta Estática_sabado_week1": true
@@ -56,6 +56,76 @@
       "abs_Abdominales Tradicionales_miercoles_week1": true,
       "abs_Plancha_miercoles_week1": true,
       "cardio_Bicicleta Estática_miercoles_week1": true
+    },
+    "2025-08-09": {
+      "pecho_Press de Banca con Mancuernas_lunes_week1": true,
+      "pecho_Press de Banca con Barra_lunes_week1": true,
+      "pecho_Aperturas con Mancuernas_lunes_week1": true,
+      "pecho_Press Inclinado con Barra_lunes_week1": true,
+      "espalda_Remo con Mancuernas_lunes_week1": true,
+      "espalda_Peso Muerto con Mancuernas_lunes_week1": true,
+      "abs_Abdominales Tradicionales_lunes_week1": true,
+      "abs_Plancha_lunes_week1": true,
+      "piernas_Sentadillas con Mancuernas_miercoles_week1": true,
+      "piernas_Zancadas con Mancuernas_miercoles_week1": true,
+      "gemelos_Elevaciones de Gemelos de Pie_miercoles_week1": true,
+      "gemelos_Elevaciones de Gemelos Sentado_miercoles_week1": true,
+      "abs_Abdominales Tradicionales_miercoles_week1": true,
+      "cardio_Bicicleta Estática_miercoles_week1": true,
+      "brazos_Curl de Bíceps_viernes_week1": true,
+      "brazos_Curl Martillo_viernes_week1": true,
+      "brazos_Extensiones de Tríceps_viernes_week1": true,
+      "brazos_Fondos en Silla_viernes_week1": true,
+      "hombros_Press Militar con Mancuernas_viernes_week1": true,
+      "hombros_Elevaciones Laterales_viernes_week1": true,
+      "hombros_Elevaciones Frontales_viernes_week1": true,
+      "pecho_Press de Banca con Mancuernas_sabado_week1": true,
+      "pecho_Press de Banca con Barra_sabado_week1": true,
+      "pecho_Aperturas con Mancuernas_sabado_week1": true,
+      "pecho_Press Inclinado con Barra_sabado_week1": true
+    },
+    "2025-08-08": {
+      "brazos_Curl de Bíceps_viernes_week1": true,
+      "brazos_Curl Martillo_viernes_week1": true,
+      "brazos_Extensiones de Tríceps_viernes_week1": true,
+      "brazos_Fondos en Silla_viernes_week1": true,
+      "hombros_Press Militar con Mancuernas_viernes_week1": true,
+      "hombros_Elevaciones Laterales_viernes_week1": true,
+      "hombros_Elevaciones Frontales_viernes_week1": true,
+      "cardio_Bicicleta Estática_viernes_week1": true
+    },
+    "2025-08-10": {
+      "pecho_Press de Banca con Mancuernas_lunes_week1": true,
+      "pecho_Press de Banca con Barra_lunes_week1": true,
+      "pecho_Aperturas con Mancuernas_lunes_week1": true,
+      "pecho_Press Inclinado con Barra_lunes_week1": true,
+      "espalda_Remo con Mancuernas_lunes_week1": true,
+      "abs_Abdominales Tradicionales_lunes_week1": true,
+      "abs_Plancha_lunes_week1": true,
+      "piernas_Sentadillas con Mancuernas_miercoles_week1": true,
+      "piernas_Zancadas con Mancuernas_miercoles_week1": true,
+      "gemelos_Elevaciones de Gemelos de Pie_miercoles_week1": true,
+      "gemelos_Elevaciones de Gemelos Sentado_miercoles_week1": true,
+      "abs_Abdominales Tradicionales_miercoles_week1": true,
+      "abs_Plancha_miercoles_week1": true,
+      "cardio_Bicicleta Estática_miercoles_week1": true,
+      "brazos_Curl de Bíceps_viernes_week1": true,
+      "brazos_Curl Martillo_viernes_week1": true,
+      "brazos_Extensiones de Tríceps_viernes_week1": true,
+      "brazos_Fondos en Silla_viernes_week1": true,
+      "hombros_Press Militar con Mancuernas_viernes_week1": true,
+      "hombros_Elevaciones Laterales_viernes_week1": true,
+      "hombros_Elevaciones Frontales_viernes_week1": true,
+      "cardio_Bicicleta Estática_viernes_week1": true,
+      "pecho_Press de Banca con Mancuernas_sabado_week1": true,
+      "pecho_Press de Banca con Barra_sabado_week1": true,
+      "pecho_Aperturas con Mancuernas_sabado_week1": true,
+      "pecho_Press Inclinado con Barra_sabado_week1": true,
+      "brazos_Curl de Bíceps_sabado_week1": true,
+      "brazos_Curl Martillo_sabado_week1": true,
+      "espalda_Peso Muerto con Mancuernas_lunes_week1": true,
+      "brazos_Extensiones de Tríceps_sabado_week1": true,
+      "brazos_Fondos en Silla_sabado_week1": true
     }
   },
   "muscle_groups_progress": {
@@ -94,21 +164,22 @@
   },
   "completed_workouts": {
     "2025-07": [
-      "2025-07-17",
-      "2025-07-29",
-      "2025-07-10",
-      "2025-07-27",
-      "2025-07-22",
-      "2025-07-31",
-      "2025-07-24",
-      "2025-07-20",
       "2025-07-15",
+      "2025-07-29",
+      "2025-07-17",
+      "2025-07-27",
+      "2025-07-20",
+      "2025-07-31",
+      "2025-07-22",
+      "2025-07-24",
       "2025-07-13"
     ],
     "2025-08": [
-      "2025-08-04",
       "2025-08-07",
       "2025-08-03",
+      "2025-08-08",
+      "2025-08-10",
+      "2025-08-04",
       "2025-08-05"
     ]
   },
@@ -117,6 +188,12 @@
     "2025-08-02": 1,
     "2025-08-01": 1,
     "2025-08-04": 1,
-    "2025-08-07": 1
-  }
+    "2025-08-07": 1,
+    "2025-08-09": 1,
+    "2025-08-08": 1,
+    "2025-08-10": 1,
+    "2025-08-05": 1,
+    "2025-08-06": 1
+  },
+  "last_saved": "2025-08-10T01:52:08.030116"
 }

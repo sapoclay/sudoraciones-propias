@@ -32,6 +32,9 @@ class StatisticsModule(BaseTrainer):
         """Renderizar pestaña de estadísticas"""
         st.header("📈 Estadísticas Detalladas")
         
+        # Asegurar datos frescos
+        self.reload_progress_data()
+        
         # Análisis de completado vs disponible por grupo
         exercise_counts = {}
         completed_counts = {}
@@ -215,15 +218,8 @@ class StatisticsModule(BaseTrainer):
         all_exercises = []
         for muscle_group, exercises in self.config.get('exercises', {}).items():
             for exercise in exercises:
-                # Calcular cuántas veces se ha completado este ejercicio
-                completed_count = 0
-                if 'completed_exercises' in self.progress_data:
-                    for date_str, exercises_day in self.progress_data['completed_exercises'].items():
-                        for exercise_id, completed in exercises_day.items():
-                            if (completed and 
-                                exercise['name'] in exercise_id and 
-                                muscle_group in exercise_id):
-                                completed_count += 1
+                # Usar la nueva función mejorada para contar completados
+                completed_count = self.get_exercise_completion_count(muscle_group, exercise['name'])
                 
                 all_exercises.append({
                     'Grupo': self.translate_muscle_group(muscle_group),

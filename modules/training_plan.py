@@ -41,14 +41,25 @@ class TrainingPlanModule(BaseTrainer):
         
         for muscle_group in muscle_groups:
             if muscle_group in self.config.get('exercises', {}):
-                for exercise in self.config['exercises'][muscle_group]:
+                planned = self.get_planned_exercises_for_group(muscle_group, day_key, week_number)
+                for exercise in planned:
                     exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}"
                     is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
+                    
+                    # Progresión dinámica para antebrazos (mostrar en reps/series si aplica)
+                    display_sets = exercise.get('sets', 1)
+                    display_reps = exercise.get('reps', '')
+                    if exercise.get('category') == 'forearm':
+                        level = self.get_week_info(week_number).get('level', 1)
+                        s, r = self.get_forearm_progression(level)
+                        display_sets, display_reps = s, r
                     
                     exercise_list.append({
                         'name': exercise['name'],
                         'muscle_group': muscle_group,
-                        'completed': is_completed
+                        'completed': is_completed,
+                        'sets': display_sets,
+                        'reps': display_reps
                     })
                     
                     total_exercises += 1
@@ -261,6 +272,12 @@ class TrainingPlanModule(BaseTrainer):
             'Curl Concentrado': "Sentado, codo apoyado en la pierna, flexiona el brazo con concentración total en el bíceps.",
             'Extensiones de Tríceps': "Acostado, codos fijos apuntando al techo, baja la mancuerna hacia la frente flexionando antebrazos.",
             'Patada de Tríceps': "Inclinado, brazo superior paralelo al suelo, extiende el antebrazo hacia atrás.",
+            'Fondos en Silla': "Manos en el borde de una silla/banco, codos hacia atrás, baja controlado y sube extendiendo tríceps.",
+
+            # ANTEBRAZOS
+            'Curl de Muñeca': "Sentado, antebrazos apoyados, palmas hacia arriba; flexiona solo las muñecas elevando la mancuerna y baja controlado.",
+            'Curl de Muñeca Inverso': "Sentado, antebrazos apoyados, palmas hacia abajo; extiende las muñecas elevando el dorso y desciende controlado.",
+            'Pronación/Supinación con Mancuerna': "Con codo a 90° y antebrazo estable, rota lentamente la mancuerna entre palma arriba (supinación) y palma abajo (pronación).",
             
             # PIERNAS
             'Sentadillas con Mancuernas': "Pies separados, baja como si te sentaras en una silla, mantén el pecho erguido.",
@@ -309,6 +326,12 @@ class TrainingPlanModule(BaseTrainer):
             'Curl Concentrado': "Ideal para máxima concentración. No uses impulso, movimiento muy controlado.",
             'Extensiones de Tríceps': "Mantén los brazos superiores fijos, cuidado con el peso cerca de la cabeza.",
             'Patada de Tríceps': "Mantén el brazo superior inmóvil. Extensión completa pero sin bloquear agresivamente.",
+            'Fondos en Silla': "Hombros abajo y atrás; evita encogerte. No desciendas más de lo cómodo para tus hombros.",
+
+            # ANTEBRAZOS
+            'Curl de Muñeca': "Recorrido corto y controlado, pausa 1s arriba. No flexiones los codos; solo muñecas.",
+            'Curl de Muñeca Inverso': "Usa peso moderado, evita compensar con hombros. Controla la bajada.",
+            'Pronación/Supinación con Mancuerna': "Coge la mancuerna por un extremo para mayor palanca. Rotación lenta, sin balanceos.",
             
             # PIERNAS
             'Sentadillas con Mancuernas': "Peso en los talones, no dejes que las rodillas se vayan hacia adentro. Profundidad completa.",
@@ -356,17 +379,29 @@ class TrainingPlanModule(BaseTrainer):
             # Actualizar estado si cambió
             if completed != is_completed:
                 self.mark_exercise_completed(current_date, exercise_id, completed, week_number)
+                
+                # Recargar datos para asegurar persistencia
+                self.reload_progress_data()
+                
                 if completed:
                     st.success(f"🎉 ¡{exercise_name} completado!")
                 else:
                     st.info(f"📋 {exercise_name} marcado como pendiente")
                 st.rerun()
         
+        # Mostrar estado y progresión dinámica para antebrazo
+        display_sets = exercise.get('sets', 1)
+        display_reps = exercise.get('reps', '')
+        if exercise.get('category') == 'forearm':
+            level = self.get_week_info(week_number).get('level', 1)
+            s, r = self.get_forearm_progression(level)
+            display_sets, display_reps = s, r
+        
         with col_title:
             # Mostrar estado visual del ejercicio
             status_emoji = "✅" if completed else "⭕"
             st.markdown(f"### {status_emoji} {exercise_name}")
-            st.markdown(f"**Series:** {exercise['sets']} | **Reps:** {exercise['reps']} | **Grupo:** {muscle_group.title()}")
+            st.markdown(f"**Series:** {display_sets} | **Reps:** {display_reps} | **Grupo:** {muscle_group.title()}")
         
         with st.expander(f"ℹ️ Ver detalles de {exercise_name}", expanded=False):
             # Video de YouTube si está habilitado
@@ -418,8 +453,8 @@ class TrainingPlanModule(BaseTrainer):
             
             with col1:
                 st.markdown("**📊 Información:**")
-                st.write(f"• Series: {exercise['sets']}")
-                st.write(f"• Repeticiones: {exercise['reps']}")
+                st.write(f"• Series: {display_sets}")
+                st.write(f"• Repeticiones: {display_reps}")
                 st.write(f"• Grupo Muscular: {muscle_group.title()}")
                 
                 st.markdown("**📝 Descripción:**")
@@ -536,5 +571,7 @@ class TrainingPlanModule(BaseTrainer):
                 if muscle_group in self.config['exercises']:
                     st.markdown(f"#### 💪 {muscle_group.title()}")
                     
-                    for exercise in self.config['exercises'][muscle_group]:
+                    # USAR lista planificada (1 ejercicio de antebrazo alternado)
+                    planned_list = self.get_planned_exercises_for_group(muscle_group, day_key, current_week)
+                    for exercise in planned_list:
                         self.render_exercise_details(exercise, muscle_group, day_key, show_videos, show_instructions, show_tips, current_week)
