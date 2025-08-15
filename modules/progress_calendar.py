@@ -29,6 +29,72 @@ class ProgressModule(BaseTrainer):
         """Obtener nombre del mes en español"""
         return self.MONTH_NAMES_ES.get(month, f'Mes {month}')
     
+    def get_day_completion_stats_filtered(self, date_str: str, filter_week: int = None) -> Dict[str, Any]:
+        """Obtener estadísticas de completado de un día filtradas por semana"""
+        if filter_week is None:
+            filter_week = st.session_state.get('current_week', 1)
+        
+        # Obtener ejercicios de esa fecha
+        exercises_data = self.progress_data.get('completed_exercises', {}).get(date_str, {})
+        
+        if not exercises_data:
+            return {
+                'completed': 0,
+                'total': 0,
+                'percentage': 0,
+                'exercises': [],
+                'muscle_groups': [],
+                'is_rest_day': False,
+                'is_empty_day': True
+            }
+        
+        # Filtrar solo ejercicios de la semana especificada
+        week_suffix = f"_week{filter_week}"
+        filtered_exercises = {}
+        
+        for exercise_id, is_completed in exercises_data.items():
+            if exercise_id.endswith(week_suffix):
+                filtered_exercises[exercise_id] = is_completed
+        
+        # Si no hay ejercicios de la semana especificada, mostrar día vacío
+        if not filtered_exercises:
+            return {
+                'completed': 0,
+                'total': 0,
+                'percentage': 0,
+                'exercises': [],
+                'muscle_groups': [],
+                'is_rest_day': False,
+                'is_empty_day': True
+            }
+        
+        # Calcular estadísticas de los ejercicios filtrados
+        total_exercises = len(filtered_exercises)
+        completed_exercises = sum(1 for completed in filtered_exercises.values() if completed)
+        
+        # Extraer grupos musculares
+        muscle_groups = set()
+        exercise_list = []
+        for exercise_id, is_completed in filtered_exercises.items():
+            parts = exercise_id.split('_')
+            if len(parts) >= 2:
+                mg = parts[0]
+                name = '_'.join(parts[1:-2]) if len(parts) > 3 else parts[1]
+                muscle_groups.add(mg)
+                exercise_list.append({'name': name, 'muscle_group': mg, 'completed': is_completed})
+        
+        percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 0
+        
+        return {
+            'completed': completed_exercises,
+            'total': total_exercises,
+            'percentage': percentage,
+            'exercises': exercise_list,
+            'muscle_groups': list(muscle_groups),
+            'is_rest_day': False,
+            'is_empty_day': False
+        }
+    
     def get_month_abbr_es(self, month: int) -> str:
         """Obtener abreviación del mes en español"""
         return self.MONTH_ABBR_ES.get(month, f'M{month}')
@@ -46,6 +112,36 @@ class ProgressModule(BaseTrainer):
             'total_days': days_in_month,
             'completion_rate': (len(completed_days) / days_in_month) * 100 if days_in_month > 0 else 0,
             'completed_dates': completed_days
+        }
+
+    def get_month_stats_filtered(self, year: int, month: int, filter_week: int) -> Dict[str, Any]:
+        """Obtener estadísticas del mes filtradas por semana específica"""
+        _, last_day = calendar.monthrange(year, month)
+        
+        total_days = 0
+        completed_days = 0
+        total_exercises = 0
+        completed_exercises = 0
+        
+        for day in range(1, last_day + 1):
+            date_str = f"{year:04d}-{month:02d}-{day:02d}"
+            day_stats = self.get_day_completion_stats_filtered(date_str, filter_week)
+            
+            if not day_stats.get('is_empty_day', True):
+                total_days += 1
+                total_exercises += day_stats.get('total', 0)
+                completed_exercises += day_stats.get('completed', 0)
+                if day_stats.get('percentage', 0) == 100:
+                    completed_days += 1
+        
+        completion_rate = (completed_days / total_days * 100) if total_days > 0 else 0
+        
+        return {
+            'completed': completed_exercises,
+            'total': total_exercises,
+            'completion_rate': completion_rate,
+            'total_days': total_days,
+            'completed_days': completed_days
         }
 
     def get_week_number_for_date(self, date_str: str) -> int:
@@ -150,9 +246,9 @@ class ProgressModule(BaseTrainer):
 
     def get_day_completion_stats(self, date_str: str, week_number: int = None) -> Dict[str, Any]:
         """Obtener estadísticas de finalización para un día específico"""
-        # Si no se proporciona week_number, calcularlo inteligentemente
+        # Si no se proporciona week_number, usar el mapeo calendario
         if week_number is None:
-            week_number = self.get_week_number_for_date(date_str)
+            week_number = self.get_calendar_week_for_date(date_str)
         
         # Determinar día de la semana (clave en español)
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
@@ -183,78 +279,68 @@ class ProgressModule(BaseTrainer):
                 'exercises': [],
                 'muscle_groups': [],
                 'is_rest_day': True,
-                'is_empty_day': False
+                'is_empty_day': False,
+                'calendar_week': week_number
             }
         
         # 1) Si hay datos en la fecha, calcular en base a los ejercicios reales de ese día
         exercises_data = self.progress_data.get('completed_exercises', {}).get(date_str)
         if exercises_data:
-            total_exercises = len(exercises_data)
-            completed_exercises = sum(1 for completed in exercises_data.values() if completed)
+            # Filtrar solo ejercicios de la semana calendario correspondiente
+            week_suffix = f"_week{week_number}"
+            filtered_exercises = {k: v for k, v in exercises_data.items() if k.endswith(week_suffix)}
             
-            # Extraer grupos musculares presentes en los IDs
-            muscle_groups = set()
-            exercise_list = []
-            for exercise_id, is_completed in exercises_data.items():
-                parts = exercise_id.split('_')
-                if len(parts) >= 2:
-                    mg = parts[0]
-                    name = '_'.join(parts[1:-2]) if len(parts) > 3 else parts[1]
-                    muscle_groups.add(mg)
-                    exercise_list.append({'name': name, 'muscle_group': mg, 'completed': is_completed})
-            percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 0
-            return {
-                'completed': completed_exercises,
-                'total': total_exercises,
-                'percentage': percentage,
-                'exercises': exercise_list,
-                'muscle_groups': list(muscle_groups),
-                'is_rest_day': False,
-                'is_empty_day': False
-            }
+            if filtered_exercises:
+                total_exercises = len(filtered_exercises)
+                completed_exercises = sum(1 for completed in filtered_exercises.values() if completed)
+                
+                # Extraer grupos musculares presentes en los IDs
+                muscle_groups = set()
+                exercise_list = []
+                for exercise_id, is_completed in filtered_exercises.items():
+                    parts = exercise_id.split('_')
+                    if len(parts) >= 2:
+                        mg = parts[0]
+                        name = '_'.join(parts[1:-2]) if len(parts) > 3 else parts[1]
+                        muscle_groups.add(mg)
+                        exercise_list.append({'name': name, 'muscle_group': mg, 'completed': is_completed})
+                
+                percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 0
+                return {
+                    'completed': completed_exercises,
+                    'total': total_exercises,
+                    'percentage': percentage,
+                    'exercises': exercise_list,
+                    'muscle_groups': list(muscle_groups),
+                    'is_rest_day': False,
+                    'is_empty_day': False,
+                    'calendar_week': week_number
+                }
         
-        # 2) Si NO hay datos en la fecha actual
-        # (el caso de descanso ya se gestionó arriba)
-        # Rango lunes-domingo de la semana de date_str
-        start_of_week = date_obj - datetime.timedelta(days=date_obj.weekday())  # lunes
-        dates_in_week = [(start_of_week + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
-        
-        # Calcular ejercicios esperados según el plan del día usando la lista planificada (alternancia antebrazos)
-        planned_ids = set()
+        # 2) Si NO hay datos en la fecha actual, calcular ejercicios esperados según el plan del día
         expected_total = 0
         for mg in muscle_groups_planned:
-            # Construir lista planificada aplicando alternancia de antebrazos cuando corresponda
             planned_list = self.get_planned_exercises_for_group(mg, day_key, week_number)
             expected_total += len(planned_list)
-            for ex in planned_list:
-                planned_ids.add(f"{mg}_{ex['name']}_{day_key}_week{week_number}")
         
-        # Contar completados en otros días de la misma semana calendario SOLO si pertenecen a la lista planificada
-        completed_ids = set()
-        for d in dates_in_week:
-            ex_data = self.progress_data.get('completed_exercises', {}).get(d, {})
-            for ex_id, done in ex_data.items():
-                if done and ex_id in planned_ids:
-                    completed_ids.add(ex_id)
-        
-        completed_count = min(len(completed_ids), expected_total)
-        percentage = (completed_count / expected_total * 100) if expected_total > 0 else 0
         return {
-            'completed': completed_count,
+            'completed': 0,
             'total': expected_total,
-            'percentage': percentage,
+            'percentage': 0,
             'exercises': [],
             'muscle_groups': muscle_groups_planned,
             'is_rest_day': False,
-            'is_empty_day': (expected_total == 0) or (completed_count == 0)
+            'is_empty_day': True,
+            'calendar_week': week_number
         }
 
-    def render_calendar(self, year: int, month: int):
-        """Renderizar calendario de solo visualización con porcentajes"""
+    def render_calendar(self, year: int, month: int, view_week: int = None):
+        """Renderizar calendario de solo visualización con porcentajes de todas las semanas"""
+        current_week = st.session_state.get('current_week', 1)
         month_name = self.get_month_name_es(month)
-        st.subheader(f"📅 {month_name} {year}")
+        st.subheader(f"📅 {month_name} {year} - Progreso Acumulativo (Semana Actual: {current_week})")
         
-        # Obtener estadísticas del mes
+        # Obtener estadísticas del mes SIN filtrar por semana (mostrar todo)
         stats = self.get_month_stats(year, month)
         
         # Crear calendario
@@ -358,7 +444,7 @@ class ProgressModule(BaseTrainer):
                         st.markdown('<div class="calendar-day day-empty"></div>', unsafe_allow_html=True)
                     else:
                         date_str = f"{year:04d}-{month:02d}-{day:02d}"
-                        # Siempre usar la semana inferida por fecha (persistida o deducida); para días sin info caerá en current_week internamente
+                        # SIEMPRE mostrar todos los ejercicios de todas las semanas para ver progreso completo
                         day_stats = self.get_day_completion_stats(date_str)
                         
                         # Determinar clase CSS según porcentaje y tipo de día
@@ -452,6 +538,15 @@ class ProgressModule(BaseTrainer):
             st.session_state.calendar_year = current_date.year
         if 'calendar_month' not in st.session_state:
             st.session_state.calendar_month = current_date.month
+        
+        # Mostrar información de la semana actual
+        current_week = st.session_state.get('current_week', 1)
+        week_info = self.get_week_info(current_week)
+        
+        st.info(f"📅 **Semana Actual: {current_week}** - {week_info['level_name']} | {week_info['level_description']}")
+        st.caption("*El calendario muestra el progreso acumulativo de todas las semanas*")
+        
+        st.markdown("---")
         
         # Selector de mes y año
         col1, col2, col3 = st.columns([1, 1, 2])
@@ -547,7 +642,7 @@ class ProgressModule(BaseTrainer):
         
         st.markdown("---")
         
-        # Renderizar calendario del mes seleccionado
+        # Renderizar calendario del mes seleccionado con progreso acumulativo
         self.render_calendar(st.session_state.calendar_year, st.session_state.calendar_month)
         
         st.markdown("---")

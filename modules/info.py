@@ -35,7 +35,7 @@ class InfoModule(BaseTrainer):
             
             st.subheader("💡 Características Principales")
             st.markdown("""
-            - **Plan Optimizado**: 25 ejercicios especializados
+            - **Plan Optimizado**: 26 ejercicios especializados
             - **Seguimiento Automático**: Progreso basado en completado
             - **Calendario Dinámico**: Visualización de entrenamiento mensual
             - **Videos Integrados**: Tutoriales YouTube y Shorts
@@ -47,7 +47,7 @@ class InfoModule(BaseTrainer):
             st.markdown("""
             - **Progresión automática**: 4 niveles de dificultad
             - **20 semanas** de entrenamiento continuo
-            - **25 ejercicios** en 8 grupos musculares especializados
+            - **26 ejercicios** en 8 grupos musculares especializados
             - **Adaptación inteligente** según el progreso
             - **Sistema de niveles** desde principiante a experto
             """)

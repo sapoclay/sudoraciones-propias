@@ -20,7 +20,8 @@
         "sets": 1,
         "reps": "6-8",
         "description": "Acostado en el banco, presiona las mancuernas hacia arriba",
-        "youtube_url": "https://www.youtube.com/watch?v=VmB1G1K7v94"
+        "youtube_url": "https://www.youtube.com/watch?v=VmB1G1K7v94",
+        "difficulty_level": 1
       },
       {
         "name": "Press de Banca con Barra",
@@ -28,7 +29,8 @@
         "sets": 1,
         "reps": "6-8",
         "description": "Acostado en el banco, presiona la barra hacia arriba con control total",
-        "youtube_url": "https://www.youtube.com/watch?v=rT7DgCr-3pg"
+        "youtube_url": "https://www.youtube.com/watch?v=rT7DgCr-3pg",
+        "difficulty_level": 2
       },
       {
         "name": "Aperturas con Mancuernas",
@@ -36,7 +38,8 @@
         "sets": 1,
         "reps": "8-10",
         "description": "Acostado en el banco, abre los brazos en arco amplio",
-        "youtube_url": "https://www.youtube.com/watch?v=OrlXQdNwNwM"
+        "youtube_url": "https://www.youtube.com/watch?v=OrlXQdNwNwM",
+        "difficulty_level": 2
       },
       {
         "name": "Press Inclinado con Barra",
@@ -44,7 +47,17 @@
         "sets": 1,
         "reps": "8-10",
         "description": "En banco inclinado, presiona la barra trabajando pecho superior",
-        "youtube_url": "https://www.youtube.com/shorts/SqT0lZDPm-Y"
+        "youtube_url": "https://www.youtube.com/shorts/SqT0lZDPm-Y",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Flexiones con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-12",
+        "description": "Flexiones con manos en mancuernas para mayor rango de movimiento",
+        "youtube_url": "https://www.youtube.com/watch?v=cfns5VQ-Rhs",
+        "difficulty_level": 4
       }
     ],
     "espalda": [
@@ -54,7 +67,8 @@
         "sets": 1,
         "reps": "6-8",
         "description": "Torso paralelo al suelo, tira hacia las costillas",
-        "youtube_url": "https://www.youtube.com/shorts/OoG6XtJeygk"
+        "youtube_url": "https://www.youtube.com/shorts/OoG6XtJeygk",
+        "difficulty_level": 1
       },
       {
         "name": "Peso Muerto con Mancuernas",
@@ -62,7 +76,26 @@
         "sets": 1,
         "reps": "8-10",
         "description": "Pies separados, baja manteniendo espalda recta",
-        "youtube_url": "https://www.youtube.com/watch?v=7EFlWfvU59w"
+        "youtube_url": "https://www.youtube.com/watch?v=7EFlWfvU59w",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Remo con Barra",
+        "equipment": "bench_press_30kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Inclinado hacia adelante, tira la barra hacia el abdomen",
+        "youtube_url": "https://www.youtube.com/watch?v=9efgcAjQe7E",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Peso Muerto con Barra",
+        "equipment": "bench_press_30kg",
+        "sets": 1,
+        "reps": "6-8",
+        "description": "Levanta la barra desde el suelo manteniendo la espalda recta",
+        "youtube_url": "https://www.youtube.com/watch?v=op9kVnSso6Q",
+        "difficulty_level": 4
       }
     ],
     "hombros": [
@@ -72,7 +105,8 @@
         "sets": 1,
         "reps": "6-8",
         "description": "De pie, empuja las mancuernas hacia arriba",
-        "youtube_url": "https://www.youtube.com/shorts/pvb7SYiaMAw"
+        "youtube_url": "https://www.youtube.com/shorts/pvb7SYiaMAw",
+        "difficulty_level": 1
       },
       {
         "name": "Elevaciones Laterales",
@@ -80,7 +114,8 @@
         "sets": 1,
         "reps": "8-10",
         "description": "Eleva los brazos lateralmente hasta la altura del hombro",
-        "youtube_url": "https://www.youtube.com/watch?v=hgLpdwMtEEs"
+        "youtube_url": "https://www.youtube.com/watch?v=hgLpdwMtEEs",
+        "difficulty_level": 1
       },
       {
         "name": "Elevaciones Frontales",
@@ -88,7 +123,26 @@
         "sets": 1,
         "reps": "8-12",
         "description": "De pie, eleva las mancuernas al frente hasta la altura del hombro",
-        "youtube_url": "https://www.youtube.com/watch?v=qykGeo9Hsbg"
+        "youtube_url": "https://www.youtube.com/watch?v=qykGeo9Hsbg",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Press Arnold",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "Combina rotación y press vertical para trabajo completo de hombros",
+        "youtube_url": "https://www.youtube.com/watch?v=6Z15_WdXmVw",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Elevaciones Posteriores",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "10-12",
+        "description": "Inclinado hacia adelante, eleva las mancuernas hacia atrás trabajando deltoides posterior",
+        "youtube_url": "https://www.youtube.com/watch?v=P3mKu0ByTsE",
+        "difficulty_level": 4
       }
     ],
     "brazos": [
@@ -98,7 +152,8 @@
         "sets": 1,
         "reps": "6-8",
         "description": "Flexiona los brazos llevando las mancuernas hacia los hombros",
-        "youtube_url": "https://www.youtube.com/shorts/MXpxtAbsm-o"
+        "youtube_url": "https://www.youtube.com/shorts/MXpxtAbsm-o",
+        "difficulty_level": 1
       },
       {
         "name": "Curl Martillo",
@@ -106,7 +161,8 @@
         "sets": 1,
         "reps": "8-10",
         "description": "Curl con agarre neutro (palmas enfrentadas), enfoca braquial y braquiorradial",
-        "youtube_url": "https://www.youtube.com/watch?v=zC3nLlEvin4"
+        "youtube_url": "https://www.youtube.com/watch?v=zC3nLlEvin4",
+        "difficulty_level": 2
       },
       {
         "name": "Extensiones de Tríceps",
@@ -114,7 +170,8 @@
         "sets": 1,
         "reps": "8-10",
         "description": "Acostado, baja la mancuerna hacia la frente",
-        "youtube_url": "https://www.youtube.com/shorts/rGFXnq5aHQg"
+        "youtube_url": "https://www.youtube.com/shorts/rGFXnq5aHQg",
+        "difficulty_level": 1
       },
       {
         "name": "Fondos en Silla",
@@ -122,7 +179,8 @@
         "sets": 1,
         "reps": "6-12",
         "description": "Sentado en el borde del banco, baja el cuerpo flexionando los brazos",
-        "youtube_url": "https://www.youtube.com/watch?v=0326dy_-CzM"
+        "youtube_url": "https://www.youtube.com/watch?v=0326dy_-CzM",
+        "difficulty_level": 2
       },
       {
         "name": "Curl de Muñeca",
@@ -131,7 +189,8 @@
         "reps": "8-10",
         "description": "Flexión de muñeca con agarre supino para trabajar flexores del antebrazo",
         "youtube_url": "https://www.youtube.com/watch?v=8hs5ZB9hWgk",
-        "category": "forearm"
+        "category": "forearm",
+        "difficulty_level": 1
       },
       {
         "name": "Curl de Muñeca Inverso",
@@ -140,7 +199,8 @@
         "reps": "8-10",
         "description": "Extensión de muñeca con agarre prono para trabajar extensores del antebrazo",
         "youtube_url": "https://www.youtube.com/watch?v=7f4nZtXsv1U",
-        "category": "forearm"
+        "category": "forearm",
+        "difficulty_level": 2
       },
       {
         "name": "Pronación/Supinación con Mancuerna",
@@ -149,7 +209,17 @@
         "reps": "8-10",
         "description": "Rotación de antebrazo controlada para fortalecer pronadores y supinadores",
         "youtube_url": "https://www.youtube.com/watch?v=GZ0v8un6Xkg",
-        "category": "forearm"
+        "category": "forearm",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Curl 21s",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "21 (7+7+7)",
+        "description": "7 repeticiones parciales abajo, 7 arriba, 7 completas - técnica avanzada",
+        "youtube_url": "https://www.youtube.com/watch?v=cf_OjWMcJLs",
+        "difficulty_level": 4
       }
     ],
     "piernas": [
@@ -159,7 +229,8 @@
         "sets": 1,
         "reps": "10-12",
         "description": "Baja como si te sentaras, mantén el pecho erguido",
-        "youtube_url": "https://www.youtube.com/shorts/PFh39yoRSes"
+        "youtube_url": "https://www.youtube.com/shorts/PFh39yoRSes",
+        "difficulty_level": 1
       },
       {
         "name": "Zancadas con Mancuernas",
@@ -167,7 +238,26 @@
         "sets": 1,
         "reps": "8-10 por pierna",
         "description": "Paso largo adelante, baja hasta 90 grados",
-        "youtube_url": "https://www.youtube.com/watch?v=-iGRWD09Jn8"
+        "youtube_url": "https://www.youtube.com/watch?v=-iGRWD09Jn8",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Sentadillas Búlgaras",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10 por pierna",
+        "description": "Un pie elevado atrás, baja con la pierna delantera hasta 90 grados",
+        "youtube_url": "https://www.youtube.com/shorts/QMROpBczaGo",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Sentadillas Pistol (Asistidas)",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "5-8 por pierna",
+        "description": "Sentadilla a una pierna con apoyo, ejercicio avanzado de equilibrio y fuerza",
+        "youtube_url": "https://www.youtube.com/watch?v=vq5-vdgJc0I",
+        "difficulty_level": 4
       }
     ],
     "gemelos": [
@@ -177,7 +267,8 @@
         "sets": 1,
         "reps": "15-20",
         "description": "De pie con mancuernas, elévate en puntillas contrayendo los gemelos",
-        "youtube_url": "https://www.youtube.com/shorts/gwWv7aPcD7s"
+        "youtube_url": "https://www.youtube.com/shorts/gwWv7aPcD7s",
+        "difficulty_level": 1
       },
       {
         "name": "Elevaciones de Gemelos Sentado",
@@ -185,7 +276,26 @@
         "sets": 1,
         "reps": "12-15",
         "description": "Sentado en el banco, mancuernas en los muslos, elévate en puntillas",
-        "youtube_url": "https://www.youtube.com/shorts/3wK8FzqzOeA"
+        "youtube_url": "https://www.youtube.com/shorts/3wK8FzqzOeA",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Elevaciones de Gemelos a Una Pierna",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-12 por pierna",
+        "description": "Elevaciones de gemelos con una sola pierna para mayor intensidad",
+        "youtube_url": "https://www.youtube.com/watch?v=JR6TFmIELEY",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Saltos de Gemelos",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "15-20",
+        "description": "Saltos explosivos trabajando la potencia de los gemelos",
+        "youtube_url": "https://www.youtube.com/watch?v=cOmua3T1W38",
+        "difficulty_level": 4
       }
     ],
     "abs": [
@@ -195,7 +305,8 @@
         "sets": 1,
         "reps": "15-20",
         "description": "Eleva el torso hacia las rodillas sin tirar del cuello",
-        "youtube_url": "https://www.youtube.com/shorts/Dmfq8j6uR3A"
+        "youtube_url": "https://www.youtube.com/shorts/Dmfq8j6uR3A",
+        "difficulty_level": 1
       },
       {
         "name": "Plancha",
@@ -203,7 +314,35 @@
         "sets": 1,
         "reps": "30-60 segundos",
         "description": "Mantén el cuerpo recto como una tabla",
-        "youtube_url": "https://www.youtube.com/shorts/3AM7L2k7BEw"
+        "youtube_url": "https://www.youtube.com/shorts/3AM7L2k7BEw",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Plancha Lateral",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "20-40 segundos por lado",
+        "description": "Plancha de lado para trabajar oblicuos y estabilidad",
+        "youtube_url": "https://www.youtube.com/watch?v=XeN4pEZZJNE",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Mountain Climbers",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "20-30",
+        "description": "En posición de plancha, alterna llevando las rodillas al pecho",
+        "youtube_url": "https://www.youtube.com/watch?v=cnyTQDSE884",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Plancha con Elevación de Brazos",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10-15 por brazo",
+        "description": "Desde plancha, alterna elevando un brazo al frente",
+        "youtube_url": "https://www.youtube.com/watch?v=bVPI9CjJXwE",
+        "difficulty_level": 4
       }
     ],
     "abs_avanzados": [
@@ -213,7 +352,8 @@
         "sets": 1,
         "reps": "12-15",
         "description": "Acostado, eleva las piernas hacia el pecho manteniendo la espalda en el suelo",
-        "youtube_url": "https://www.youtube.com/shorts/nbAm7uHDl1w"
+        "youtube_url": "https://www.youtube.com/shorts/nbAm7uHDl1w",
+        "difficulty_level": 2
       },
       {
         "name": "Abdominales Laterales",
@@ -221,7 +361,17 @@
         "sets": 1,
         "reps": "10-12 por lado",
         "description": "De lado, eleva el torso hacia la cadera trabajando los oblicuos",
-        "youtube_url": "https://www.youtube.com/watch?v=tMd9SZjTrmg"
+        "youtube_url": "https://www.youtube.com/watch?v=tMd9SZjTrmg",
+        "difficulty_level": 3
+      },
+      {
+        "name": "V-Ups",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-12",
+        "description": "Acostado, eleva simultáneamente piernas y torso formando una V",
+        "youtube_url": "https://www.youtube.com/watch?v=7UVgs18Y1P4",
+        "difficulty_level": 4
       }
     ],
     "cardio": [
@@ -231,7 +381,35 @@
         "sets": 1,
         "reps": "20km",
         "description": "Pedalea a ritmo moderado manteniendo buena postura",
-        "youtube_url": "https://www.youtube.com/shorts/w0mjPpxB9CE"
+        "youtube_url": "https://www.youtube.com/shorts/w0mjPpxB9CE",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Intervalos en Bicicleta",
+        "equipment": "stationary_bike",
+        "sets": 1,
+        "reps": "15 min (2 min suave, 1 min intenso)",
+        "description": "Entrenamiento por intervalos alternando ritmo moderado e intenso",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
+      },
+      {
+        "name": "HIIT en Bicicleta",
+        "equipment": "stationary_bike",
+        "sets": 1,
+        "reps": "20 min (30s máximo, 90s recuperación)",
+        "description": "Entrenamiento de alta intensidad con intervalos cortos",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 3
+      },
+      {
+        "name": "Burpees",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-12",
+        "description": "Ejercicio completo: sentadilla, plancha, flexión, salto",
+        "youtube_url": "https://www.youtube.com/watch?v=auBLPXO8Fww",
+        "difficulty_level": 4
       }
     ]
   },
@@ -338,5 +516,8 @@
       ],
       "domingo": []
     }
-  }
+  },
+  "version": "1.2.6",
+  "current_week": 1,
+  "total_weeks": 20
 }

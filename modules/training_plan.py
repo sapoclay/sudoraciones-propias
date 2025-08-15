@@ -77,6 +77,64 @@ class TrainingPlanModule(BaseTrainer):
             'is_rest_day': False
         }
 
+    def get_week_completion_stats(self, week_number: int) -> Dict[str, Any]:
+        """Obtener estadísticas de finalización para una semana específica"""
+        week_dates = self.get_week_dates(week_number)
+        if not week_dates or 'dates' not in week_dates:
+            return {'completed': 0, 'total': 0, 'percentage': 0, 'days': []}
+        
+        total_exercises = 0
+        completed_exercises = 0
+        day_stats = []
+        
+        for date_str in week_dates['dates']:
+            # Recalcular stats en tiempo real para asegurar datos actualizados
+            self.reload_progress_data()
+            day_stat = self.get_day_completion_stats(date_str, week_number)
+            day_stats.append({
+                'date': date_str,
+                'completed': day_stat['completed'],
+                'total': day_stat['total'],
+                'percentage': day_stat['percentage'],
+                'is_rest_day': day_stat['is_rest_day']
+            })
+            
+            total_exercises += day_stat['total']
+            completed_exercises += day_stat['completed']
+        
+        percentage = (completed_exercises / total_exercises * 100) if total_exercises > 0 else 100
+        
+        return {
+            'completed': completed_exercises,
+            'total': total_exercises,
+            'percentage': percentage,
+            'days': day_stats
+        }
+
+    def get_newly_unlocked_exercises(self, week_number: int) -> Dict[str, List[Dict]]:
+        """Obtener ejercicios que se han desbloqueado en la semana actual"""
+        current_level = (week_number - 1) // 4 + 1
+        previous_level = max(1, current_level - 1)
+        
+        # Si es la primera semana del nivel, mostrar ejercicios nuevos
+        week_in_cycle = (week_number - 1) % 4 + 1
+        if week_in_cycle != 1:
+            return {}
+        
+        newly_unlocked = {}
+        
+        for muscle_group, exercises in self.config.get('exercises', {}).items():
+            new_exercises = []
+            for exercise in exercises:
+                exercise_level = exercise.get('difficulty_level', 1)
+                if exercise_level == current_level and exercise_level > previous_level:
+                    new_exercises.append(exercise)
+            
+            if new_exercises:
+                newly_unlocked[muscle_group] = new_exercises
+        
+        return newly_unlocked
+
     def get_week_number_for_date(self, date_str: str) -> int:
         """Determinar qué número de semana corresponde a una fecha específica"""
         # Primero, verificar si tenemos la semana guardada explícitamente
@@ -236,50 +294,56 @@ class TrainingPlanModule(BaseTrainer):
         instructions = {
             # PECHO
             'Press de Banca con Mancuernas': "Acuéstate en el banco, baja las mancuernas lentamente hasta sentir estiramiento en el pecho, empuja hacia arriba con control.",
+            'Press de Banca con Barra': "Acostado en el banco, presiona la barra hacia arriba con control total",
             'Aperturas con Mancuernas': "Acostado en el banco, abre los brazos en arco amplio manteniendo codos ligeramente flexionados, baja hasta sentir estiramiento en pecho.",
-            'Press Inclinado con Mancuernas': "En banco inclinado a 30-45°, presiona las mancuernas hacia arriba manteniendo control del movimiento.",
+            'Press Inclinado con Barra': "En banco inclinado, presiona la barra trabajando pecho superior",
             'Flexiones en el Suelo': "Posición de plancha, baja el pecho hasta casi tocar el suelo, mantén el core contraído, empuja hacia arriba.",
-            
+
             # ESPALDA
             'Remo con Mancuernas': "Torso paralelo al suelo, tira del codo hacia atrás llevando la mancuerna hacia las costillas.",
-            'Remo a Una Mano': "Apoyo en banco con una mano, tira de la mancuerna hacia la cadera manteniendo el torso estable.",
             'Peso Muerto con Mancuernas': "Pies separados, baja las mancuernas manteniendo la espalda recta, empuja con los talones para subir.",
-            
+            'Remo a Una Mano': "Apoyo en banco con una mano, tira de la mancuerna hacia la cadera manteniendo el torso estable.",
+
             # HOMBROS
             'Press Militar con Mancuernas': "De pie, mancuernas a la altura de los hombros, empuja hacia arriba hasta extensión completa.",
             'Elevaciones Laterales': "De pie, eleva los brazos lateralmente hasta la altura de los hombros con control.",
             'Elevaciones Frontales': "De pie, eleva las mancuernas al frente hasta la altura de los hombros alternando brazos.",
             'Pájaros con Mancuernas': "Inclinado hacia adelante, abre los brazos lateralmente apretando los omóplatos.",
-            
+
             # BRAZOS
             'Curl de Bíceps': "Brazos extendidos, codos pegados al torso, flexiona llevando las mancuernas hacia los hombros.",
             'Curl Martillo': "Como el curl normal pero con agarre neutro (palmas enfrentadas), movimiento controlado.",
-            'Curl Concentrado': "Sentado, codo apoyado en la pierna, flexiona el brazo con concentración total en el bíceps.",
             'Extensiones de Tríceps': "Acostado, codos fijos apuntando al techo, baja la mancuerna hacia la frente flexionando antebrazos.",
-            'Patada de Tríceps': "Inclinado, brazo superior paralelo al suelo, extiende el antebrazo hacia atrás.",
             'Fondos en Silla': "Manos en el borde de una silla/banco, codos hacia atrás, baja controlado y sube extendiendo tríceps.",
+            'Curl Concentrado': "Sentado, codo apoyado en la pierna, flexiona el brazo con concentración total en el bíceps.",
+            'Patada de Tríceps': "Inclinado, brazo superior paralelo al suelo, extiende el antebrazo hacia atrás.",
 
             # ANTEBRAZOS
             'Curl de Muñeca': "Sentado, antebrazos apoyados, palmas hacia arriba; flexiona solo las muñecas elevando la mancuerna y baja controlado.",
             'Curl de Muñeca Inverso': "Sentado, antebrazos apoyados, palmas hacia abajo; extiende las muñecas elevando el dorso y desciende controlado.",
             'Pronación/Supinación con Mancuerna': "Con codo a 90° y antebrazo estable, rota lentamente la mancuerna entre palma arriba (supinación) y palma abajo (pronación).",
-            
+
             # PIERNAS
             'Sentadillas con Mancuernas': "Pies separados, baja como si te sentaras en una silla, mantén el pecho erguido.",
             'Zancadas con Mancuernas': "Paso largo adelante, baja hasta que ambas rodillas estén a 90 grados.",
+            'Sentadillas Búlgaras': "Un pie elevado atrás, baja con la pierna delantera hasta 90 grados",
             'Peso Muerto Rumano': "Piernas ligeramente flexionadas, baja las mancuernas manteniendo la curva lumbar.",
             'Sentadillas Sumo': "Pies muy separados, puntas hacia afuera, baja manteniendo rodillas alineadas con pies.",
+
+            # GEMELOS
+            'Elevaciones de Gemelos de Pie': "De pie con mancuernas, elévate en puntillas contrayendo los gemelos",
+            'Elevaciones de Gemelos Sentado': "Sentado en el banco, mancuernas en los muslos, elévate en puntillas",
             'Elevación de Talones': "De pie, elévate sobre las puntas de los pies contrayendo las pantorrillas.",
-            
+
             # ABDOMINALES
-            'Abdominales Tradicionales': "Acostado, rodillas flexionadas, eleva el torso hacia las rodillas sin tirar del cuello.",
+            'Abdominales Tradicionalales': "Acostado, rodillas flexionadas, eleva el torso hacia las rodillas sin tirar del cuello.",
             'Plancha': "Antebrazos en el suelo, cuerpo en línea recta, mantén la posición.",
             'Abdominales Bajas': "Acostado boca arriba, manos bajo la espalda baja, eleva las piernas hacia el pecho manteniendo control.",
             'Abdominales Laterales': "De lado, eleva el torso hacia la cadera, trabajando los oblicuos con movimiento controlado.",
             'Abdominales con Mancuerna': "Acostado, sujeta mancuerna en el pecho, realiza abdominales con peso adicional.",
             'Russian Twists': "Sentado, inclínate hacia atrás, rota el torso de lado a lado con mancuerna.",
             'Plancha Lateral': "De lado, apoyado en antebrazo, mantén el cuerpo recto lateralmente.",
-            
+
             # CARDIO
             'Bicicleta Estática': "Ajusta el asiento, mantén la espalda recta, pedalea con movimiento fluido."
         }
@@ -290,41 +354,47 @@ class TrainingPlanModule(BaseTrainer):
         tips = {
             # PECHO
             'Press de Banca con Mancuernas': "Mantén los omóplatos retraídos, no arquees excesivamente la espalda. Respiración: inhala al bajar, exhala al subir.",
+            'Press de Banca con Barra': "Agarre ligeramente más ancho que los hombros. Baja la barra al pecho controladamente.",
             'Aperturas con Mancuernas': "No bajes demasiado para evitar lesiones en el hombro. Mantén codos ligeramente flexionados siempre.",
-            'Press Inclinado con Mancuernas': "Ángulo del banco no mayor a 45°. Enfócate en la parte superior del pecho.",
+            'Press Inclinado con Barra': "Enfócate en la parte superior del pecho. No uses un agarre demasiado ancho.",
             'Flexiones en el Suelo': "Mantén línea recta del cuerpo, si es difícil hazlas de rodillas. Progresa gradualmente.",
-            
+
             # ESPALDA
             'Remo con Mancuernas': "Inicia el movimiento con los músculos de la espalda, no gires el torso. Aprieta omóplatos al final.",
-            'Remo a Una Mano': "Mantén la espalda neutral, no uses impulso. El codo debe ir hacia atrás, no hacia afuera.",
             'Peso Muerto con Mancuernas': "Mantén la barra cerca del cuerpo, pecho arriba, peso en los talones.",
-            
+            'Remo a Una Mano': "Mantén la espalda neutral, no uses impulso. El codo debe ir hacia atrás, no hacia afuera.",
+
             # HOMBROS
             'Press Militar con Mancuernas': "Core contraído, no uses impulso con las piernas. Cuidado con la posición del cuello.",
             'Elevaciones Laterales': "Movimiento lento y controlado, no uses peso excesivo. Evita balancear el cuerpo.",
             'Elevaciones Frontales': "Alterna los brazos para mejor estabilidad. No subas más allá de la altura del hombro.",
             'Pájaros con Mancuernas': "Mantén rodillas ligeramente flexionadas. Enfócate en apretar los omóplatos.",
-            
+
             # BRAZOS
             'Curl de Bíceps': "Mantén los codos fijos, no balancees el cuerpo. Contracción completa en la parte superior.",
             'Curl Martillo': "Variación excelente para el braquial. Alterna brazos para mejor concentración.",
-            'Curl Concentrado': "Ideal para máxima concentración. No uses impulso, movimiento muy controlado.",
             'Extensiones de Tríceps': "Mantén los brazos superiores fijos, cuidado con el peso cerca de la cabeza.",
-            'Patada de Tríceps': "Mantén el brazo superior inmóvil. Extensión completa pero sin bloquear agresivamente.",
             'Fondos en Silla': "Hombros abajo y atrás; evita encogerte. No desciendas más de lo cómodo para tus hombros.",
+            'Curl Concentrado': "Ideal para máxima concentración. No uses impulso, movimiento muy controlado.",
+            'Patada de Tríceps': "Mantén el brazo superior inmóvil. Extensión completa pero sin bloquear agresivamente.",
 
             # ANTEBRAZOS
             'Curl de Muñeca': "Recorrido corto y controlado, pausa 1s arriba. No flexiones los codos; solo muñecas.",
             'Curl de Muñeca Inverso': "Usa peso moderado, evita compensar con hombros. Controla la bajada.",
             'Pronación/Supinación con Mancuerna': "Coge la mancuerna por un extremo para mayor palanca. Rotación lenta, sin balanceos.",
-            
+
             # PIERNAS
             'Sentadillas con Mancuernas': "Peso en los talones, no dejes que las rodillas se vayan hacia adentro. Profundidad completa.",
             'Zancadas con Mancuernas': "Mantén el equilibrio, rodilla delantera no debe sobrepasar el pie. Tronco erguido.",
+            'Sentadillas Búlgaras': "Mantén el torso erguido. La rodilla de atrás casi toca el suelo.",
             'Peso Muerto Rumano': "Excelente para isquiotibiales. Mantén las mancuernas cerca de las piernas.",
             'Sentadillas Sumo': "Activa los glúteos al subir. Rodillas siguen la dirección de los pies.",
+
+            # GEMELOS
+            'Elevaciones de Gemelos de Pie': "Rango de movimiento completo. Estira abajo y contrae arriba.",
+            'Elevaciones de Gemelos Sentado': "Enfócate en el sóleo. Pausa en la contracción máxima.",
             'Elevación de Talones': "Pausa 1-2 segundos arriba. Baja controladamente para máximo estiramiento.",
-            
+
             # ABDOMINALES
             'Abdominales Tradicionales': "El movimiento viene del abdomen, calidad sobre cantidad. No tires del cuello.",
             'Plancha': "Mantén la línea recta, si duele la espalda baja detente. Respira normalmente.",
@@ -333,7 +403,7 @@ class TrainingPlanModule(BaseTrainer):
             'Abdominales con Mancuerna': "Peso moderado, enfócate en la técnica. Progresa gradualmente.",
             'Russian Twists': "Mantén los pies elevados para mayor dificultad. Control en la rotación.",
             'Plancha Lateral': "Progresa desde rodillas si es necesario. Mantén caderas elevadas.",
-            
+
             # CARDIO
             'Bicicleta Estática': "Cadencia constante, no te encorves sobre el manillar. Ajusta resistencia gradualmente."
         }
@@ -484,6 +554,30 @@ class TrainingPlanModule(BaseTrainer):
         
         st.markdown(f"*{week_info['level_description']}*")
         
+        # Panel de información del nivel
+        st.markdown("### 🎯 Información del Nivel")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Nivel Actual", week_info['level_name'])
+        with col2:
+            st.metric("Semana en Ciclo", f"{week_info['week_in_cycle']}/4")
+        with col3:
+            st.metric("Semanas Completadas", week_info['total_weeks_completed'])
+        
+        st.markdown(f"**{week_info['level_description']}**")
+        
+        # Mostrar ejercicios desbloqueados
+        new_exercises = self.get_newly_unlocked_exercises(current_week)
+        if new_exercises:
+            with st.expander("🆕 Nuevos ejercicios desbloqueados", expanded=True):
+                for muscle_group, exercises in new_exercises.items():
+                    if exercises:
+                        st.markdown(f"**💪 {muscle_group.title()}:**")
+                        for exercise in exercises:
+                            difficulty_emoji = ["", "🟢", "🟡", "🟠", "🔴"][exercise.get('difficulty_level', 1)]
+                            st.markdown(f"  • {difficulty_emoji} {exercise['name']}")
+        
         # Mostrar progreso si es una semana avanzada
         if current_week > 4:
             progress_bar = min(week_info['week_in_cycle'] / 4, 1.0)
@@ -491,6 +585,8 @@ class TrainingPlanModule(BaseTrainer):
         
         # Panel de progreso diario
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        # Recargar progreso para asegurar datos actualizados
+        self.reload_progress_data()
         day_stats = self.get_day_completion_stats(current_date, current_week)
         
         if day_stats['total'] > 0:
@@ -523,7 +619,46 @@ class TrainingPlanModule(BaseTrainer):
                     for ex in pending_exercises:
                         st.markdown(f"• **{ex['name']}** ({ex['muscle_group'].title()})")
         
+        # Panel de progreso semanal
+        st.markdown("### 📈 Progreso de la Semana")
+        week_stats = self.get_week_completion_stats(current_week)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Ejercicios Completados", week_stats['completed'], f"de {week_stats['total']}")
+        with col2:
+            week_percentage = week_stats['percentage']
+            st.metric("Progreso de la Semana", f"{week_percentage:.1f}%")
+        with col3:
+            week_remaining = week_stats['total'] - week_stats['completed']
+            st.metric("Pendientes", week_remaining, f"{-week_remaining}" if week_remaining > 0 else "0")
+        with col4:
+            if week_percentage >= 80:
+                st.metric("Estado", "🎉 Excelente", "¡Casi completada!")
+            elif week_percentage >= 50:
+                st.metric("Estado", "👍 Buen ritmo", "¡Sigue así!")
+            else:
+                st.metric("Estado", "💪 En marcha", "¡A por ello!")
+        
+        # Barra de progreso de la semana
+        st.progress(week_percentage / 100, text=f"Progreso semanal: {week_percentage:.0f}%")
+        
+        # Mostrar progreso por días de la semana
+        with st.expander("📅 Detalle por días", expanded=False):
+            day_names_full = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            for i, day_stat in enumerate(week_stats['days']):
+                if day_stat['is_rest_day']:
+                    st.markdown(f"**{day_names_full[i]}**: 🛌 Día de descanso")
+                else:
+                    completion_text = f"{day_stat['completed']}/{day_stat['total']} ejercicios ({day_stat['percentage']:.1f}%)"
+                    status_emoji = "✅" if day_stat['percentage'] >= 80 else "🔄" if day_stat['percentage'] > 0 else "⏳"
+                    st.markdown(f"**{day_names_full[i]}**: {status_emoji} {completion_text}")
+        
         st.markdown("---")
+        
+        # Obtener las fechas de la semana actual
+        week_dates = self.get_week_dates(current_week)
+        dates_list = week_dates.get('dates', []) if week_dates else []
         
         day_names = {
             'lunes': '🟢 LUNES',
@@ -537,11 +672,23 @@ class TrainingPlanModule(BaseTrainer):
         
         day_order = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
         
-        for day_key in day_order:
+        for day_index, day_key in enumerate(day_order):
             muscle_groups = week_plan.get(day_key, [])
             day_display = day_names.get(day_key, day_key.upper())
             
-            st.markdown(f"### {day_display}")
+            # Agregar la fecha del día si está disponible
+            if day_index < len(dates_list):
+                # Formatear la fecha de YYYY-MM-DD a DD-MM-YYYY
+                try:
+                    date_obj = datetime.datetime.strptime(dates_list[day_index], '%Y-%m-%d')
+                    formatted_date = date_obj.strftime('%d-%m-%Y')
+                    day_display_with_date = f"{day_display} - {formatted_date}"
+                except:
+                    day_display_with_date = day_display
+            else:
+                day_display_with_date = day_display
+            
+            st.markdown(f"### {day_display_with_date}")
             
             if not muscle_groups:  # Día de descanso
                 st.markdown("""

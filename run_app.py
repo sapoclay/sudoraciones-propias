@@ -11,6 +11,18 @@ import time
 import venv
 from pathlib import Path
 
+# Suprimir warnings molestos del navegador/TensorFlow
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['PYTHONWARNINGS'] = 'ignore'
+os.environ['STREAMLIT_BROWSER_GATHERUSAGESTATS'] = 'false'
+os.environ['STREAMLIT_SERVER_ENABLECORS'] = 'false'
+os.environ['STREAMLIT_SERVER_ENABLEXSRFPROTECTION'] = 'false'
+os.environ['STREAMLIT_LOGGER_LEVEL'] = 'error'
+
+# Suprimir warnings específicos de Chrome/Chromium
+os.environ['GOOGLE_API_USE_MTLS_ENDPOINT'] = 'never'
+os.environ['GOOGLE_DEFAULT_CLIENT_CONFIG'] = 'never'
+
 def get_venv_path():
     """Obtener la ruta del entorno virtual"""
     return Path.cwd() / "venv_sudoraciones"
@@ -93,10 +105,10 @@ def setup_virtual_environment():
 def print_banner():
     """Mostrar banner de inicio"""
     print("\n" + "="*60)
-    print("🎯 SUDORACIONES PROPIAS - SISTEMA DE ENTRENAMIENTO")
+    print("🎯 SUDORACIONES PROPIAS v1.2.6 - SISTEMA DE ENTRENAMIENTO")
     print("="*60)
     print("💪 Entrenamiento Personalizado para Principiantes y Expertos")
-    print("🏋️ 25 ejercicios especializados con progresión automática")
+    print("🏋️ 26 ejercicios especializados con progresión automática")
     print("📊 8 grupos musculares + alternancia de antebrazos")
     print("⏰ Progresión inteligente hasta 20 semanas")
     print("📈 4 niveles: Principiante → Intermedio → Avanzado → Experto")
@@ -319,7 +331,7 @@ def show_summary():
     print("📊 RESUMEN DE LA APLICACIÓN MODULAR")
     print("="*60)
     print("💪 ENTRENAMIENTO PERSONALIZADO OPTIMIZADO:")
-    print("  • 25 ejercicios especializados (incluye antebrazos)")
+    print("  • 26 ejercicios especializados (incluye antebrazos)")
     print("  • Progresión automática hasta 20 semanas")
     print("  • Sistema de niveles: Principiante → Intermedio → Avanzado → Experto")
     print("  • Alternancia inteligente de ejercicios de antebrazo")
@@ -330,13 +342,13 @@ def show_summary():
     print("  • 🔧 Fácil mantenimiento y escalabilidad")
     print("  • 🧪 Testing individual por módulo")
     print("")
-    print("💪 GRUPOS MUSCULARES (25 ejercicios totales):")
+    print("💪 GRUPOS MUSCULARES (26 ejercicios totales):")
     print("  • Pecho (4): Press de Banca Mancuernas/Barra + Aperturas + Press Inclinado")
     print("  • Espalda (2): Remo con Mancuernas + Peso Muerto con Mancuernas")
     print("  • Hombros (3): Press Militar + Elevaciones Laterales + Elevaciones Frontales")
     print("  • Brazos (7): Curl Bíceps + Curl Martillo + Extensiones + Fondos + 3 Antebrazos")
     print("    - Antebrazos (alternados): Curl de Muñeca + Curl Inverso + Pronación/Supinación")
-    print("  • Piernas (2): Sentadillas con Mancuernas + Zancadas con Mancuernas")
+    print("  • Piernas (3): Sentadillas con Mancuernas + Zancadas + Sentadillas Búlgaras")
     print("  • Gemelos (2): Elevaciones de Pie + Elevaciones Sentado")
     print("  • Abdominales (4): Tradicionales + Plancha + Abdominales Bajas + Laterales")
     print("  • Cardio (1): Bicicleta Estática")

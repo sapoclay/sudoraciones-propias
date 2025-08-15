@@ -1,6 +1,6 @@
 """
 Sudoraciones Propias - Aplicación Principal
-Sistema de entrenamiento modularizado por pestañas
+Sistema de entrenamiento modularizado por pestañas con mapeo calendario
 """
 import streamlit as st
 import os
@@ -137,7 +137,7 @@ translateElements();
 
 
 class ModernHeavyDutyTrainer:
-    """Aplicación principal coordinadora"""
+    """Aplicación principal coordinadora con mapeo calendario"""
     
     def __init__(self):
         """Inicializar la aplicación modular"""
@@ -176,7 +176,7 @@ class ModernHeavyDutyTrainer:
         """Reiniciar todo el progreso del usuario"""
         import datetime
         
-        # Crear datos de progreso vacíos
+        # Crear datos de progreso vacíos con mapeo calendario
         current_month = datetime.datetime.now().strftime('%Y-%m')
         fresh_progress_data = {
             'total_workouts': 0,
@@ -186,12 +186,16 @@ class ModernHeavyDutyTrainer:
                 current_month: {}
             },
             'completed_exercises': {},
+            'exercise_weeks': {},
             'last_updated': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         # Actualizar datos en memoria
         self.base_trainer.progress_data = fresh_progress_data
         self.progress_data = fresh_progress_data
+        
+        # Reinicializar mapeo calendario
+        self.base_trainer.initialize_calendar_mapping()
         
         # Sincronizar con todos los módulos
         self._sync_modules()
@@ -202,9 +206,34 @@ class ModernHeavyDutyTrainer:
         # Resetear semana actual
         st.session_state.current_week = 1
         
-        # Mostrar confirmación
-        st.success("🎉 ¡Progreso reiniciado completamente! Comenzando desde la Semana 1.")
-        st.balloons()
+        # Limpiar todos los estados de ejercicios marcados en session_state
+        exercise_keys_to_remove = []
+        for key in st.session_state.keys():
+            if key.startswith('exercise_state_') or key.startswith('exercise_completed_'):
+                exercise_keys_to_remove.append(key)
+        
+        for key in exercise_keys_to_remove:
+            del st.session_state[key]
+        
+        # Limpiar también estados de avance de semana
+        week_keys_to_remove = []
+        for key in st.session_state.keys():
+            if key.startswith('week_') and ('_advanced' in key or '_celebrated' in key):
+                week_keys_to_remove.append(key)
+        
+        for key in week_keys_to_remove:
+            del st.session_state[key]
+        
+        # Limpiar también estados relacionados con configuración calendario
+        if 'show_date_config' in st.session_state:
+            del st.session_state['show_date_config']
+        
+        # Resetear working_week también
+        if 'working_week' in st.session_state:
+            st.session_state.working_week = 1
+        
+        # Mostrar confirmación sin globos (versión profesional)
+        st.success("✅ Progreso reiniciado completamente. Comenzando desde la Semana 1.")
     
     
     def render_header(self):
@@ -212,28 +241,21 @@ class ModernHeavyDutyTrainer:
         st.markdown("""
         <div class="main-header">
             <h1>💪 Sudoraciones Propias</h1>
-            <h3>Sistema de entrenamiento con 25 ejercicios especializados + Videos YouTube</h3>
+            <h3>Sistema de entrenamiento con mapeo calendario real + 26 ejercicios especializados</h3>
         </div>
         """, unsafe_allow_html=True)
     
     def render_sidebar(self):
-        """Renderizar barra lateral con opciones completas"""
+        """Renderizar barra lateral con opciones completas incluyendo mapeo calendario"""
         with st.sidebar:
             st.markdown("## ⚙️ Configuración")
             
-            # Selección de semana
-            max_week = 20  # Permitir hasta 20 semanas de progresión
-            selected_week = st.selectbox(
-                "📅 Selecciona la semana:",
-                options=list(range(1, max_week + 1)),
-                index=min(st.session_state.current_week - 1, max_week - 1),
-                help="El programa progresa automáticamente cada 4 semanas"
-            )
-            st.session_state.current_week = selected_week
+            # Mostrar información de la semana actual sin selector redundante
+            current_week = st.session_state.get('current_week', 1)
+            week_info = self.base_trainer.get_week_info(current_week)
             
-            # Mostrar información del nivel actual
-            week_info = self.base_trainer.get_week_info(selected_week)
             st.info(f"""
+            **Semana actual del programa:** {current_week}/20
             **Nivel:** {week_info['level_name']}
             **Descripción:** {week_info['level_description']}
             **Semana en ciclo:** {week_info['week_in_cycle']}/4
@@ -252,11 +274,75 @@ class ModernHeavyDutyTrainer:
             # Información del programa
             st.markdown("### ℹ️ Información")
             st.info(f"""
-            **Semana actual:** {selected_week}/20
-            **Total ejercicios:** 20 (5 pecho + 4 abs + 2 gemelos + cardio)
+            **Semana actual:** {current_week}/20
+            **Total ejercicios:** 25 (pecho + espalda + hombros + brazos + piernas + gemelos + abs + cardio)
             **Días por semana:** 3-4
             **Días de descanso:** 3-4
             """)
+            
+            # Configuración de fecha de inicio del programa
+            st.markdown("### 📅 Configuración Calendario")
+            
+            # Mostrar fecha de inicio actual en formato DD/MM/YYYY
+            start_date_display = self.base_trainer.get_program_start_date_display()
+            if start_date_display:
+                st.caption(f"**Fecha inicio programa:** {start_date_display}")
+            else:
+                st.caption("**Fecha inicio programa:** No configurada")
+            
+            # Permitir cambiar la fecha de inicio
+            if st.button("🔧 Cambiar Fecha de Inicio", help="Recalcula el mapeo entre semanas de entrenamiento y calendario"):
+                st.session_state.show_date_config = True
+            
+            if st.session_state.get('show_date_config', False):
+                import datetime
+                
+                # Obtener fecha actual o fecha guardada
+                start_date_internal = self.base_trainer.progress_data.get('program_start_date', 'No configurada')
+                if start_date_internal != 'No configurada':
+                    try:
+                        default_date = datetime.datetime.strptime(start_date_internal, '%Y-%m-%d').date()
+                    except:
+                        default_date = datetime.date.today()
+                else:
+                    # Por defecto, el lunes de esta semana
+                    today = datetime.date.today()
+                    default_date = today - datetime.timedelta(days=today.weekday())
+                
+                # Obtener fecha actual para mostrar como placeholder
+                current_display = self.base_trainer.get_program_start_date_display()
+                
+                # Solo un campo de texto para fecha en formato DD/MM/YYYY
+                date_text = st.text_input(
+                    "Fecha de inicio del programa (DD/MM/YYYY):",
+                    value=current_display if current_display else "",
+                    placeholder="ej: 01/08/2025",
+                    help="Esta será la fecha exacta de inicio del programa (no se ajustará al lunes)"
+                )
+                
+                col_save, col_cancel = st.columns(2)
+                with col_save:
+                    if st.button("✅ Guardar", key="save_start_date"):
+                        if date_text.strip():
+                            success = self.base_trainer.set_program_start_date(date_text.strip())
+                            if success:
+                                st.success("✅ Fecha actualizada correctamente")
+                                st.session_state.show_date_config = False
+                                st.rerun()
+                        else:
+                            st.error("Por favor, ingrese una fecha válida en formato DD/MM/YYYY")
+                
+                with col_cancel:
+                    if st.button("❌ Cancelar", key="cancel_start_date"):
+                        st.session_state.show_date_config = False
+                        st.rerun()
+                
+                st.caption("⚠️ **Nota:** Cambiar la fecha recalculará el mapeo de todas las semanas")
+            
+            # Mostrar información de la semana calendario actual
+            current_week_dates = self.base_trainer.get_week_dates_formatted(current_week)
+            if current_week_dates and 'start_date' in current_week_dates:
+                st.caption(f"**Semana {current_week}:** {current_week_dates['start_date']} a {current_week_dates['end_date']}")
             
             # Estadísticas rápidas
             if self.base_trainer.progress_data.get('total_workouts', 0) > 0:
@@ -268,11 +354,11 @@ class ModernHeavyDutyTrainer:
             st.markdown("### 🏗️ Arquitectura")
             st.markdown("""
             **Sistema Modular:**
-            - 🎯 Plan de Entrenamiento
-            - 📊 Progreso y Calendario  
-            - 📈 Estadísticas
+            - 🎯 Plan de Entrenamiento con fechas reales
+            - 📊 Progreso y Calendario sincronizado
+            - 📈 Estadísticas acumulativas
             - ℹ️ Información del Programa
-            - 🔧 Core del Sistema
+            - 🔧 Core del Sistema + Mapeo Calendario
             """)
             
             # Sección de reinicio de progreso
@@ -298,6 +384,7 @@ class ModernHeavyDutyTrainer:
                 - 📅 Todo el historial del calendario
                 - 📊 Todas las estadísticas y rachas
                 - 🏆 El progreso de las 20 semanas
+                - 📅 El mapeo calendario (se reiniciará)
                 """)
                 
                 col1, col2 = st.columns(2)
@@ -341,15 +428,20 @@ class ModernHeavyDutyTrainer:
             tab1, tab2, tab3, tab4 = self.render_tabs()
             
             with tab1:
-                # Pestaña de Plan de Entrenamiento
+                # Pestaña de Plan de Entrenamiento con fechas calendario
+                
+                # Selector de semana
+                self.training_module.render_week_selector()
+                
+                # Plan de entrenamiento
                 self.training_module.render_training_plan(show_videos, show_instructions, show_tips)
             
             with tab2:
-                # Pestaña de Progreso y Calendario
+                # Pestaña de Progreso y Calendario con mapeo real
                 self.progress_module.render_progress_tab()
             
             with tab3:
-                # Pestaña de Estadísticas
+                # Pestaña de Estadísticas acumulativas
                 self.statistics_module.render_statistics_tab()
             
             with tab4:
@@ -362,8 +454,9 @@ class ModernHeavyDutyTrainer:
             # Pie de página
             st.markdown("---")
             st.markdown(
-                "💪 **Sudoraciones Propias** - Sistema de Entrenamiento Personal  \n"
+                "💪 **Sudoraciones Propias v1.2.7** - Sistema de Entrenamiento con Mapeo Calendario  \n"
                 "🚀 Desarrollado con ☕ Python & Streamlit  \n"
+                "📅 **Nuevo**: Semanas de entrenamiento sincronizadas con fechas reales  \n"
                 "**Creado por entreunosyceros**",
                 unsafe_allow_html=False
             )

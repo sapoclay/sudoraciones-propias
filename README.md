@@ -153,7 +153,7 @@ modules/
 ## 💪 Características principales
 
 ### Entrenamiento
-- **25 ejercicios especializados** (4 pecho + 4 abdominales + 7 brazos + 2 gemelos + otros)
+- **26 ejercicios especializados** (4 pecho + 4 abdominales + 7 brazos + 2 gemelos + 3 piernas + otros)
 - **Progresión automática inteligente** hasta 20 semanas
 - **Sistema de 4 niveles** con días de descanso adaptativos
 - **Seguimiento automático** por ejercicio individual
@@ -174,7 +174,7 @@ modules/
 
 ## 📊 Grupos musculares y progresión
 
-### 🎯 **Distribución de ejercicios (25 Total)**
+### 🎯 **Distribución de ejercicios (26 Total)**
 
 #### Pecho (4 ejercicios)
 - Press de Banca con Mancuernas
@@ -202,9 +202,10 @@ modules/
 
 > Nota: en los días de brazos, se muestra automáticamente solo 1 ejercicio de antebrazo alternado de forma inteligente. La progresión por nivel ajusta series y repeticiones: Nivel 1 (1×8-10), Nivel 2 (1×10-12), Nivel 3 (2×10-12), Nivel 4+ (2×12-15).
 
-#### Piernas (2 ejercicios)
+#### Piernas (3 ejercicios)
 - Sentadillas con Mancuernas
 - Zancadas con Mancuernas
+- Sentadillas Búlgaras
 
 #### Gemelos (2 ejercicios)
 - Elevaciones de Gemelos de Pie

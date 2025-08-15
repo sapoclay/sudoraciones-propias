@@ -5,6 +5,7 @@ Contiene toda la lógica de la pestaña de estadísticas
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import datetime
 from .base_trainer import BaseTrainer
 
 
@@ -27,6 +28,178 @@ class StatisticsModule(BaseTrainer):
     def translate_muscle_group(self, group_name):
         """Traduce el nombre del grupo muscular al español"""
         return self.MUSCLE_GROUP_TRANSLATIONS.get(group_name.lower(), group_name.title())
+    
+    def filter_dates_from_program_start(self, completed_exercises):
+        """Filtrar ejercicios solo desde la fecha de inicio del programa"""
+        if not self.progress_data.get('program_start_date') or self.progress_data['program_start_date'] is None:
+            return completed_exercises
+        
+        try:
+            start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d')
+            filtered_exercises = {}
+            
+            for date_str, exercises in completed_exercises.items():
+                try:
+                    exercise_date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                    # Solo incluir ejercicios desde la fecha de inicio del programa
+                    if exercise_date >= start_date:
+                        filtered_exercises[date_str] = exercises
+                except ValueError:
+                    # Si hay error al parsear fecha, incluir por compatibilidad
+                    filtered_exercises[date_str] = exercises
+            
+            return filtered_exercises
+        except ValueError:
+            # Si hay error al parsear fecha de inicio, devolver todos
+            return completed_exercises
+    
+    def _calculate_total_workouts_from_start(self) -> int:
+        """Calcular total de entrenamientos completados desde la fecha de inicio"""
+        if 'completed_workouts' not in self.progress_data:
+            return 0
+        
+        # Filtrar entrenamientos desde la fecha de inicio del programa
+        total_workouts = 0
+        start_date = None
+        
+        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
+            try:
+                start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
+            except ValueError:
+                start_date = None
+        
+        for month_key, dates in self.progress_data['completed_workouts'].items():
+            for date_str in dates:
+                try:
+                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+                    if start_date is None or workout_date >= start_date:
+                        total_workouts += 1
+                except ValueError:
+                    continue
+        
+        return total_workouts
+    
+    def _calculate_current_streak_from_start(self) -> int:
+        """Calcular racha actual de días consecutivos desde la fecha de inicio"""
+        if 'completed_workouts' not in self.progress_data:
+            return 0
+        
+        # Obtener todas las fechas completadas
+        all_completed = []
+        start_date = None
+        
+        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
+            try:
+                start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
+            except ValueError:
+                start_date = None
+        
+        for month_dates in self.progress_data['completed_workouts'].values():
+            for date_str in month_dates:
+                try:
+                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+                    if start_date is None or workout_date >= start_date:
+                        all_completed.append(workout_date)
+                except ValueError:
+                    continue
+        
+        if not all_completed:
+            return 0
+        
+        all_completed.sort(reverse=True)  # Más reciente primero
+        
+        # Calcular racha desde hoy hacia atrás
+        current_date = datetime.datetime.now().date()
+        streak = 0
+        
+        for i in range(60):  # Revisar últimos 60 días
+            check_date = current_date - datetime.timedelta(days=i)
+            
+            if check_date in all_completed:
+                streak += 1
+            else:
+                break
+        
+        return streak
+    
+    def _calculate_longest_streak_from_start(self) -> int:
+        """Calcular la racha más larga de días consecutivos desde la fecha de inicio"""
+        if 'completed_workouts' not in self.progress_data:
+            return 0
+        
+        # Obtener todas las fechas completadas
+        all_completed = []
+        start_date = None
+        
+        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
+            try:
+                start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
+            except ValueError:
+                start_date = None
+        
+        for month_dates in self.progress_data['completed_workouts'].values():
+            for date_str in month_dates:
+                try:
+                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+                    if start_date is None or workout_date >= start_date:
+                        all_completed.append(workout_date)
+                except ValueError:
+                    continue
+        
+        if not all_completed:
+            return 0
+        
+        all_completed = sorted(set(all_completed))  # Eliminar duplicados y ordenar
+        
+        # Encontrar la racha más larga
+        max_streak = 0
+        current_streak = 1
+        
+        for i in range(1, len(all_completed)):
+            # Verificar si la fecha actual es consecutiva a la anterior
+            if all_completed[i] - all_completed[i-1] == datetime.timedelta(days=1):
+                current_streak += 1
+            else:
+                max_streak = max(max_streak, current_streak)
+                current_streak = 1
+        
+        # No olvidar comparar la última racha
+        max_streak = max(max_streak, current_streak)
+        
+        return max_streak
+    
+    def _calculate_total_exercises_from_start(self) -> int:
+        """Calcular total de ejercicios completados desde la fecha de inicio"""
+        if 'completed_exercises' not in self.progress_data:
+            return 0
+        
+        # Filtrar ejercicios desde la fecha de inicio del programa
+        filtered_exercises = self.filter_dates_from_program_start(self.progress_data['completed_exercises'])
+        
+        total_exercises = 0
+        for date_str, exercises in filtered_exercises.items():
+            for exercise_id, completed in exercises.items():
+                if completed:
+                    total_exercises += 1
+        
+        return total_exercises
+    
+    def _calculate_weeks_elapsed_from_start(self) -> float:
+        """Calcular las semanas transcurridas desde la fecha de inicio del programa"""
+        if 'program_start_date' not in self.progress_data:
+            return 1.0  # Fallback: al menos 1 semana
+        
+        try:
+            start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
+            current_date = datetime.datetime.now().date()
+            
+            # Calcular diferencia en días y convertir a semanas
+            days_elapsed = (current_date - start_date).days
+            weeks_elapsed = max(days_elapsed / 7.0, 1.0)  # Mínimo 1 semana
+            
+            return weeks_elapsed
+        except ValueError:
+            return 1.0  # Fallback
 
     def render_statistics_tab(self):
         """Renderizar pestaña de estadísticas"""
@@ -34,6 +207,52 @@ class StatisticsModule(BaseTrainer):
         
         # Asegurar datos frescos
         self.reload_progress_data()
+        
+        # Mostrar información sobre el período de cálculo
+        start_date_display = self.get_program_start_date_display()
+        if start_date_display:
+            st.info(f"📅 **Estadísticas calculadas desde:** {start_date_display} (fecha de inicio del programa)")
+        else:
+            st.warning("⚠️ No se ha configurado fecha de inicio del programa. Las estadísticas incluyen todos los datos.")
+        
+        # Mostrar estadísticas principales acumulativas
+        st.subheader("📊 Estadísticas Principales Acumulativas")
+        
+        # Calcular estadísticas reales
+        total_workouts_real = self._calculate_total_workouts_from_start()
+        current_streak_real = self._calculate_current_streak_from_start()
+        longest_streak_real = self._calculate_longest_streak_from_start()
+        total_exercises_completed_real = self._calculate_total_exercises_from_start()
+        current_week_real = self.get_auto_detected_week()  # Usar semana auto-detectada
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("🏋️ Entrenamientos Totales", total_workouts_real)
+        
+        with col2:
+            st.metric("🔥 Racha Actual", f"{current_streak_real} días")
+        
+        with col3:
+            st.metric("🏆 Racha Máxima", f"{longest_streak_real} días")
+        
+        with col4:
+            st.metric("📅 Semana Actual", f"{current_week_real}/20")
+        
+        col5, col6 = st.columns(2)
+        with col5:
+            st.metric("✅ Ejercicios Completados", total_exercises_completed_real)
+        
+        with col6:
+            # Calcular promedio de entrenamientos por semana desde inicio del programa
+            weeks_elapsed = self._calculate_weeks_elapsed_from_start()
+            if weeks_elapsed > 0:
+                avg_per_week = total_workouts_real / weeks_elapsed
+                st.metric("📈 Promedio/Semana", f"{avg_per_week:.1f}")
+            else:
+                st.metric("📈 Promedio/Semana", "0.0")
+        
+        st.markdown("---")
         
         # Análisis de completado vs disponible por grupo
         exercise_counts = {}
@@ -44,16 +263,32 @@ class StatisticsModule(BaseTrainer):
             exercise_counts[muscle_group] = len(exercises)
             completed_counts[muscle_group] = 0
         
-        # Contar ejercicios completados por grupo
+        # Contar ejercicios completados por grupo (evitando duplicados)
+        # SOLO desde la fecha de inicio del programa
         if 'completed_exercises' in self.progress_data:
-            for date_str, exercises in self.progress_data['completed_exercises'].items():
+            # Filtrar solo ejercicios desde la fecha de inicio del programa
+            filtered_exercises = self.filter_dates_from_program_start(self.progress_data['completed_exercises'])
+            
+            # Crear diccionario para contar exercise_id únicos por grupo
+            unique_completions_by_group = {}
+            
+            for date_str, exercises in filtered_exercises.items():
                 for exercise_id, completed in exercises.items():
                     if completed:
                         parts = exercise_id.split('_')
                         if len(parts) >= 2:
                             muscle_group = parts[0]
                             if muscle_group in completed_counts:
-                                completed_counts[muscle_group] += 1
+                                # Crear clave única: exercise_id + fecha
+                                unique_key = f"{exercise_id}_{date_str}"
+                                if muscle_group not in unique_completions_by_group:
+                                    unique_completions_by_group[muscle_group] = set()
+                                unique_completions_by_group[muscle_group].add(unique_key)
+            
+            # Contar completions únicos por grupo
+            for muscle_group in completed_counts.keys():
+                if muscle_group in unique_completions_by_group:
+                    completed_counts[muscle_group] = len(unique_completions_by_group[muscle_group])
         
         if exercise_counts:
             col1, col2 = st.columns(2)
@@ -143,10 +378,14 @@ class StatisticsModule(BaseTrainer):
         st.subheader("💪 Análisis de Rendimiento por Grupo")
         
         # Calcular estadísticas avanzadas por grupo
+        # SOLO desde la fecha de inicio del programa
         muscle_group_detailed = {}
         
         if 'completed_exercises' in self.progress_data:
-            for date_str, exercises in self.progress_data['completed_exercises'].items():
+            # Filtrar solo ejercicios desde la fecha de inicio del programa
+            filtered_exercises = self.filter_dates_from_program_start(self.progress_data['completed_exercises'])
+            
+            for date_str, exercises in filtered_exercises.items():
                 for exercise_id, completed in exercises.items():
                     if completed:
                         parts = exercise_id.split('_')
