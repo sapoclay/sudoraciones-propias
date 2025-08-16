@@ -462,7 +462,11 @@ class TrainingPlanModule(BaseTrainer):
             # Video de YouTube si está habilitado
             youtube_url = exercise.get('youtube_url', '')
             if youtube_url and show_videos:
-                st.markdown("### 🎥 Video Tutorial")
+                # Determinar el tipo de video para mostrar el título apropiado
+                if 'shorts/' in youtube_url:
+                    st.markdown("### 🎥 Video Tutorial (Short)")
+                else:
+                    st.markdown("### 🎥 Video Tutorial")
                 self.render_youtube_video(youtube_url)
             
             # Editor de URL de YouTube
@@ -554,7 +558,7 @@ class TrainingPlanModule(BaseTrainer):
         
         st.markdown(f"*{week_info['level_description']}*")
         
-        # Panel de información del nivel
+        # Panel de información del nivel con ejercicios disponibles
         st.markdown("### 🎯 Información del Nivel")
         col1, col2, col3 = st.columns(3)
         
@@ -566,6 +570,10 @@ class TrainingPlanModule(BaseTrainer):
             st.metric("Semanas Completadas", week_info['total_weeks_completed'])
         
         st.markdown(f"**{week_info['level_description']}**")
+        
+        # Mostrar información de ejercicios disponibles por nivel
+        current_level = (current_week - 1) // 4 + 1
+        self._show_available_exercises_info(current_level)
         
         # Mostrar ejercicios desbloqueados
         new_exercises = self.get_newly_unlocked_exercises(current_week)
@@ -707,3 +715,113 @@ class TrainingPlanModule(BaseTrainer):
                     planned_list = self.get_planned_exercises_for_group(muscle_group, day_key, current_week)
                     for exercise in planned_list:
                         self.render_exercise_details(exercise, muscle_group, day_key, show_videos, show_instructions, show_tips, current_week)
+    
+    def _show_available_exercises_info(self, current_level: int):
+        """Mostrar información sobre ejercicios disponibles según el nivel actual"""
+        with st.expander(f"📊 Ejercicios disponibles en Nivel {current_level}", expanded=False):
+            level_names = {1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4: "Experto"}
+            
+            # Contar ejercicios por grupo muscular y nivel
+            exercise_info = {}
+            for muscle_group, exercises in self.config.get('exercises', {}).items():
+                if muscle_group == 'abs_avanzados':  # Combinar con abs para visualización
+                    continue
+                    
+                exercise_info[muscle_group] = {
+                    'available': [],
+                    'upcoming': [],
+                    'total': len(exercises)
+                }
+                
+                for exercise in exercises:
+                    exercise_level = exercise.get('difficulty_level', 1)
+                    exercise_name = exercise.get('name', 'Sin nombre')
+                    
+                    if exercise_level <= current_level:
+                        exercise_info[muscle_group]['available'].append({
+                            'name': exercise_name,
+                            'level': exercise_level
+                        })
+                    else:
+                        exercise_info[muscle_group]['upcoming'].append({
+                            'name': exercise_name,
+                            'level': exercise_level
+                        })
+            
+            # Combinar abs y abs_avanzados
+            if 'abs' in exercise_info and 'abs_avanzados' in self.config.get('exercises', {}):
+                abs_advanced = self.config['exercises']['abs_avanzados']
+                exercise_info['abs']['total'] += len(abs_advanced)
+                
+                for exercise in abs_advanced:
+                    exercise_level = exercise.get('difficulty_level', 1)
+                    exercise_name = exercise.get('name', 'Sin nombre')
+                    
+                    if exercise_level <= current_level:
+                        exercise_info['abs']['available'].append({
+                            'name': exercise_name,
+                            'level': exercise_level
+                        })
+                    else:
+                        exercise_info['abs']['upcoming'].append({
+                            'name': exercise_name,
+                            'level': exercise_level
+                        })
+            
+            # Mostrar información por grupo muscular
+            muscle_group_names = {
+                'pecho': '💪 Pecho',
+                'espalda': '🔙 Espalda', 
+                'hombros': '🤲 Hombros',
+                'brazos': '💪 Brazos',
+                'piernas': '🦵 Piernas',
+                'gemelos': '🦵 Gemelos',
+                'abs': '💪 Abdominales',
+                'cardio': '❤️ Cardio'
+            }
+            
+            cols = st.columns(2)
+            col_index = 0
+            
+            for muscle_group, info in exercise_info.items():
+                if muscle_group in muscle_group_names:
+                    with cols[col_index % 2]:
+                        st.markdown(f"**{muscle_group_names[muscle_group]}**")
+                        
+                        available_count = len(info['available'])
+                        upcoming_count = len(info['upcoming'])
+                        total_count = info['total']
+                        
+                        # Progreso visual
+                        progress = available_count / total_count if total_count > 0 else 0
+                        st.progress(progress, text=f"{available_count}/{total_count} ejercicios disponibles")
+                        
+                        if available_count > 0:
+                            st.markdown("✅ **Disponibles:**")
+                            for ex in info['available']:
+                                level_badge = "🟢" if ex['level'] == 1 else "🟡" if ex['level'] == 2 else "🟠" if ex['level'] == 3 else "🔴"
+                                st.markdown(f"  {level_badge} {ex['name']}")
+                        
+                        if upcoming_count > 0:
+                            st.markdown("⏳ **Próximamente:**")
+                            for ex in info['upcoming']:
+                                level_badge = "🟢" if ex['level'] == 1 else "🟡" if ex['level'] == 2 else "🟠" if ex['level'] == 3 else "🔴"
+                                level_name = level_names.get(ex['level'], f"Nivel {ex['level']}")
+                                st.markdown(f"  {level_badge} {ex['name']} *(Disponible en {level_name})*")
+                        
+                        st.markdown("---")
+                    
+                    col_index += 1
+            
+            # Leyenda de niveles
+            st.markdown("### 📚 Leyenda de Niveles:")
+            cols_legend = st.columns(4)
+            
+            with cols_legend[0]:
+                st.markdown("🟢 **Nivel 1**: Principiante")
+            with cols_legend[1]:
+                st.markdown("🟡 **Nivel 2**: Intermedio") 
+            with cols_legend[2]:
+                st.markdown("🟠 **Nivel 3**: Avanzado")
+            with cols_legend[3]:
+                st.markdown("🔴 **Nivel 4**: Experto")

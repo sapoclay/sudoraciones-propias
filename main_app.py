@@ -238,10 +238,11 @@ class ModernHeavyDutyTrainer:
     
     def render_header(self):
         """Renderizar cabecera principal"""
-        st.markdown("""
+        total_exercises = self.base_trainer.get_total_exercises_count()
+        st.markdown(f"""
         <div class="main-header">
             <h1>💪 Sudoraciones Propias</h1>
-            <h3>Sistema de entrenamiento con mapeo calendario real + 26 ejercicios especializados</h3>
+            <h3>Sistema de entrenamiento con mapeo calendario real + {total_exercises} ejercicios especializados</h3>
         </div>
         """, unsafe_allow_html=True)
     
@@ -272,10 +273,11 @@ class ModernHeavyDutyTrainer:
             st.markdown("---")
             
             # Información del programa
+            total_exercises = self.base_trainer.get_total_exercises_count()
             st.markdown("### ℹ️ Información")
             st.info(f"""
             **Semana actual:** {current_week}/20
-            **Total ejercicios:** 25 (pecho + espalda + hombros + brazos + piernas + gemelos + abs + cardio)
+            **Total ejercicios:** {total_exercises} (distribuidos en 8 grupos musculares)
             **Días por semana:** 3-4
             **Días de descanso:** 3-4
             """)

@@ -102,13 +102,28 @@ def setup_virtual_environment():
     print("  ✅ Entorno virtual configurado correctamente")
     return True
 
+def get_total_exercises_count():
+    """Calcular el número total de ejercicios desde config.json"""
+    try:
+        import json
+        with open('config.json', 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        total = 0
+        for exercises in config.get('exercises', {}).values():
+            total += len(exercises)
+        return total
+    except:
+        return 42  # Valor por defecto si no se puede leer
+
 def print_banner():
     """Mostrar banner de inicio"""
+    total_exercises = get_total_exercises_count()
     print("\n" + "="*60)
     print("🎯 SUDORACIONES PROPIAS v1.2.6 - SISTEMA DE ENTRENAMIENTO")
     print("="*60)
     print("💪 Entrenamiento Personalizado para Principiantes y Expertos")
-    print("🏋️ 26 ejercicios especializados con progresión automática")
+    print(f"🏋️ {total_exercises} ejercicios especializados con progresión automática")
     print("📊 8 grupos musculares + alternancia de antebrazos")
     print("⏰ Progresión inteligente hasta 20 semanas")
     print("📈 4 niveles: Principiante → Intermedio → Avanzado → Experto")
@@ -303,11 +318,31 @@ def start_streamlit():
         # Esperar a que inicie
         time.sleep(5)
         
-        # Verificar que está ejecutándose
-        check_cmd = ['netstat', '-tuln']
-        result = subprocess.run(check_cmd, capture_output=True, text=True)
-        
-        if f":{port}" in result.stdout:
+        # Verificar que está ejecutándose usando ss (más moderno) o netstat como fallback
+        server_running = False
+        try:
+            check_cmd = ['ss', '-tuln']
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=5)
+            server_running = f":{port}" in result.stdout
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            try:
+                check_cmd = ['netstat', '-tuln']
+                result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=5)
+                server_running = f":{port}" in result.stdout
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                # Si no hay herramientas de red, intentar con curl como última opción
+                try:
+                    result = subprocess.run(['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}', f'http://localhost:{port}'], 
+                                          capture_output=True, text=True, timeout=5)
+                    server_running = result.stdout.strip() == "200"
+                except:
+                    server_running = False
+
+        if server_running:
+            print("  ✅ ¡Servidor iniciado correctamente!")
+            print(f"  📱 Aplicación: {app_file}")
+            # Retornar las URLs en lugar de imprimirlas aquí
+        if server_running:
             print("  ✅ ¡Servidor iniciado correctamente!")
             print(f"  📱 Aplicación: {app_file}")
             # Retornar las URLs en lugar de imprimirlas aquí
@@ -327,11 +362,12 @@ def start_streamlit():
 
 def show_summary():
     """Mostrar resumen de la aplicación modular optimizada"""
+    total_exercises = get_total_exercises_count()
     print("\n" + "="*60)
     print("📊 RESUMEN DE LA APLICACIÓN MODULAR")
     print("="*60)
     print("💪 ENTRENAMIENTO PERSONALIZADO OPTIMIZADO:")
-    print("  • 26 ejercicios especializados (incluye antebrazos)")
+    print(f"  • {total_exercises} ejercicios especializados (incluye antebrazos)")
     print("  • Progresión automática hasta 20 semanas")
     print("  • Sistema de niveles: Principiante → Intermedio → Avanzado → Experto")
     print("  • Alternancia inteligente de ejercicios de antebrazo")
@@ -342,7 +378,7 @@ def show_summary():
     print("  • 🔧 Fácil mantenimiento y escalabilidad")
     print("  • 🧪 Testing individual por módulo")
     print("")
-    print("💪 GRUPOS MUSCULARES (26 ejercicios totales):")
+    print(f"💪 GRUPOS MUSCULARES ({total_exercises} ejercicios totales):")
     print("  • Pecho (4): Press de Banca Mancuernas/Barra + Aperturas + Press Inclinado")
     print("  • Espalda (2): Remo con Mancuernas + Peso Muerto con Mancuernas")
     print("  • Hombros (3): Press Militar + Elevaciones Laterales + Elevaciones Frontales")

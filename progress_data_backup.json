@@ -41,8 +41,7 @@
       "brazos_Extensiones de Tríceps_sabado_week1": true,
       "brazos_Curl de Muñeca_sabado_week1": true,
       "hombros_Elevaciones Laterales_viernes_week2": true,
-      "hombros_Press Militar con Mancuernas_viernes_week2": true,
-      "cardio_Bicicleta Estática_viernes_week2": true
+      "hombros_Press Militar con Mancuernas_viernes_week2": true
     }
   },
   "exercise_weeks": {
@@ -313,7 +312,7 @@
       ]
     }
   },
-  "last_saved": "2025-08-16T01:56:14.979010",
+  "last_saved": "2025-08-16T01:56:12.189172",
   "completed_workouts": {
     "2025-07": [
       "2025-07-24",

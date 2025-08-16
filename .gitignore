@@ -1,10 +1,10 @@
 venv_sudoraciones/
 __pycache__/
 *.pyc
-debian-package/
+packaging/
 test_*.py
 check_*.py
 migrate_*.py
 progress_data_backup_*.json
 *.log
-build_deb_v1.2.6_complete.sh
+*.deb

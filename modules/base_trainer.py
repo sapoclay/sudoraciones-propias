@@ -199,14 +199,14 @@ class BaseTrainer:
         # Obtener el nivel actual basado en la semana
         current_level = (week_number - 1) // 4 + 1
         
-        # Filtrar ejercicios por nivel de dificultad
+        # Filtrar ejercicios por nivel de dificultad (incluye ejercicios del nivel actual y anteriores)
         available_exercises = self._filter_exercises_by_level(all_ex, current_level)
         
         if muscle_group == 'brazos':
-            # En brazos: mantener todos menos los de antebrazo, y añadir solo 1 de antebrazo seleccionado
+            # En brazos: incluir todos los ejercicios disponibles, pero para antebrazos mantener rotación
             non_forearm = [e for e in available_exercises if e.get('category') != 'forearm']
             
-            # Para antebrazos, aplicar progresión por nivel
+            # Para antebrazos, aplicar progresión por nivel y rotación
             forearm_exercises = [e for e in available_exercises if e.get('category') == 'forearm']
             chosen = self._choose_forearm_exercise_by_level(day_key, week_number, forearm_exercises)
             
@@ -216,14 +216,15 @@ class BaseTrainer:
                 return non_forearm
         
         elif muscle_group == 'piernas':
-            # En piernas: alternar sentadillas búlgaras según nivel y entrenamiento
+            # En piernas: incluir todos los ejercicios disponibles según nivel
             return self._get_planned_leg_exercises(day_key, week_number, available_exercises)
         
         else:
+            # Para otros grupos musculares: mostrar todos los ejercicios disponibles según nivel
             return available_exercises
     
     def _filter_exercises_by_level(self, exercises: list[dict], current_level: int) -> list[dict]:
-        """Filtrar ejercicios según el nivel de dificultad actual"""
+        """Filtrar ejercicios según el nivel de dificultad actual - incluye ejercicios del nivel actual y anteriores"""
         filtered_exercises = []
         
         for exercise in exercises:
@@ -251,28 +252,13 @@ class BaseTrainer:
         return forearm_exercises[rotation_index]
     
     def _get_planned_leg_exercises(self, day_key: str, week_number: int, available_exercises: list[dict]) -> list[dict]:
-        """Obtener ejercicios de piernas planificados con rotación de sentadillas búlgaras según nivel"""
-        # Ejercicios básicos de piernas (siempre incluidos, filtrados ya por nivel)
-        basic_leg_exercises = [e for e in available_exercises if e.get('name') != 'Sentadillas Búlgaras']
-        
-        # Sentadillas búlgaras (solo si están disponibles en el nivel actual)
-        bulgarian_squats = [e for e in available_exercises if e.get('name') == 'Sentadillas Búlgaras']
-        
-        # Calcular índice único basado en semana y día para rotación determinística
-        day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
-        day_idx = day_names.index(day_key) if day_key in day_names else 0
-        rotation_index = ((week_number - 1) * 7 + day_idx) // 2  # Cada 2 entrenamientos
-        
+        """Obtener ejercicios de piernas planificados - incluye todos los ejercicios disponibles según nivel"""
         # Obtener el nivel actual
         current_level = (week_number - 1) // 4 + 1
         
-        # Las sentadillas búlgaras solo se añaden si:
-        # 1. Están disponibles en el nivel actual (nivel 3+)
-        # 2. Es momento de rotación (índices pares)
-        if bulgarian_squats and current_level >= 3 and rotation_index % 2 == 0:
-            return basic_leg_exercises + bulgarian_squats
-        else:
-            return basic_leg_exercises
+        # Todos los ejercicios disponibles en el nivel actual
+        # Los ejercicios ya están filtrados por nivel en get_planned_exercises_for_group
+        return available_exercises
     
     # --- FIN utilidades nuevas ---
 
@@ -339,6 +325,13 @@ class BaseTrainer:
             for date_str in data['completed_exercises'].keys():
                 # Intentar determinar la semana más probable basándose en los ejercicios
                 data['exercise_weeks'][date_str] = 1  # Valor por defecto
+
+    def get_total_exercises_count(self) -> int:
+        """Obtener el número total de ejercicios en el sistema"""
+        total = 0
+        for exercises in self.config.get('exercises', {}).values():
+            total += len(exercises)
+        return total
 
     def initialize_calendar_mapping(self):
         """Inicializar el sistema de mapeo entre semanas de entrenamiento y semanas calendario"""
@@ -931,21 +924,95 @@ class BaseTrainer:
         """Validar URL de YouTube. Devuelve (es_valida, tipo)."""
         if not url or not isinstance(url, str):
             return False, 'empty'
+        
         u = url.strip()
-        # Tipos soportados
+        
+        # Tipos soportados con prioridad específica
         if 'youtube.com/shorts/' in u:
             return True, 'shorts'
-        if 'youtube.com/watch' in u and ('v=' in u or 'list=' in u or 'feature=' in u):
+        if 'youtube.com/watch' in u and 'v=' in u:
             return True, 'video'
         if 'youtu.be/' in u:
             return True, 'short_url'
-        # Aceptar urls de youtube sin query estricta
-        if 'youtube.com' in u or 'youtu.be' in u:
+        
+        # Aceptar otras urls de youtube como válidas
+        if 'youtube.com' in u:
             return True, 'video'
+        
         return False, 'invalid'
+
+    def extract_video_id(self, url: str) -> str:
+        """Extraer ID del video de YouTube de cualquier formato de URL."""
+        if not url:
+            return ""
+        
+        import re
+        
+        # Para shorts: https://www.youtube.com/shorts/pvb7SYiaMAw
+        shorts_match = re.search(r'youtube\.com/shorts/([a-zA-Z0-9_-]+)', url)
+        if shorts_match:
+            return shorts_match.group(1)
+        
+        # Para videos normales: https://www.youtube.com/watch?v=VIDEO_ID
+        watch_match = re.search(r'[?&]v=([a-zA-Z0-9_-]+)', url)
+        if watch_match:
+            return watch_match.group(1)
+        
+        # Para URLs cortas: https://youtu.be/VIDEO_ID
+        youtu_be_match = re.search(r'youtu\.be/([a-zA-Z0-9_-]+)', url)
+        if youtu_be_match:
+            return youtu_be_match.group(1)
+        
+        return ""
 
     def render_youtube_video(self, url: str):
         """Renderizar video de YouTube (acepta watch, shorts y youtu.be)."""
+        if not url:
+            return
+        
+        try:
+            # Extraer ID del video
+            video_id = self.extract_video_id(url)
+            
+            if not video_id:
+                st.warning("No se pudo extraer el ID del video de YouTube")
+                st.markdown(f"[🎥 Ver video en YouTube]({url})")
+                return
+            
+            # Para shorts, usar iframe HTML personalizado con mejor formato
+            if 'shorts/' in url:
+                # Crear iframe responsivo para shorts
+                iframe_html = f"""
+                <div style="display: flex; justify-content: center; margin: 10px 0;">
+                    <iframe 
+                        width="315" 
+                        height="560" 
+                        src="https://www.youtube.com/embed/{video_id}" 
+                        title="YouTube video player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen
+                        style="border-radius: 8px;">
+                    </iframe>
+                </div>
+                """
+                st.markdown(iframe_html, unsafe_allow_html=True)
+                
+                # Enlace adicional por si el iframe no funciona
+                st.markdown(f"[🔗 Ver en YouTube]({url})", help="Si el video no se reproduce, haz clic aquí")
+                
+            else:
+                # Para videos normales, usar st.video con URL convertida
+                embed_url = f"https://www.youtube.com/watch?v={video_id}"
+                st.video(embed_url)
+                
+        except Exception as e:
+            st.warning(f"No se pudo renderizar el video: {e}")
+            # Fallback: mostrar enlace directo
+            st.markdown(f"[🎥 Ver video en YouTube]({url})")
+
+    def render_youtube_video_old(self, url: str):
+        """Renderizar video de YouTube (método anterior como fallback)."""
         if not url:
             return
         # Streamlit soporta directamente st.video con URLs de YouTube

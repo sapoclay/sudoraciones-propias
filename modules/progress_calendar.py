@@ -34,16 +34,55 @@ class ProgressModule(BaseTrainer):
         if filter_week is None:
             filter_week = st.session_state.get('current_week', 1)
         
-        # Obtener ejercicios de esa fecha
-        exercises_data = self.progress_data.get('completed_exercises', {}).get(date_str, {})
+        # Determinar si según el plan de la semana este día debería ser de descanso
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+        day_key = day_names[date_obj.weekday()]
         
-        if not exercises_data:
+        # Obtener plan de la semana correspondiente
+        week_plan = {}
+        if filter_week <= 4:
+            week_key = f"semana{filter_week}"
+            week_plan = self.config.get('weekly_schedule', {}).get(week_key, {})
+        else:
+            from .training_plan import TrainingPlanModule
+            trainer = TrainingPlanModule()
+            trainer.config = self.config
+            trainer.progress_data = self.progress_data
+            week_plan = trainer.generate_advanced_week(filter_week)
+        
+        muscle_groups_planned = week_plan.get(day_key, []) or []
+        is_rest_day_planned = len(muscle_groups_planned) == 0
+        
+        # Si es día de descanso según el plan, devolverlo inmediatamente
+        if is_rest_day_planned:
             return {
                 'completed': 0,
                 'total': 0,
                 'percentage': 0,
                 'exercises': [],
                 'muscle_groups': [],
+                'is_rest_day': True,
+                'is_empty_day': False
+            }
+        
+        # Obtener ejercicios de esa fecha
+        exercises_data = self.progress_data.get('completed_exercises', {}).get(date_str, {})
+        
+        # Si no hay datos pero el día debería tener entrenamiento, mostrar día vacío
+        if not exercises_data:
+            # Calcular ejercicios esperados según el plan del día
+            expected_total = 0
+            for mg in muscle_groups_planned:
+                planned_list = self.get_planned_exercises_for_group(mg, day_key, filter_week)
+                expected_total += len(planned_list)
+            
+            return {
+                'completed': 0,
+                'total': expected_total,
+                'percentage': 0,
+                'exercises': [],
+                'muscle_groups': muscle_groups_planned,
                 'is_rest_day': False,
                 'is_empty_day': True
             }
@@ -56,14 +95,20 @@ class ProgressModule(BaseTrainer):
             if exercise_id.endswith(week_suffix):
                 filtered_exercises[exercise_id] = is_completed
         
-        # Si no hay ejercicios de la semana especificada, mostrar día vacío
+        # Si no hay ejercicios de la semana especificada pero el día debería tener entrenamiento
         if not filtered_exercises:
+            # Calcular ejercicios esperados según el plan del día
+            expected_total = 0
+            for mg in muscle_groups_planned:
+                planned_list = self.get_planned_exercises_for_group(mg, day_key, filter_week)
+                expected_total += len(planned_list)
+            
             return {
                 'completed': 0,
-                'total': 0,
+                'total': expected_total,
                 'percentage': 0,
                 'exercises': [],
-                'muscle_groups': [],
+                'muscle_groups': muscle_groups_planned,
                 'is_rest_day': False,
                 'is_empty_day': True
             }
@@ -335,13 +380,23 @@ class ProgressModule(BaseTrainer):
         }
 
     def render_calendar(self, year: int, month: int, view_week: int = None):
-        """Renderizar calendario de solo visualización con porcentajes de todas las semanas"""
+        """Renderizar calendario con porcentajes filtrados por semana específica o acumulativo"""
         current_week = st.session_state.get('current_week', 1)
         month_name = self.get_month_name_es(month)
-        st.subheader(f"📅 {month_name} {year} - Progreso Acumulativo (Semana Actual: {current_week})")
         
-        # Obtener estadísticas del mes SIN filtrar por semana (mostrar todo)
-        stats = self.get_month_stats(year, month)
+        if view_week is None:
+            st.subheader(f"📅 {month_name} {year} - Progreso Acumulativo (Todas las Semanas)")
+            st.caption("*Mostrando progreso combinado de todas las semanas completadas*")
+        else:
+            week_info = self.get_week_info(view_week)
+            st.subheader(f"📅 {month_name} {year} - Semana {view_week} ({week_info['level_name']})")
+            st.caption(f"*Mostrando solo progreso de la Semana {view_week}: {week_info['level_description']}*")
+        
+        # Obtener estadísticas del mes según la vista seleccionada
+        if view_week is None:
+            stats = self.get_month_stats(year, month)
+        else:
+            stats = self.get_month_stats_filtered(year, month, view_week)
         
         # Crear calendario
         cal = calendar.monthcalendar(year, month)
@@ -444,8 +499,14 @@ class ProgressModule(BaseTrainer):
                         st.markdown('<div class="calendar-day day-empty"></div>', unsafe_allow_html=True)
                     else:
                         date_str = f"{year:04d}-{month:02d}-{day:02d}"
-                        # SIEMPRE mostrar todos los ejercicios de todas las semanas para ver progreso completo
-                        day_stats = self.get_day_completion_stats(date_str)
+                        
+                        # Usar función específica según la vista seleccionada
+                        if view_week is None:
+                            # Vista acumulativa: mostrar progreso de todas las semanas
+                            day_stats = self.get_day_completion_stats(date_str)
+                        else:
+                            # Vista específica: mostrar solo progreso de la semana seleccionada
+                            day_stats = self.get_day_completion_stats_filtered(date_str, view_week)
                         
                         # Determinar clase CSS según porcentaje y tipo de día
                         if day_stats.get('is_rest_day', False):
@@ -544,7 +605,28 @@ class ProgressModule(BaseTrainer):
         week_info = self.get_week_info(current_week)
         
         st.info(f"📅 **Semana Actual: {current_week}** - {week_info['level_name']} | {week_info['level_description']}")
-        st.caption("*El calendario muestra el progreso acumulativo de todas las semanas*")
+        
+        st.markdown("---")
+        
+        # Selector de semana para vista del calendario
+        col_view, col_rest = st.columns([1, 3])
+        with col_view:
+            st.markdown("### 👁️ Vista del Calendario")
+            view_options = ["Todas las Semanas (Acumulativo)"] + [f"Semana {i}" for i in range(1, 21)]
+            selected_view = st.selectbox(
+                "Mostrar progreso de:",
+                options=view_options,
+                index=0,
+                key="calendar_view_selector"
+            )
+            
+            if selected_view == "Todas las Semanas (Acumulativo)":
+                view_week = None
+                st.caption("*Vista acumulativa: muestra progreso de todas las semanas completadas*")
+            else:
+                view_week = int(selected_view.split()[-1])
+                week_view_info = self.get_week_info(view_week)
+                st.caption(f"*Vista específica: {week_view_info['level_name']} - {week_view_info['level_description']}*")
         
         st.markdown("---")
         
@@ -642,8 +724,8 @@ class ProgressModule(BaseTrainer):
         
         st.markdown("---")
         
-        # Renderizar calendario del mes seleccionado con progreso acumulativo
-        self.render_calendar(st.session_state.calendar_year, st.session_state.calendar_month)
+        # Renderizar calendario del mes seleccionado
+        self.render_calendar(st.session_state.calendar_year, st.session_state.calendar_month, view_week)
         
         st.markdown("---")
         

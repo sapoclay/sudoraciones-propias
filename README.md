@@ -153,7 +153,7 @@ modules/
 ## 💪 Características principales
 
 ### Entrenamiento
-- **26 ejercicios especializados** (4 pecho + 4 abdominales + 7 brazos + 2 gemelos + 3 piernas + otros)
+- **42 ejercicios especializados** organizados en 8 grupos musculares con progresión automática
 - **Progresión automática inteligente** hasta 20 semanas
 - **Sistema de 4 niveles** con días de descanso adaptativos
 - **Seguimiento automático** por ejercicio individual
@@ -298,9 +298,22 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 #### **Por día**:
 - Colores en el calendario según porcentaje completado:
   - 🟢 Verde: 100% completado
-  - 🟡 Amarillo: 80-99% completado
+  - 🟡 Amarillo: 80-99% completado  
   - 🟠 Naranja: 1-79% completado
   - ⚪ Blanco: 0% completado
+
+#### **🆕 Vistas del Calendario por Semana**:
+- **Vista Acumulativa** (por defecto): Muestra progreso combinado de todas las semanas
+- **Vista por Semana Específica**: Filtra solo el progreso de una semana en particular
+- **Días de descanso adaptativos**: Cambian según el nivel de dificultad de cada semana
+- **Independencia entre semanas**: El progreso de una semana no afecta a otras
+- **Navegación temporal**: Puedes revisar el progreso de semanas anteriores
+
+#### **Funcionalidades del Calendario**:
+- **Semanas independientes**: Cada semana tiene su propio plan de entrenamiento
+- **Días de descanso dinámicos**: Cambian según el nivel (Principiante: 3 días, Experto: 1 día)
+- **Porcentajes precisos**: Se calculan solo con ejercicios de la semana seleccionada
+- **Historial completo**: Mantiene el registro de todas las semanas completadas
 
 #### **Estadísticas globales**:
 - Total de entrenamientos realizados
