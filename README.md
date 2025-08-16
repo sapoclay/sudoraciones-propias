@@ -72,7 +72,7 @@ Resumen de mejoras recientes:
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.1/sudoraciones_1.2.6_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.6/sudoraciones_1.2.6_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
@@ -85,6 +85,25 @@ En caso de que encontremos dependencias faltantes, en la misma terminal solo es 
 ```
 
 Tras la instalación, ya se puede buscar el lanzador en el sistema.
+
+### ⚙️ Detalles del paquete .deb
+- **Paquete muy ligero (~115 KB)**: No incluye el entorno virtual ni dependencias para reducir tamaño.
+- **Primer arranque más lento**: Al iniciarse por primera vez crea `venv_sudoraciones` en `/opt/sudoraciones` e instala dependencias.
+- **Arranques siguientes rápidos**: El entorno ya queda reutilizable.
+- **Apertura automática del navegador**: Se lanza tu navegador predeterminado cuando el servidor está listo.
+- **Desactivar apertura del navegador**: Ejecuta con `NO_BROWSER=1 sudoraciones start`.
+- **Logs**: Salida en `/tmp/sudoraciones.log` (útil para diagnosticar problemas).
+
+### ⏯️ Comandos rápidos (terminal)
+```bash
+sudoraciones start      # Iniciar (crea entorno si no existe)
+sudoraciones stop       # Parar
+sudoraciones restart    # Reiniciar rápido
+sudoraciones status     # Ver estado y PID
+sudoraciones log        # Seguir el log en tiempo real
+```
+
+> Si el puerto 8508 ya está ocupado: usa `sudoraciones restart` o libera el puerto cerrando procesos Streamlit previos.
 
 <img width="765" height="243" alt="lanzador-sudoraciones" src="https://github.com/user-attachments/assets/f4701246-eafe-435c-a340-3141425c8e82" />
 
