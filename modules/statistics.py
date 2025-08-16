@@ -54,119 +54,129 @@ class StatisticsModule(BaseTrainer):
             return completed_exercises
     
     def _calculate_total_workouts_from_start(self) -> int:
-        """Calcular total de entrenamientos completados desde la fecha de inicio"""
-        if 'completed_workouts' not in self.progress_data:
+        """Calcular total REAL de días de ENTRENAMIENTO completados (≥80%) ignorando días de descanso.
+
+        Antes se contaban también días de descanso porque `completed_workouts` los incluye.
+        Alineamos ahora con la lógica de la pestaña Progreso.
+        """
+        if 'completed_exercises' not in self.progress_data:
             return 0
-        
-        # Filtrar entrenamientos desde la fecha de inicio del programa
-        total_workouts = 0
+
         start_date = None
-        
-        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
+        if self.progress_data.get('program_start_date'):
             try:
                 start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
             except ValueError:
                 start_date = None
-        
-        for month_key, dates in self.progress_data['completed_workouts'].items():
-            for date_str in dates:
-                try:
-                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-                    if start_date is None or workout_date >= start_date:
-                        total_workouts += 1
-                except ValueError:
-                    continue
-        
-        return total_workouts
+
+        total_training_days = 0
+        for date_str in self.progress_data['completed_exercises'].keys():
+            try:
+                d = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                continue
+            if start_date and d < start_date:
+                continue
+            stats = self._get_training_day_stats(date_str)
+            if stats['is_rest_day']:
+                continue
+            if stats['percentage'] >= 80 and stats['total'] > 0:
+                total_training_days += 1
+        return total_training_days
     
     def _calculate_current_streak_from_start(self) -> int:
-        """Calcular racha actual de días consecutivos desde la fecha de inicio"""
-        if 'completed_workouts' not in self.progress_data:
+        """Calcular racha actual ignorando días de descanso (solo días de entrenamiento ≥80%)."""
+        if 'completed_exercises' not in self.progress_data:
             return 0
-        
-        # Obtener todas las fechas completadas
-        all_completed = []
-        start_date = None
-        
-        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
-            try:
-                start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
-            except ValueError:
-                start_date = None
-        
-        for month_dates in self.progress_data['completed_workouts'].values():
-            for date_str in month_dates:
-                try:
-                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-                    if start_date is None or workout_date >= start_date:
-                        all_completed.append(workout_date)
-                except ValueError:
-                    continue
-        
-        if not all_completed:
-            return 0
-        
-        all_completed.sort(reverse=True)  # Más reciente primero
-        
-        # Calcular racha desde hoy hacia atrás
-        current_date = datetime.datetime.now().date()
+        today = datetime.date.today()
         streak = 0
-        
-        for i in range(60):  # Revisar últimos 60 días
-            check_date = current_date - datetime.timedelta(days=i)
-            
-            if check_date in all_completed:
+        for i in range(90):  # margen amplio
+            check_date = today - datetime.timedelta(days=i)
+            date_str = check_date.strftime('%Y-%m-%d')
+            stats = self._get_training_day_stats(date_str)
+            if stats['is_rest_day']:
+                continue  # no afecta
+            if stats['total'] == 0:  # día sin ejercicios planificados/registrados: rompe (salvo hoy incompleto)
+                if i == 0:
+                    continue
+                break
+            if stats['percentage'] >= 80:
                 streak += 1
             else:
+                if i == 0:
+                    continue  # no rompe si hoy va incompleto
                 break
-        
         return streak
     
     def _calculate_longest_streak_from_start(self) -> int:
-        """Calcular la racha más larga de días consecutivos desde la fecha de inicio"""
-        if 'completed_workouts' not in self.progress_data:
+        """Calcular la racha más larga solo contando días de entrenamiento completos (≥80%), descansos ignorados."""
+        if 'completed_exercises' not in self.progress_data:
             return 0
-        
-        # Obtener todas las fechas completadas
-        all_completed = []
+        # Reunir todas las fechas relevantes desde inicio
+        dates = []
         start_date = None
-        
-        if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
+        if self.progress_data.get('program_start_date'):
             try:
                 start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d').date()
             except ValueError:
                 start_date = None
-        
-        for month_dates in self.progress_data['completed_workouts'].values():
-            for date_str in month_dates:
-                try:
-                    workout_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-                    if start_date is None or workout_date >= start_date:
-                        all_completed.append(workout_date)
-                except ValueError:
-                    continue
-        
-        if not all_completed:
+        for date_str in self.progress_data['completed_exercises'].keys():
+            try:
+                d = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                continue
+            if start_date and d < start_date:
+                continue
+            dates.append(d)
+        if not dates:
             return 0
-        
-        all_completed = sorted(set(all_completed))  # Eliminar duplicados y ordenar
-        
-        # Encontrar la racha más larga
+        dates_sorted = sorted(set(dates))
+        # Iterar día a día desde inicio hasta hoy evaluando continuidad (descansos no cuentan ni rompen)
+        today = datetime.date.today()
+        if dates_sorted[-1] < today:
+            # Añadir días vacíos posteriores para evaluar rachas cerradas
+            pass
         max_streak = 0
-        current_streak = 1
-        
-        for i in range(1, len(all_completed)):
-            # Verificar si la fecha actual es consecutiva a la anterior
-            if all_completed[i] - all_completed[i-1] == datetime.timedelta(days=1):
+        current_streak = 0
+        # Construir set para acceso rápido
+        date_set = set(dates_sorted)
+        # Iterar sobre rango completo
+        full_start = dates_sorted[0]
+        full_end = today
+        delta_days = (full_end - full_start).days
+        for i in range(delta_days + 1):
+            day = full_start + datetime.timedelta(days=i)
+            date_str = day.strftime('%Y-%m-%d')
+            stats = self._get_training_day_stats(date_str)
+            if stats['is_rest_day']:
+                # descanso: no suma ni rompe
+                continue
+            if stats['total'] == 0:
+                # día planificado sin ejercicios -> rompe racha actual
+                current_streak = 0
+                continue
+            if stats['percentage'] >= 80:
                 current_streak += 1
+                if current_streak > max_streak:
+                    max_streak = current_streak
             else:
-                max_streak = max(max_streak, current_streak)
-                current_streak = 1
-        
-        # No olvidar comparar la última racha
-        max_streak = max(max_streak, current_streak)
-        
+                current_streak = 0
         return max_streak
+
+    # ------------------------------------------------------------------
+    # HELPERS ACTUALIZADOS PARA NUEVA LÓGICA
+    # ------------------------------------------------------------------
+    def _get_training_day_stats(self, date_str: str) -> dict:
+        """Obtener stats de un día usando la semana correcta.
+        Usa exercise_weeks si existe; si no, intenta mapeo calendario.
+        """
+        week_number = self.progress_data.get('exercise_weeks', {}).get(date_str)
+        if not week_number:
+            week_number = self.get_calendar_week_for_date(date_str)
+        try:
+            return self.get_day_completion_stats_internal(date_str, week_number)
+        except Exception:
+            return {'completed': 0, 'total': 0, 'percentage': 0, 'is_rest_day': True}
     
     def _calculate_total_exercises_from_start(self) -> int:
         """Calcular total de ejercicios completados desde la fecha de inicio"""
@@ -217,41 +227,35 @@ class StatisticsModule(BaseTrainer):
         
         # Mostrar estadísticas principales acumulativas
         st.subheader("📊 Estadísticas Principales Acumulativas")
-        
-        # Calcular estadísticas reales
-        total_workouts_real = self._calculate_total_workouts_from_start()
-        current_streak_real = self._calculate_current_streak_from_start()
-        longest_streak_real = self._calculate_longest_streak_from_start()
+
+        # Calcular estadísticas reales (nueva lógica alineada con pestaña Progreso)
+        total_workouts_real = self._calculate_total_workouts_from_start()  # solo días entrenamiento ≥80%
+        current_streak_real = self._calculate_current_streak_from_start()  # ignora descansos
+        longest_streak_real = self._calculate_longest_streak_from_start()  # ignora descansos
         total_exercises_completed_real = self._calculate_total_exercises_from_start()
         current_week_real = self.get_auto_detected_week()  # Usar semana auto-detectada
-        
+
         col1, col2, col3, col4 = st.columns(4)
-        
         with col1:
-            st.metric("🏋️ Entrenamientos Totales", total_workouts_real)
-        
+            st.metric("🏋️ Días Entrenamiento Completos", total_workouts_real)
         with col2:
             st.metric("🔥 Racha Actual", f"{current_streak_real} días")
-        
         with col3:
             st.metric("🏆 Racha Máxima", f"{longest_streak_real} días")
-        
         with col4:
             st.metric("📅 Semana Actual", f"{current_week_real}/20")
-        
+
         col5, col6 = st.columns(2)
         with col5:
             st.metric("✅ Ejercicios Completados", total_exercises_completed_real)
-        
         with col6:
-            # Calcular promedio de entrenamientos por semana desde inicio del programa
             weeks_elapsed = self._calculate_weeks_elapsed_from_start()
             if weeks_elapsed > 0:
                 avg_per_week = total_workouts_real / weeks_elapsed
                 st.metric("📈 Promedio/Semana", f"{avg_per_week:.1f}")
             else:
                 st.metric("📈 Promedio/Semana", "0.0")
-        
+
         st.markdown("---")
         
         # Análisis de completado vs disponible por grupo
@@ -339,20 +343,26 @@ class StatisticsModule(BaseTrainer):
         st.subheader("📊 Análisis de Progreso Temporal")
         
         if 'completed_workouts' in self.progress_data:
-            # Preparar datos de progreso mensual
+            # Preparar datos de progreso mensual (solo días entrenamiento ≥80%)
+            monthly_counter = {}
+            for date_str in self.progress_data.get('completed_exercises', {}).keys():
+                stats = self._get_training_day_stats(date_str)
+                if stats['is_rest_day'] or stats['total'] == 0:
+                    continue
+                if stats['percentage'] >= 80:
+                    month_key = date_str[:7]
+                    monthly_counter[month_key] = monthly_counter.get(month_key, 0) + 1
             monthly_data = []
-            for month_key, dates in self.progress_data['completed_workouts'].items():
+            for month_key, count in monthly_counter.items():
                 year, month = month_key.split('-')
                 monthly_data.append({
                     'Mes': f"{month}/{year}",
-                    'Entrenamientos': len(dates),
+                    'Entrenamientos': count,
                     'Año': int(year),
                     'Mes_Num': int(month)
                 })
-            
             if monthly_data:
-                df_monthly = pd.DataFrame(monthly_data)
-                df_monthly = df_monthly.sort_values(['Año', 'Mes_Num'])
+                df_monthly = pd.DataFrame(monthly_data).sort_values(['Año', 'Mes_Num'])
                 
                 col1, col2 = st.columns(2)
                 

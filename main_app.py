@@ -417,6 +417,8 @@ class ModernHeavyDutyTrainer:
     def run(self):
         """Ejecutar la aplicación principal"""
         try:
+            # Ancla superior para scroll
+            st.markdown("<div id='top-anchor'></div>", unsafe_allow_html=True)
             # Renderizar cabecera
             self.render_header()
             
@@ -461,6 +463,21 @@ class ModernHeavyDutyTrainer:
                 "📅 **Nuevo**: Semanas de entrenamiento sincronizadas con fechas reales  \n"
                 "**Creado por entreunosyceros**",
                 unsafe_allow_html=False
+            )
+
+            # Botón al final para volver arriba (sin JS, enlace ancla)
+            st.markdown(
+                """
+<style>
+#top-anchor{position:absolute;top:0;left:0;}
+a.back-top-bottom{display:inline-block;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff!important;padding:14px 26px;border-radius:40px;font-weight:600;text-decoration:none;margin-top:10px;box-shadow:0 4px 10px rgba(0,0,0,.25);transition:.25s;}
+a.back-top-bottom:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.35);}
+</style>
+<div style='text-align:center;margin:40px 0 10px;'>
+    <a href='#top-anchor' class='back-top-bottom' title='Volver arriba'>⬆️ Volver arriba</a>
+</div>
+                """,
+                unsafe_allow_html=True
             )
             
         except Exception as e:

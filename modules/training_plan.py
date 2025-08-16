@@ -409,7 +409,7 @@ class TrainingPlanModule(BaseTrainer):
         }
         return tips.get(exercise_name, f"Consejos para '{exercise_name}' próximamente disponibles.")
 
-    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None):
+    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None, day_date: str | None = None):
         """Renderizar detalles de un ejercicio completo"""
         if week_number is None:
             week_number = st.session_state.get('current_week', 1)
@@ -417,9 +417,10 @@ class TrainingPlanModule(BaseTrainer):
         exercise_name = exercise['name']
         exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{week_number}"
         
-        # Obtener fecha actual para marcar progreso
-        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        is_completed = self.is_exercise_completed(current_date, exercise_id, week_number)
+        # Fecha asociada al día mostrado (si no se pasa, usar hoy)
+        if day_date is None:
+            day_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        is_completed = self.is_exercise_completed(day_date, exercise_id, week_number)
         
         # Checkbox de completado prominente
         col_checkbox, col_title = st.columns([1, 4])
@@ -427,21 +428,21 @@ class TrainingPlanModule(BaseTrainer):
             completed = st.checkbox(
                 "✅ Marcar",
                 value=is_completed,
-                key=self.generate_unique_key("exercise_completed", exercise_id, current_date),
-                help=f"Marcar {exercise_name} como completado hoy"
+                key=self.generate_unique_key("exercise_completed", exercise_id, day_date),
+                help=f"Marcar {exercise_name} como completado para la fecha {day_date}"
             )
             
             # Actualizar estado si cambió
             if completed != is_completed:
-                self.mark_exercise_completed(current_date, exercise_id, completed, week_number)
+                self.mark_exercise_completed(day_date, exercise_id, completed, week_number)
                 
                 # Recargar datos para asegurar persistencia
                 self.reload_progress_data()
                 
                 if completed:
-                    st.success(f"🎉 ¡{exercise_name} completado!")
+                    st.success(f"🎉 ¡{exercise_name} completado ({day_date})!")
                 else:
-                    st.info(f"📋 {exercise_name} marcado como pendiente")
+                    st.info(f"📋 {exercise_name} marcado como pendiente ({day_date})")
                 st.rerun()
         
         # Mostrar estado y progresión dinámica para antebrazo
@@ -530,6 +531,50 @@ class TrainingPlanModule(BaseTrainer):
                     st.markdown("**💡 Consejos:**")
                     st.write(tips)
 
+    def render_daily_progress_stats(self, current_week: int):
+        """Renderizar estadísticas de progreso del día actual"""
+        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        
+        # Recargar progreso para asegurar datos actualizados
+        self.reload_progress_data()
+        day_stats = self.get_day_completion_stats(current_date, current_week)
+        
+        if day_stats['total'] > 0:
+            st.markdown("### 📊 Progreso de Hoy")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Ejercicios Completados", day_stats['completed'], f"de {day_stats['total']}")
+            with col2:
+                progress_percentage = day_stats['percentage']
+                st.metric("Progreso del Día", f"{progress_percentage:.1f}%")
+            with col3:
+                remaining = day_stats['total'] - day_stats['completed']
+                st.metric("Pendientes", remaining, f"{-remaining}" if remaining > 0 else "0")
+            with col4:
+                if progress_percentage >= 80:
+                    st.metric("Estado", "🎉 Completado", "¡Excelente!")
+                elif progress_percentage >= 50:
+                    st.metric("Estado", "👍 En progreso", "¡Sigue así!")
+                else:
+                    st.metric("Estado", "💪 Iniciando", "¡Vamos!")
+            
+            # Barra de progreso del día
+            st.progress(progress_percentage / 100, text=f"Progreso diario: {progress_percentage:.0f}%")
+            
+            # Lista rápida de ejercicios pendientes
+            pending_exercises = [ex for ex in day_stats['exercises'] if not ex['completed']]
+            if pending_exercises:
+                with st.expander(f"📋 Ejercicios pendientes ({len(pending_exercises)})", expanded=False):
+                    for ex in pending_exercises:
+                        st.markdown(f"• **{ex['name']}** ({ex['muscle_group'].title()})")
+        elif day_stats['is_rest_day']:
+            st.markdown("### 😌 Día de Descanso")
+            st.info("🛌 Hoy es tu día de descanso. ¡Disfruta y prepárate para el próximo entrenamiento!")
+        else:
+            st.markdown("### 📊 Progreso de Hoy")
+            st.warning("⚠️ No hay ejercicios programados para hoy. Revisa la configuración de tu semana.")
+
     def render_training_plan(self, show_videos: bool, show_instructions: bool, show_tips: bool):
         """Renderizar plan de entrenamiento completo"""
         current_week = st.session_state.current_week
@@ -591,83 +636,16 @@ class TrainingPlanModule(BaseTrainer):
             progress_bar = min(week_info['week_in_cycle'] / 4, 1.0)
             st.progress(progress_bar, text=f"Progreso en nivel actual: {week_info['week_in_cycle']}/4 semanas")
         
-        # Panel de progreso diario
-        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        # Recargar progreso para asegurar datos actualizados
-        self.reload_progress_data()
-        day_stats = self.get_day_completion_stats(current_date, current_week)
-        
-        if day_stats['total'] > 0:
-            st.markdown("### 📊 Progreso de Hoy")
-            
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Ejercicios Completados", day_stats['completed'], f"de {day_stats['total']}")
-            with col2:
-                progress_percentage = day_stats['percentage']
-                st.metric("Progreso del Día", f"{progress_percentage:.1f}%")
-            with col3:
-                remaining = day_stats['total'] - day_stats['completed']
-                st.metric("Pendientes", remaining, f"{-remaining}" if remaining > 0 else "0")
-            with col4:
-                if progress_percentage >= 80:
-                    st.metric("Estado", "🎉 Completado", "¡Excelente!")
-                elif progress_percentage >= 50:
-                    st.metric("Estado", "👍 En progreso", "¡Sigue así!")
-                else:
-                    st.metric("Estado", "💪 Iniciando", "¡Vamos!")
-            
-            # Barra de progreso del día
-            st.progress(progress_percentage / 100, text=f"Progreso diario: {progress_percentage:.0f}%")
-            
-            # Lista rápida de ejercicios pendientes
-            pending_exercises = [ex for ex in day_stats['exercises'] if not ex['completed']]
-            if pending_exercises:
-                with st.expander(f"📋 Ejercicios pendientes ({len(pending_exercises)})", expanded=False):
-                    for ex in pending_exercises:
-                        st.markdown(f"• **{ex['name']}** ({ex['muscle_group'].title()})")
-        
-        # Panel de progreso semanal
-        st.markdown("### 📈 Progreso de la Semana")
-        week_stats = self.get_week_completion_stats(current_week)
-        
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Ejercicios Completados", week_stats['completed'], f"de {week_stats['total']}")
-        with col2:
-            week_percentage = week_stats['percentage']
-            st.metric("Progreso de la Semana", f"{week_percentage:.1f}%")
-        with col3:
-            week_remaining = week_stats['total'] - week_stats['completed']
-            st.metric("Pendientes", week_remaining, f"{-week_remaining}" if week_remaining > 0 else "0")
-        with col4:
-            if week_percentage >= 80:
-                st.metric("Estado", "🎉 Excelente", "¡Casi completada!")
-            elif week_percentage >= 50:
-                st.metric("Estado", "👍 Buen ritmo", "¡Sigue así!")
-            else:
-                st.metric("Estado", "💪 En marcha", "¡A por ello!")
-        
-        # Barra de progreso de la semana
-        st.progress(week_percentage / 100, text=f"Progreso semanal: {week_percentage:.0f}%")
-        
-        # Mostrar progreso por días de la semana
-        with st.expander("📅 Detalle por días", expanded=False):
-            day_names_full = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            for i, day_stat in enumerate(week_stats['days']):
-                if day_stat['is_rest_day']:
-                    st.markdown(f"**{day_names_full[i]}**: 🛌 Día de descanso")
-                else:
-                    completion_text = f"{day_stat['completed']}/{day_stat['total']} ejercicios ({day_stat['percentage']:.1f}%)"
-                    status_emoji = "✅" if day_stat['percentage'] >= 80 else "🔄" if day_stat['percentage'] > 0 else "⏳"
-                    st.markdown(f"**{day_names_full[i]}**: {status_emoji} {completion_text}")
-        
+        # Estadísticas del día (mover arriba)
         st.markdown("---")
-        
-        # Obtener las fechas de la semana actual
+        self.render_daily_progress_stats(current_week)
+
+        # Placeholder para el panel semanal (se rellena después de listar ejercicios)
+        weekly_panel_placeholder = st.empty()
+
+        # Renderizar calendario de entrenamiento debajo de las estadísticas diarias
         week_dates = self.get_week_dates(current_week)
         dates_list = week_dates.get('dates', []) if week_dates else []
-        
         day_names = {
             'lunes': '🟢 LUNES',
             'martes': '🔵 MARTES', 
@@ -677,16 +655,12 @@ class TrainingPlanModule(BaseTrainer):
             'sabado': '🟣 SÁBADO',
             'domingo': '⚪ DOMINGO'
         }
-        
         day_order = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
-        
         for day_index, day_key in enumerate(day_order):
             muscle_groups = week_plan.get(day_key, [])
+            day_date = dates_list[day_index] if day_index < len(dates_list) else None
             day_display = day_names.get(day_key, day_key.upper())
-            
-            # Agregar la fecha del día si está disponible
             if day_index < len(dates_list):
-                # Formatear la fecha de YYYY-MM-DD a DD-MM-YYYY
                 try:
                     date_obj = datetime.datetime.strptime(dates_list[day_index], '%Y-%m-%d')
                     formatted_date = date_obj.strftime('%d-%m-%Y')
@@ -695,10 +669,8 @@ class TrainingPlanModule(BaseTrainer):
                     day_display_with_date = day_display
             else:
                 day_display_with_date = day_display
-            
             st.markdown(f"### {day_display_with_date}")
-            
-            if not muscle_groups:  # Día de descanso
+            if not muscle_groups:
                 st.markdown("""
                 <div class="rest-day">
                     <h3>🛌 Día de descanso 🛌</h3>
@@ -706,16 +678,54 @@ class TrainingPlanModule(BaseTrainer):
                 </div>
                 """, unsafe_allow_html=True)
                 continue
-            
             for muscle_group in muscle_groups:
                 if muscle_group in self.config['exercises']:
                     st.markdown(f"#### 💪 {muscle_group.title()}")
-                    
-                    # USAR lista planificada (1 ejercicio de antebrazo alternado)
                     planned_list = self.get_planned_exercises_for_group(muscle_group, day_key, current_week)
                     for exercise in planned_list:
-                        self.render_exercise_details(exercise, muscle_group, day_key, show_videos, show_instructions, show_tips, current_week)
-    
+                        self.render_exercise_details(
+                            exercise,
+                            muscle_group,
+                            day_key,
+                            show_videos,
+                            show_instructions,
+                            show_tips,
+                            current_week,
+                            day_date=day_date
+                        )
+        
+        # Panel de progreso semanal (se calcula al final para reflejar cambios recientes)
+        self.reload_progress_data()
+        week_stats = self.get_week_completion_stats(current_week)
+        with weekly_panel_placeholder.container():
+            st.markdown("### 📈 Progreso de la Semana (Semana Seleccionada)")
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Ejercicios Completados", week_stats['completed'], f"de {week_stats['total']}")
+            with col2:
+                week_percentage = week_stats['percentage']
+                st.metric("Progreso de la Semana", f"{week_percentage:.1f}%")
+            with col3:
+                week_remaining = week_stats['total'] - week_stats['completed']
+                st.metric("Pendientes", week_remaining, f"{-week_remaining}" if week_remaining > 0 else "0")
+            with col4:
+                if week_percentage >= 80:
+                    st.metric("Estado", "🎉 Excelente", "¡Casi completada!")
+                elif week_percentage >= 50:
+                    st.metric("Estado", "👍 Buen ritmo", "¡Sigue así!")
+                else:
+                    st.metric("Estado", "💪 En marcha", "¡A por ello!")
+            st.progress(week_percentage / 100, text=f"Progreso semanal: {week_percentage:.0f}%")
+            with st.expander("📅 Detalle por días de la semana seleccionada", expanded=False):
+                day_names_full = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                for i, day_stat in enumerate(week_stats['days']):
+                    if day_stat['is_rest_day']:
+                        st.markdown(f"**{day_names_full[i]}**: 🛌 Día de descanso")
+                    else:
+                        completion_text = f"{day_stat['completed']}/{day_stat['total']} ejercicios ({day_stat['percentage']:.1f}%)"
+                        status_emoji = "✅" if day_stat['percentage'] >= 80 else "🔄" if day_stat['percentage'] > 0 else "⏳"
+                        st.markdown(f"**{day_names_full[i]}**: {status_emoji} {completion_text}")
+
     def _show_available_exercises_info(self, current_level: int):
         """Mostrar información sobre ejercicios disponibles según el nivel actual"""
         with st.expander(f"📊 Ejercicios disponibles en Nivel {current_level}", expanded=False):

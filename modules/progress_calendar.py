@@ -379,6 +379,19 @@ class ProgressModule(BaseTrainer):
             'calendar_week': week_number
         }
 
+    # Wrapper simple para la vista acumulativa (todas semanas) reutilizando la lógica existente
+    def get_day_completion_stats(self, date_str: str) -> Dict[str, Any]:
+        """Obtener estadísticas combinadas para un día (acumulativo).
+
+        La idea: identificar semana correspondiente y reutilizar la lógica del módulo de plan.
+        """
+        week_num = self.get_week_number_for_date(date_str)
+        from .training_plan import TrainingPlanModule
+        tp = TrainingPlanModule()
+        tp.config = self.config
+        tp.progress_data = self.progress_data
+        return tp.get_day_completion_stats(date_str, week_num)
+
     def render_calendar(self, year: int, month: int, view_week: int = None):
         """Renderizar calendario con porcentajes filtrados por semana específica o acumulativo"""
         current_week = st.session_state.get('current_week', 1)
@@ -454,15 +467,15 @@ class ProgressModule(BaseTrainer):
         </style>
         """, unsafe_allow_html=True)
         
-        # Mostrar estadísticas del mes
+        # Mostrar estadísticas del mes (usar completed_days en vez de completed ejercicios)
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Días con Entrenamiento", stats['completed'], f"de {stats['total_days']}")
+            st.metric("Días con Entrenamiento", stats.get('completed_days', 0), f"de {stats.get('total_days', 0)}")
         with col2:
-            st.metric("Tasa de Cumplimiento", f"{stats['completion_rate']:.1f}%")
+            st.metric("Tasa de Cumplimiento", f"{stats.get('completion_rate',0):.1f}%")
         with col3:
-            if stats['completed'] > 0:
-                avg_per_week = stats['completed'] / 4.33  # Promedio mensual
+            if stats.get('completed_days',0) > 0:
+                avg_per_week = stats.get('completed_days',0) / 4.33  # Promedio mensual aproximado
                 st.metric("Promedio Semanal", f"{avg_per_week:.1f}", "días/semana")
         
         # Leyenda de colores
@@ -558,202 +571,209 @@ class ProgressModule(BaseTrainer):
         - No es necesario marcar días manualmente
         """)
 
+    def render_week_calendar(self, view_week: int):
+        """Renderizar sólo los días entrenados (no descanso) de una semana concreta"""
+        week_dates = self.get_week_dates(view_week)
+        if not week_dates or 'dates' not in week_dates:
+            st.warning("No hay fechas para la semana seleccionada.")
+            return
+        dates_list = week_dates['dates']
+        week_info = self.get_week_info(view_week)
+        st.subheader(f"📅 Semana {view_week} - {week_info['level_name']}")
+        st.caption(f"{week_dates['start_date']} ➜ {week_dates['end_date']}")
+        st.markdown("**Solo se muestran los días con entrenamiento planificado o registrado (se excluyen descansos).**")
+
+        day_names_map = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
+        training_days = []
+        for idx, date_str in enumerate(dates_list):
+            stats = self.get_day_completion_stats_filtered(date_str, view_week)
+            if stats.get('is_rest_day'):
+                continue  # excluir descanso
+            # También excluir días totalmente vacíos sin ejercicios esperados
+            if stats.get('total',0) == 0:
+                continue
+            training_days.append((idx, date_str, stats))
+
+        if not training_days:
+            st.info("No hay días entrenados registrados en esta semana todavía.")
+            return
+
+        # Estilos sencillos para tarjetas semanales
+        st.markdown("""
+        <style>
+        /* Tarjeta de día de entrenamiento (semanal) accesible en tema claro/oscuro */
+        .week-day-card {border:1px solid #d0d0d0; border-radius:10px; padding:12px; margin-bottom:8px; background:#f5f7fa; color:#222;}
+        .week-day-header {display:flex; justify-content:space-between; align-items:center;}
+        .badge {padding:2px 6px; border-radius:6px; font-size:11px; font-weight:600; letter-spacing:.3px;}
+        .badge-full {background:#00b894; color:#fff;}
+        /* Mejor contraste: texto oscuro sobre fondo amarillo claro */
+        .badge-good {background:#fdcb6e; color:#3d2b00;}
+        .badge-part {background:#fd79a8; color:#fff;}
+        .badge-empty {background:#b2bec3; color:#fff;}
+        /* Adaptación a modo oscuro del sistema */
+        @media (prefers-color-scheme: dark) {
+            .week-day-card {background:#2b2f33; border:1px solid #444; color:#f1f3f5;}
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        for idx, date_str, stats in training_days:
+            date_obj = datetime.datetime.strptime(date_str,'%Y-%m-%d')
+            pretty = date_obj.strftime('%d-%m-%Y')
+            pct = stats.get('percentage',0)
+            if pct >= 100:
+                badge_class='badge-full'; label='100%'
+            elif pct >= 80:
+                badge_class='badge-good'; label=f"{pct:.0f}%"
+            elif pct > 0:
+                badge_class='badge-part'; label=f"{pct:.0f}%"
+            else:
+                badge_class='badge-empty'; label='0%'
+            completed = stats.get('completed',0)
+            total = stats.get('total',0)
+            mg = ', '.join(stats.get('muscle_groups',[])) if stats.get('muscle_groups') else '—'
+            st.markdown(f"""
+            <div class='week-day-card'>
+              <div class='week-day-header'>
+                <div><strong>{day_names_map[idx]}</strong> · {pretty}</div>
+                <div class='badge {badge_class}'>{label}</div>
+              </div>
+              <div style='margin-top:6px;font-size:13px;'>Ejercicios: {completed}/{total} · Grupos: {mg}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.info("Resumen semanal basado únicamente en los días con trabajo efectivo (no se listan descansos).")
+
     def calculate_current_streak(self) -> int:
-        """Calcular la racha actual de días consecutivos de entrenamiento"""
-        if 'completed_workouts' not in self.progress_data:
-            return 0
-        
-        # Obtener todas las fechas completadas y ordenarlas
-        all_completed = []
-        for month_dates in self.progress_data['completed_workouts'].values():
-            all_completed.extend(month_dates)
-        
-        if not all_completed:
-            return 0
-        
-        all_completed.sort(reverse=True)  # Más reciente primero
-        
-        # Calcular racha desde hoy hacia atrás
-        current_date = datetime.datetime.now().date()
+        """Calcular racha de días de ENTRENAMIENTO consecutivos ignorando días de descanso.
+
+        Lógica:
+        - Se recorre hacia atrás desde hoy.
+        - Día de descanso (según plan) NO suma racha pero TAMPOCO la rompe.
+        - Día con entrenamiento planificado y con >=1 ejercicio completado suma racha.
+        - Día con entrenamiento planificado pero 0 ejercicios completados ROMPE la racha.
+        """
+        self.reload_progress_data()
+        today = datetime.date.today()
         streak = 0
-        
-        for i in range(30):  # Revisar últimos 30 días
-            check_date = current_date - datetime.timedelta(days=i)
-            date_str = check_date.strftime("%Y-%m-%d")
-            
-            if date_str in all_completed:
+        # Revisar hasta 60 días hacia atrás para asegurar continuidad en semanas largas
+        # MODELO B: Días de entrenamiento consecutivos (ignorando descansos).
+        # Reglas:
+        # - Días de descanso no suman ni rompen.
+        # - Se cuenta un día solo si tiene ≥1 ejercicio COMPLETADO perteneciente a su semana (sufijo _weekN correcto).
+        # - Primer día planificado sin ejercicios completados corta la racha.
+        for i in range(60):
+            check_date = today - datetime.timedelta(days=i)
+            date_str = check_date.strftime('%Y-%m-%d')
+            week_num = self.get_week_number_for_date(date_str)
+            day_stats = self.get_day_completion_stats_filtered(date_str, week_num)
+            if day_stats.get('is_rest_day'):
+                continue  # descanso ignora
+            total = day_stats.get('total', 0)
+            completed = day_stats.get('completed', 0)
+            percentage = (completed / total * 100) if total > 0 else 0
+            completed_day = (total > 0) and (percentage >= 80)
+            if completed_day:
                 streak += 1
             else:
+                if i == 0:
+                    # Hoy incompleto: no rompe, solo se ignora
+                    continue
                 break
-        
         return streak
 
     def render_progress_tab(self):
         """Renderizar pestaña de progreso con calendario"""
         st.header("📊 Tu Progreso de Entrenamiento")
-        
+
         # Inicializar estado de navegación del calendario
         current_date = datetime.datetime.now()
-        
+
         if 'calendar_year' not in st.session_state:
             st.session_state.calendar_year = current_date.year
         if 'calendar_month' not in st.session_state:
             st.session_state.calendar_month = current_date.month
-        
-        # Mostrar información de la semana actual
+
+        # Selector de semana para vista del calendario (apilado arriba)
+        st.markdown("### 👁️ Vista del Calendario")
+        view_options = ["Todas las Semanas (Acumulativo)"] + [f"Semana {i}" for i in range(1, 21)]
+        selected_view = st.selectbox(
+            "Mostrar progreso de:",
+            options=view_options,
+            index=0,
+            key="calendar_view_selector"
+        )
+        if selected_view == "Todas las Semanas (Acumulativo)":
+            view_week = None
+            # Calendario inmediatamente tras selector
+            self.render_calendar(st.session_state.calendar_year, st.session_state.calendar_month, view_week)
+            st.caption("*Vista acumulativa: muestra progreso de todas las semanas entrenadas*")
+        else:
+            view_week = int(selected_view.split()[-1])
+            # Calendario semanal inmediatamente tras selector
+            self.render_week_calendar(view_week)
+            week_view_info = self.get_week_info(view_week)
+            st.caption(f"*Vista específica: Semana {view_week} · {week_view_info['level_name']} ({week_view_info['level_description']})*")
+        if view_week is None:
+            # Controles mensuales debajo del calendario (solo acumulativo)
+            with st.expander("⚙️ Ajustes de Mes", expanded=False):
+                col1, col2, col3 = st.columns([1, 1, 2])
+                with col1:
+                    year_options = list(range(current_date.year - 1, current_date.year + 2))
+                    year_index = year_options.index(st.session_state.calendar_year) if st.session_state.calendar_year in year_options else 1
+                    selected_year = st.selectbox("Año:", options=year_options, index=year_index, key="year_selector")
+                    st.session_state.calendar_year = selected_year
+                with col2:
+                    month_names = [self.get_month_name_es(i) for i in range(1, 13)]
+                    month_index = st.session_state.calendar_month - 1
+                    selected_month_name = st.selectbox("Mes:", options=month_names, index=month_index, key="month_selector")
+                    selected_month = month_names.index(selected_month_name) + 1
+                    st.session_state.calendar_month = selected_month
+                with col3:
+                    col_prev, col_today, col_next = st.columns(3)
+                    with col_prev:
+                        if st.button("⬅️ Mes", key="btn_prev_month"):
+                            if st.session_state.calendar_month == 1:
+                                st.session_state.calendar_year -= 1
+                                st.session_state.calendar_month = 12
+                            else:
+                                st.session_state.calendar_month -= 1
+                            st.rerun()
+                    with col_today:
+                        now = datetime.datetime.now()
+                        month_abbrs = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"]
+                        label = f"📅 {now.day} {month_abbrs[now.month-1]}"
+                        if st.button(label, key="calendar_today_btn", help="Ir al mes actual"):
+                            st.session_state.calendar_year = now.year
+                            st.session_state.calendar_month = now.month
+                            st.rerun()
+                    with col_next:
+                        if st.button("Mes ➡️", key="btn_next_month"):
+                            if st.session_state.calendar_month == 12:
+                                st.session_state.calendar_year += 1
+                                st.session_state.calendar_month = 1
+                            else:
+                                st.session_state.calendar_month += 1
+                            st.rerun()
+        # Información de semana actual
         current_week = st.session_state.get('current_week', 1)
         week_info = self.get_week_info(current_week)
-        
         st.info(f"📅 **Semana Actual: {current_week}** - {week_info['level_name']} | {week_info['level_description']}")
-        
         st.markdown("---")
-        
-        # Selector de semana para vista del calendario
-        col_view, col_rest = st.columns([1, 3])
-        with col_view:
-            st.markdown("### 👁️ Vista del Calendario")
-            view_options = ["Todas las Semanas (Acumulativo)"] + [f"Semana {i}" for i in range(1, 21)]
-            selected_view = st.selectbox(
-                "Mostrar progreso de:",
-                options=view_options,
-                index=0,
-                key="calendar_view_selector"
-            )
-            
-            if selected_view == "Todas las Semanas (Acumulativo)":
-                view_week = None
-                st.caption("*Vista acumulativa: muestra progreso de todas las semanas completadas*")
-            else:
-                view_week = int(selected_view.split()[-1])
-                week_view_info = self.get_week_info(view_week)
-                st.caption(f"*Vista específica: {week_view_info['level_name']} - {week_view_info['level_description']}*")
-        
-        st.markdown("---")
-        
-        # Selector de mes y año
-        col1, col2, col3 = st.columns([1, 1, 2])
-        
-        with col1:
-            year_options = list(range(current_date.year - 1, current_date.year + 2))
-            year_index = year_options.index(st.session_state.calendar_year) if st.session_state.calendar_year in year_options else 1
-            selected_year = st.selectbox(
-                "Año:",
-                options=year_options,
-                index=year_index,
-                key="year_selector"
-            )
-            st.session_state.calendar_year = selected_year
-        
-        with col2:
-            month_names = [self.get_month_name_es(i) for i in range(1, 13)]  # Meses en español
-            month_index = st.session_state.calendar_month - 1
-            selected_month_name = st.selectbox(
-                "Mes:",
-                options=month_names,
-                index=month_index,
-                key="month_selector"
-            )
-            selected_month = month_names.index(selected_month_name) + 1
-            st.session_state.calendar_month = selected_month
-        
-        with col3:
-            # Botones de navegación rápida
-            col_prev, col_today, col_next = st.columns(3)
-            with col_prev:
-                if st.button("⬅️ Mes Anterior", key="btn_prev_month"):
-                    if st.session_state.calendar_month == 1:
-                        st.session_state.calendar_year -= 1
-                        st.session_state.calendar_month = 12
-                    else:
-                        st.session_state.calendar_month -= 1
-                    st.rerun()
-            
-            with col_today:
-                current_date = datetime.datetime.now()
-                month_names = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", 
-                              "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"]
-                month_abbr = month_names[current_date.month - 1]
-                
-                # Usar solo el botón nativo de Streamlit con texto personalizado
-                calendar_button_label = f"📅 {current_date.day} {month_abbr}"
-                
-                if st.button(calendar_button_label, key="calendar_today_btn", help="Ir al mes y año actual"):
-                    st.session_state.calendar_year = current_date.year
-                    st.session_state.calendar_month = current_date.month
-                    st.rerun()
-                
-                # CSS simple para estilizar solo el botón nativo
-                st.markdown(f"""
-                <style>
-                /* Estilizar el botón del calendario para que se vea como un icono */
-                div[data-testid="stButton"]:has(button[title="Ir al mes y año actual"]) button {{
-                    background: linear-gradient(135deg, #ff4757, #ff3838) !important;
-                    color: white !important;
-                    border: 3px solid white !important;
-                    border-radius: 12px !important;
-                    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4) !important;
-                    font-weight: bold !important;
-                    font-size: 14px !important;
-                    padding: 8px 12px !important;
-                    min-height: 45px !important;
-                    transition: all 0.3s ease !important;
-                }}
-                
-                div[data-testid="stButton"]:has(button[title="Ir al mes y año actual"]) button:hover {{
-                    transform: scale(1.05) !important;
-                    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6) !important;
-                }}
-                
-                /* Centrar el botón */
-                div[data-testid="stButton"]:has(button[title="Ir al mes y año actual"]) {{
-                    display: flex !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                }}
-                </style>
-                """, unsafe_allow_html=True)
-            
-            with col_next:
-                if st.button("➡️ Mes Siguiente", key="btn_next_month"):
-                    if st.session_state.calendar_month == 12:
-                        st.session_state.calendar_year += 1
-                        st.session_state.calendar_month = 1
-                    else:
-                        st.session_state.calendar_month += 1
-                    st.rerun()
-        
-        st.markdown("---")
-        
-        # Renderizar calendario del mes seleccionado
-        self.render_calendar(st.session_state.calendar_year, st.session_state.calendar_month, view_week)
-        
-        st.markdown("---")
-        
+
         # Estadísticas generales
         st.subheader("📈 Estadísticas Generales")
-        
-        # Calcular estadísticas de varios meses
         total_completed = 0
         months_data = []
-        
-        for i in range(6):  # Últimos 6 meses
+        for i in range(6):
             date = current_date - datetime.timedelta(days=30 * i)
             stats = self.get_month_stats(date.year, date.month)
             total_completed += stats['completed']
-            months_data.append({
-                'Mes': f"{calendar.month_abbr[date.month]} {date.year}",
-                'Entrenamientos': stats['completed'],
-                'Tasa': stats['completion_rate']
-            })
-        
-        months_data.reverse()  # Mostrar en orden cronológico
-        
-        # Métricas principales
+            months_data.append({'Mes': f"{calendar.month_abbr[date.month]} {date.year}", 'Entrenamientos': stats['completed'], 'Tasa': stats['completion_rate']})
+        months_data.reverse()
         col1, col2, col3, col4 = st.columns(4)
-        
         with col1:
             st.metric("Entrenamientos Totales", self.progress_data.get('total_workouts', 0))
-        
         with col2:
             selected_month_stats = self.get_month_stats(st.session_state.calendar_year, st.session_state.calendar_month)
             current_month_stats = self.get_month_stats(current_date.year, current_date.month)
@@ -762,21 +782,15 @@ class ProgressModule(BaseTrainer):
             else:
                 month_name = self.get_month_abbr_es(st.session_state.calendar_month)
                 st.metric(f"{month_name} {st.session_state.calendar_year}", selected_month_stats['completed'], f"{selected_month_stats['completion_rate']:.1f}%")
-        
         with col3:
-            week_info = self.get_week_info(st.session_state.current_week)
-            st.metric("Nivel Actual", week_info['level'], week_info['level_name'])
-        
+            wk_info = self.get_week_info(st.session_state.current_week)
+            st.metric("Nivel Actual", wk_info['level'], wk_info['level_name'])
         with col4:
-            # Racha actual (días consecutivos)
             streak = self.calculate_current_streak()
             st.metric("Racha Actual", f"{streak} días", "🔥" if streak > 0 else "")
-        
-        # Consejos y motivación
         st.subheader("💡 Consejos de Progreso")
-        
         current_month_stats = self.get_month_stats(current_date.year, current_date.month)
-        
+            
         if current_month_stats['completion_rate'] >= 80:
             st.success("🎉 ¡Excelente! Mantienes una rutina muy consistente.")
         elif current_month_stats['completion_rate'] >= 60:
@@ -785,14 +799,4 @@ class ProgressModule(BaseTrainer):
             st.warning("📈 Puedes mejorar. Intenta entrenar al menos 4 días por semana.")
         else:
             st.error("💪 ¡Es hora de retomar el ritmo! Cada entrenamiento cuenta.")
-        
-        # Instrucciones
-        st.info("""
-        **Cómo interpretar el calendario:**
-        - 🟢 Verde (100%): Entrenamiento completado
-        - 🟡 Amarillo (80-99%): Casi completado
-        - 🟠 Naranja (1-79%): Parcialmente completado
-        - ⚪ Gris (0%): Sin entrenamientos
-        - 🔵 Borde azul: Día actual
-        - **Los porcentajes se calculan automáticamente** desde el Plan de Entrenamiento
-        """)
+        st.info("""**Cómo interpretar el calendario:**\n- 🟢 Verde (100%): Entrenamiento completado\n- 🟡 Amarillo (80-99%): Casi completado\n- 🟠 Naranja (1-79%): Parcialmente completado\n- ⚪ Gris (0%): Sin entrenamientos\n- 🔵 Borde azul: Día actual\n- **Los porcentajes se calculan automáticamente** desde el Plan de Entrenamiento""")

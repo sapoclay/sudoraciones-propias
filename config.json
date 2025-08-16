@@ -24,6 +24,15 @@
         "difficulty_level": 1
       },
       {
+        "name": "Flexiones de Pecho",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-12",
+        "description": "Flexiones básicas para desarrollar fuerza inicial del pecho",
+        "youtube_url": "https://www.youtube.com/watch?v=R08gYyypGto",
+        "difficulty_level": 1
+      },
+      {
         "name": "Press de Banca con Barra",
         "equipment": "bench_press_30kg",
         "sets": 1,
@@ -65,9 +74,18 @@
         "name": "Remo con Mancuernas",
         "equipment": "dumbbells_10kg",
         "sets": 1,
-        "reps": "6-8",
-        "description": "Torso paralelo al suelo, tira hacia las costillas",
+        "reps": "8-10",
+        "description": "Apoyado en banco, rema con una mancuerna",
         "youtube_url": "https://www.youtube.com/shorts/OoG6XtJeygk",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Remo Inclinado con Mancuernas",
+        "equipment": "dumbbells_10kg",
+        "sets": 1,
+        "reps": "8-10",
+        "description": "De pie inclinado, rema con ambas mancuernas simultáneamente",
+        "youtube_url": "https://www.youtube.com/watch?v=pYcpY20QaE8",
         "difficulty_level": 1
       },
       {
@@ -233,6 +251,15 @@
         "difficulty_level": 1
       },
       {
+        "name": "Sentadillas Sin Peso",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "12-15",
+        "description": "Sentadillas básicas sin peso para dominar la técnica",
+        "youtube_url": "https://www.youtube.com/watch?v=wJdCaP2LpNQ",
+        "difficulty_level": 1
+      },
+      {
         "name": "Zancadas con Mancuernas",
         "equipment": "dumbbells_10kg",
         "sets": 1,
@@ -268,6 +295,15 @@
         "reps": "15-20",
         "description": "De pie con mancuernas, elévate en puntillas contrayendo los gemelos",
         "youtube_url": "https://www.youtube.com/shorts/gwWv7aPcD7s",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Elevaciones de Gemelos Sin Peso",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "20-25",
+        "description": "Elevaciones básicas de gemelos sin peso para dominar el movimiento",
+        "youtube_url": "https://www.youtube.com/watch?v=skWa37wgd7Y",
         "difficulty_level": 1
       },
       {
@@ -382,6 +418,15 @@
         "reps": "20km",
         "description": "Pedalea a ritmo moderado manteniendo buena postura",
         "youtube_url": "https://www.youtube.com/shorts/w0mjPpxB9CE",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Saltos de Tijera",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30-60 segundos",
+        "description": "Salta abriendo y cerrando piernas y brazos a ritmo constante",
+        "youtube_url": "https://www.youtube.com/watch?v=UpH7rm0cYbM",
         "difficulty_level": 1
       },
       {

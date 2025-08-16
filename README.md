@@ -153,7 +153,7 @@ modules/
 ## 💪 Características principales
 
 ### Entrenamiento
-- **42 ejercicios especializados** organizados en 8 grupos musculares con progresión automática
+- **47 ejercicios especializados** organizados en 8 grupos musculares con progresión graduada
 - **Progresión automática inteligente** hasta 20 semanas
 - **Sistema de 4 niveles** con días de descanso adaptativos
 - **Seguimiento automático** por ejercicio individual
