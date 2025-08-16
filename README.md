@@ -5,7 +5,21 @@
 ## 🎯 Descripción
 Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
-## 🏋️ Sistema de progresión inteligente
+## 🆕 Novedades (v1.2.6)
+Resumen de mejoras recientes:
+- 📅 Calendario reordenado bajo selector y controles de mes en expander.
+- 🗂️ Vista semanal filtrada (solo días de entrenamiento, sin descansos) con badges de porcentaje.
+- 🔄 Independencia estricta entre semanas para cálculos de porcentaje.
+- 🔥 Racha: solo días ≥80% y sin contar descansos; hoy incompleto no rompe.
+- 📊 Estadísticas: “Días Entrenamiento Completos” sustituye a entrenamientos totales incluyendo descansos.
+- 💪 Rotación y progresión de antebrazos aplicada internamente a cómputos diarios.
+- 🧮 Día completo = ≥80% ejercicios planificados de su semana.
+- ⏫ Botón “Volver arriba” al final de la página.
+- ♻️ Refactor unifica lógica de rachas y días completos entre módulos.
+
+> Nota: Puede bajar tu cifra histórica respecto a versiones previas porque se excluyen descansos.
+
+## �🏋️ Sistema de progresión inteligente
 
 ### 📈 **Niveles de entrenamiento (20 Semanas)**
 
@@ -52,18 +66,18 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 - **Adaptación inteligente:** Incremento controlado de la carga
 - **Sostenibilidad:** Programa de 20 semanas sin estancamiento
 
-## 🔧 Configuración manual (Opcional) o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
+## 🔧 Configuración manual (OPCIONAL) o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
 
 ## 🚀 Instalación paquete .deb
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.1/sudoraciones_1.2.1_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.1/sudoraciones_1.2.6_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
 ```bash
-   sudo dpkg -i sudoraciones_1.2.1_amd64.deb
+   sudo dpkg -i sudoraciones_1.2.6_amd64.deb
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash
@@ -174,24 +188,33 @@ modules/
 
 ## 📊 Grupos musculares y progresión
 
-### 🎯 **Distribución de ejercicios (26 Total)**
+### 🎯 **Distribución de ejercicios (47 Total)**
 
-#### Pecho (4 ejercicios)
+Se incluyen variantes progresivas y movimientos avanzados que el sistema introduce según el nivel y la semana. Los ejercicios de antebrazo y abdominales se alternan inteligentemente para evitar saturación y mejorar la recuperación.
+
+#### Pecho (6 ejercicios)
 - Press de Banca con Mancuernas
+- Flexiones de Pecho
 - Press de Banca con Barra
 - Aperturas con Mancuernas
 - Press Inclinado con Barra
+- Flexiones con Mancuernas
 
-#### Espalda (2 ejercicios)
+#### Espalda (5 ejercicios)
 - Remo con Mancuernas
+- Remo Inclinado con Mancuernas
 - Peso Muerto con Mancuernas
+- Remo con Barra
+- Peso Muerto con Barra
 
-#### Hombros (3 ejercicios)
+#### Hombros (5 ejercicios)
 - Press Militar con Mancuernas
 - Elevaciones Laterales
 - Elevaciones Frontales
+- Press Arnold
+- Elevaciones Posteriores
 
-#### Brazos (7 ejercicios)
+#### Brazos (8 ejercicios)
 - Curl de Bíceps
 - Curl Martillo
 - Extensiones de Tríceps
@@ -199,34 +222,47 @@ modules/
 - Curl de Muñeca (antebrazo)
 - Curl de Muñeca Inverso (antebrazo)
 - Pronación/Supinación con Mancuerna (antebrazo)
+- Curl 21s
 
-> Nota: en los días de brazos, se muestra automáticamente solo 1 ejercicio de antebrazo alternado de forma inteligente. La progresión por nivel ajusta series y repeticiones: Nivel 1 (1×8-10), Nivel 2 (1×10-12), Nivel 3 (2×10-12), Nivel 4+ (2×12-15).
+> Nota: En cada día de brazos se muestra automáticamente SOLO 1 ejercicio de antebrazo (rotación inteligente). La progresión por nivel ajusta volumen e intensidad: Nivel 1 (1×6-8 / 8-10), Nivel 2 (1×8-10 / 10-12), Nivel 3 (1×8-10 o 2×10-12), Nivel 4+ (2×12-15 o técnicas avanzadas).
 
-#### Piernas (3 ejercicios)
+#### Piernas (5 ejercicios)
 - Sentadillas con Mancuernas
+- Sentadillas Sin Peso
 - Zancadas con Mancuernas
 - Sentadillas Búlgaras
+- Sentadillas Pistol (Asistidas)
 
-#### Gemelos (2 ejercicios)
+#### Gemelos (5 ejercicios)
 - Elevaciones de Gemelos de Pie
+- Elevaciones de Gemelos Sin Peso
 - Elevaciones de Gemelos Sentado
+- Elevaciones de Gemelos a Una Pierna
+- Saltos de Gemelos
 
-#### Abdominales (4 ejercicios divididos en básicos y avanzados)
-**Abs básicos (Nivel 1-2):**
+#### Abdominales Básicos (5 ejercicios)
 - Abdominales Tradicionales
 - Plancha
+- Plancha Lateral
+- Mountain Climbers
+- Plancha con Elevación de Brazos
 
-**Abs avanzados (Nivel 3+):**
+#### Abdominales Avanzados (3 ejercicios)
 - Abdominales Bajas
 - Abdominales Laterales
+- V-Ups
 
-#### Cardio (1 ejercicio)
+#### Cardio (5 ejercicios)
 - Bicicleta Estática
+- Saltos de Tijera
+- Intervalos en Bicicleta
+- HIIT en Bicicleta
+- Burpees
 
-**📈 Distribución de cardio por semana:**
+**📈 Distribución de cardio (adaptativa):**
 - **Semanas 1-2**: 2 sesiones (miércoles + viernes)
-- **Semanas 3-4**: 3 sesiones (lunes + miércoles + viernes)  
-- **Semanas 5+**: Cardio distribuido inteligentemente según nivel de progresión
+- **Semanas 3-4**: 3 sesiones (lunes + miércoles + viernes)
+- **Semanas 5+**: Ajuste inteligente según nivel y carga acumulada
 
 ## 🔄 Funcionamiento del programa
 
@@ -302,24 +338,25 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
   - 🟠 Naranja: 1-79% completado
   - ⚪ Blanco: 0% completado
 
-#### **🆕 Vistas del Calendario por Semana**:
-- **Vista Acumulativa** (por defecto): Muestra progreso combinado de todas las semanas
-- **Vista por Semana Específica**: Filtra solo el progreso de una semana en particular
+#### **🆕 Vistas del calendario por semana**:
+- **Vista acumulativa** (por defecto): Muestra progreso combinado de todas las semanas
+- **Vista por semana específica**: Filtra solo el progreso de una semana en particular
 - **Días de descanso adaptativos**: Cambian según el nivel de dificultad de cada semana
 - **Independencia entre semanas**: El progreso de una semana no afecta a otras
 - **Navegación temporal**: Puedes revisar el progreso de semanas anteriores
 
-#### **Funcionalidades del Calendario**:
+#### **Funcionalidades del calendario**:
 - **Semanas independientes**: Cada semana tiene su propio plan de entrenamiento
 - **Días de descanso dinámicos**: Cambian según el nivel (Principiante: 3 días, Experto: 1 día)
 - **Porcentajes precisos**: Se calculan solo con ejercicios de la semana seleccionada
 - **Historial completo**: Mantiene el registro de todas las semanas completadas
 
 #### **Estadísticas globales**:
-- Total de entrenamientos realizados
-- Rachas de entrenamiento consecutivas
-- Gráficos de progreso mensual
-- Recomendaciones personalizadas
+- Días de entrenamiento completos (≥80% ejercicios) – descansos excluidos
+- Racha actual (ignora descansos y no se rompe por el día de hoy incompleto)
+- Racha máxima histórica
+- Gráficos mensuales (solo días completos) y promedio/semana
+- Recomendaciones personalizadas basadas en grupos menos trabajados
 
 ### 🏋️ **Métodos de intensificación**
 
@@ -356,9 +393,10 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 
 ### Automático
 - **Progreso por ejercicio**: Marca individual cada ejercicio
-- **Cálculo inteligente**: Un día se considera completado al 80% de ejercicios
-- **Calendario visual**: Colores que indican nivel de progreso
-- **Estadísticas automáticas**: Sin configuración manual necesaria
+- **Cálculo inteligente armonizado**: Un día se considera completado al alcanzar ≥80% de los ejercicios planificados de ESA semana (no mezcla semanas)
+- **Calendario visual unificado**: Colores + badges coherentes entre vistas semanal y acumulativa
+- **Rachas consistentes**: Se calculan ignorando días de descanso y sin penalizar el día actual incompleto
+- **Estadísticas depuradas**: Solo cuentan días realmente entrenados (descansos fuera)
 
 ### Manual
 - Solo necesitas marcar ejercicios como "Completado"
@@ -392,13 +430,13 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 
 ### 📊 **Monitorización del progreso**
 1. **Pestaña "Progreso"**: 
-   - Calendario visual con tu historial completo
-   - Estadísticas de días entrenados
-   - Rachas de entrenamiento consecutivas
+   - Calendario visual con historial acumulado y vista semanal filtrada
+   - Días de entrenamiento completos (≥80%) y porcentaje por día
+   - Racha actual y máxima (sin contar descansos)
 
 2. **Pestaña "Estadísticas"**:
-   - Gráficos de progreso mensual
-   - Recomendaciones personalizadas
+   - Gráficos mensuales depurados (solo días completos)
+   - Recomendaciones personalizadas y ranking de grupos
    - Análisis de rendimiento
 
 ### ⚙️ **Personalización**
@@ -414,8 +452,9 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
    - Haz clic en "💾 Guardar URL"
 
 3. **Gestión del progreso**:
-   - 📊 Vista del progreso actual en la barra lateral
+   - 📊 Vista rápida en barra lateral (semana actual + métricas)
    - 🗑️ Botón de reinicio completo con confirmación de seguridad
+   - 🔼 Botón “Volver arriba” al final para navegación rápida
    - ⚠️ Advertencias claras sobre acciones irreversibles
 
 ### 🔄 **Casos de uso comunes**
