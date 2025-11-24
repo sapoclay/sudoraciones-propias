@@ -604,4 +604,4 @@ Si el puerto 8508 está ocupado, el sistema intentará automáticamente terminar
 
 **💪 ¡Comienza tu transformación con SUDORACIONES propias!**
 
-*Desarrollado con un poco de ☕ y 🚬 usando Python y Streamlit - Sistema de entrenamiento inteligente*
+*Desarrollado con un poco de ☕ y 🚬 usando Python y Streamlit por entreunosyceros.net
