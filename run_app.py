@@ -120,7 +120,7 @@ def print_banner():
     """Mostrar banner de inicio"""
     total_exercises = get_total_exercises_count()
     print("\n" + "="*60)
-    print("🎯 SUDORACIONES PROPIAS v1.2.6 - SISTEMA DE ENTRENAMIENTO")
+    print("🎯 SUDORACIONES PROPIAS v1.2.7 - SISTEMA DE ENTRENAMIENTO")
     print("="*60)
     print("💪 Entrenamiento Personalizado para Principiantes y Expertos")
     print(f"🏋️ {total_exercises} ejercicios especializados con progresión automática")

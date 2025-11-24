@@ -8,11 +8,15 @@ from .training_plan import TrainingPlanModule
 from .progress_calendar import ProgressModule
 from .statistics import StatisticsModule
 from .info import InfoModule
+from .exercise_library import ExerciseLibraryModule
+from .nutrition import NutritionModule
 
 __all__ = [
     'BaseTrainer',
     'TrainingPlanModule', 
     'ProgressModule',
     'StatisticsModule',
-    'InfoModule'
+    'InfoModule',
+    'ExerciseLibraryModule',
+    'NutritionModule'
 ]

@@ -260,6 +260,69 @@ class BaseTrainer:
         # Los ejercicios ya están filtrados por nivel en get_planned_exercises_for_group
         return available_exercises
     
+    def get_general_progression(self, level: int, original_reps: str) -> str:
+        """
+        Calcular progresión general de repeticiones según el nivel.
+        Aumenta las repeticiones base según el nivel del usuario.
+        """
+        # Si no es un rango numérico simple (ej: "20km", "30-60 segundos"), devolver original
+        if not any(c.isdigit() for c in original_reps):
+            return original_reps
+            
+        if "km" in original_reps or "segundos" in original_reps or "min" in original_reps:
+            return original_reps
+
+        try:
+            # Intentar parsear rango "X-Y"
+            if '-' in original_reps:
+                parts = original_reps.split('-')
+                min_reps = int(parts[0].strip())
+                # Manejar caso "8-10 por pierna"
+                max_reps_part = parts[1].strip()
+                suffix = ""
+                
+                if " " in max_reps_part:
+                    # Separar número del texto (ej: "10 por pierna")
+                    max_reps_num_str = max_reps_part.split(' ')[0]
+                    suffix = " " + " ".join(max_reps_part.split(' ')[1:])
+                    max_reps = int(max_reps_num_str)
+                else:
+                    max_reps = int(max_reps_part)
+                
+                # Calcular incremento basado en nivel (nivel 1 es base)
+                # Nivel 1: +0
+                # Nivel 2: +2
+                # Nivel 3: +4
+                # Nivel 4+: +6
+                increase = (level - 1) * 2
+                
+                new_min = min_reps + increase
+                new_max = max_reps + increase
+                
+                return f"{new_min}-{new_max}{suffix}"
+                
+            # Intentar parsear número único "X"
+            else:
+                # Manejar posible sufijo
+                reps_part = original_reps.strip()
+                suffix = ""
+                
+                if " " in reps_part:
+                    reps_num_str = reps_part.split(' ')[0]
+                    suffix = " " + " ".join(reps_part.split(' ')[1:])
+                    reps = int(reps_num_str)
+                else:
+                    reps = int(reps_part)
+                
+                increase = (level - 1) * 2
+                new_reps = reps + increase
+                
+                return f"{new_reps}{suffix}"
+                
+        except Exception:
+            # Si falla el parseo, devolver original
+            return original_reps
+
     # --- FIN utilidades nuevas ---
 
     def load_config(self) -> Dict[str, Any]:

@@ -1,6 +1,6 @@
 {
   "equipment": {
-    "dumbbells_10kg": 2,
+    "dumbbells_8kg": 2,
     "dumbbell_12kg": 1,
     "bench_press_30kg": 1,
     "stationary_bike": 1,
@@ -16,7 +16,7 @@
     "pecho": [
       {
         "name": "Press de Banca con Mancuernas",
-        "equipment": "dumbbells_10kg",
+        "equipment": "dumbbells_8kg",
         "sets": 1,
         "reps": "6-8",
         "description": "Acostado en el banco, presiona las mancuernas hacia arriba",
@@ -363,15 +363,6 @@
         "difficulty_level": 2
       },
       {
-        "name": "Mountain Climbers",
-        "equipment": "floor_space",
-        "sets": 1,
-        "reps": "20-30",
-        "description": "En posición de plancha, alterna llevando las rodillas al pecho",
-        "youtube_url": "https://www.youtube.com/watch?v=cnyTQDSE884",
-        "difficulty_level": 3
-      },
-      {
         "name": "Plancha con Elevación de Brazos",
         "equipment": "floor_space",
         "sets": 1,
@@ -419,42 +410,237 @@
         "description": "Pedalea a ritmo moderado manteniendo buena postura",
         "youtube_url": "https://www.youtube.com/shorts/w0mjPpxB9CE",
         "difficulty_level": 1
-      },
+      }
+    ],
+    "calentamiento": [
       {
-        "name": "Saltos de Tijera",
+        "name": "Rotaciones de Hombros",
         "equipment": "floor_space",
         "sets": 1,
-        "reps": "30-60 segundos",
-        "description": "Salta abriendo y cerrando piernas y brazos a ritmo constante",
-        "youtube_url": "https://www.youtube.com/watch?v=UpH7rm0cYbM",
+        "reps": "10-15 cada dirección",
+        "description": "Círculos amplios con los hombros hacia adelante y luego hacia atrás",
+        "youtube_url": "https://www.youtube.com/watch?v=UJnN2qRbgUs",
         "difficulty_level": 1
       },
       {
-        "name": "Intervalos en Bicicleta",
-        "equipment": "stationary_bike",
+        "name": "Círculos de Caderas",
+        "equipment": "floor_space",
         "sets": 1,
-        "reps": "15 min (2 min suave, 1 min intenso)",
-        "description": "Entrenamiento por intervalos alternando ritmo moderado e intenso",
+        "reps": "10-15 cada dirección",
+        "description": "Manos en la cadera, realiza círculos amplios con las caderas",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Rotaciones de Cuello",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-10 cada dirección",
+        "description": "Lentamente rota la cabeza en círculos, con movimientos suaves",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Rotaciones de Brazos",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10-15 cada dirección",
+        "description": "Extiende los brazos y realiza círculos amplios hacia adelante y atrás",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Balanceo de Piernas",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10-12 por pierna",
+        "description": "Balancea una pierna de adelante hacia atrás manteniendo el equilibrio",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Elevaciones de Rodillas",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "15-20",
+        "description": "Marcha en el sitio elevando las rodillas hasta la cadera",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Jumping Jacks Suaves",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "15-20",
+        "description": "Saltos suaves abriendo y cerrando piernas y brazos",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      }
+    ],
+    "estiramiento": [
+      {
+        "name": "Estiramiento de Pectorales",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada lado",
+        "description": "Brazo en pared o marco, gira el cuerpo alejándote para estirar el pecho",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Dorsales",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada lado",
+        "description": "Agarra una barra o superficie elevada, inclínate hacia atrás estirando la espalda",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Hombros",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada brazo",
+        "description": "Lleva un brazo cruzado al pecho y presiona con el otro brazo",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Tríceps",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada brazo",
+        "description": "Lleva el codo detrás de la cabeza, presiona suavemente con la otra mano",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Isquiotibiales",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada pierna",
+        "description": "Extiende una pierna, inclínate hacia adelante desde la cadera",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Cuádriceps",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada pierna",
+        "description": "De pie, agarra el pie por detrás y llévalo hacia el glúteo",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Gemelos",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada pierna",
+        "description": "Pierna extendida atrás, talón en el suelo, inclínate hacia adelante",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Glúteos",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada lado",
+        "description": "Sentado, cruza un pie sobre la rodilla opuesta, inclínate hacia adelante",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Cadera",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos cada lado",
+        "description": "Zancada profunda, baja la cadera manteniendo el pecho erguido",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Estiramiento de Espalda Baja",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30 segundos",
+        "description": "Acostado, lleva rodillas al pecho y abraza, mece suavemente",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      }
+    ],
+    "movilidad": [
+      {
+        "name": "Gato-Camello",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10-15",
+        "description": "En cuatro patas, alterna entre arquear y redondear la espalda",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Bird Dog",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-10 cada lado",
+        "description": "En cuatro patas, extiende brazo y pierna opuestos manteniendo estabilidad",
         "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         "difficulty_level": 2
       },
       {
-        "name": "HIIT en Bicicleta",
-        "equipment": "stationary_bike",
-        "sets": 1,
-        "reps": "20 min (30s máximo, 90s recuperación)",
-        "description": "Entrenamiento de alta intensidad con intervalos cortos",
-        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        "difficulty_level": 3
-      },
-      {
-        "name": "Burpees",
+        "name": "90/90 Hip Switch",
         "equipment": "floor_space",
         "sets": 1,
-        "reps": "8-12",
-        "description": "Ejercicio completo: sentadilla, plancha, flexión, salto",
-        "youtube_url": "https://www.youtube.com/watch?v=auBLPXO8Fww",
-        "difficulty_level": 4
+        "reps": "8-10 cada lado",
+        "description": "Sentado con piernas en 90 grados, rota de un lado al otro",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Rotaciones Torácicas",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "8-10 cada lado",
+        "description": "En cuatro patas, coloca una mano detrás de la cabeza y rota el torso",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Dislocaciones de Hombro",
+        "equipment": "dumbbells_8kg",
+        "sets": 1,
+        "reps": "10-12",
+        "description": "Con palo o mancuerna ligera, pasa los brazos de frente a espalda con agarre amplio",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
+      },
+      {
+        "name": "Círculos de Tobillo",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "10 cada dirección por pie",
+        "description": "Sentado o de pie, dibuja círculos con el pie",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 1
+      },
+      {
+        "name": "Sentadilla Profunda",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "30-60 segundos",
+        "description": "Mantén una sentadilla profunda, mejora movilidad de tobillos y caderas",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
+      },
+      {
+        "name": "World's Greatest Stretch",
+        "equipment": "floor_space",
+        "sets": 1,
+        "reps": "5-8 cada lado",
+        "description": "Zancada profunda con rotación torácica y estiramiento de cadera",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "difficulty_level": 2
       }
     ]
   },

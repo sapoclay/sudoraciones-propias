@@ -46,13 +46,16 @@ class TrainingPlanModule(BaseTrainer):
                     exercise_id = f"{muscle_group}_{exercise['name']}_{day_key}_week{week_number}"
                     is_completed = self.is_exercise_completed(date_str, exercise_id, week_number)
                     
-                    # Progresión dinámica para antebrazos (mostrar en reps/series si aplica)
+                    # Progresión dinámica general
                     display_sets = exercise.get('sets', 1)
-                    display_reps = exercise.get('reps', '')
+                    base_reps = exercise.get('reps', '')
+                    level = self.get_week_info(week_number).get('level', 1)
+                    
                     if exercise.get('category') == 'forearm':
-                        level = self.get_week_info(week_number).get('level', 1)
                         s, r = self.get_forearm_progression(level)
                         display_sets, display_reps = s, r
+                    else:
+                        display_reps = self.get_general_progression(level, str(base_reps))
                     
                     exercise_list.append({
                         'name': exercise['name'],
@@ -256,15 +259,15 @@ class TrainingPlanModule(BaseTrainer):
                     new_schedule[day] = muscle_groups  # Mantener miércoles y domingo como descanso
                     
             elif mode == "advanced":
-                # Nivel 4+: Solo 1 día de descanso (domingo) con cardio distribuido
+                # Nivel 4+: 2 días de descanso (miércoles y domingo) con entrenamiento intensificado
                 advanced_plan = {
-                    'lunes': ['pecho', 'hombros', 'abs', 'cardio'],
+                    'lunes': ['pecho', 'hombros', 'abs'],
                     'martes': ['espalda', 'brazos', 'cardio'],
-                    'miercoles': ['piernas', 'abs', 'cardio'],  # Convierte miércoles en día de entrenamiento
-                    'jueves': ['pecho', 'brazos'],
-                    'viernes': ['espalda', 'hombros', 'abs'],
-                    'sabado': ['piernas', 'gemelos', 'cardio'],
-                    'domingo': []  # ÚNICO DÍA DE DESCANSO
+                    'miercoles': [],  # DÍA DE DESCANSO
+                    'jueves': ['piernas', 'gemelos', 'abs'],
+                    'viernes': ['pecho', 'espalda', 'cardio'],
+                    'sabado': ['brazos', 'hombros', 'cardio'],
+                    'domingo': []  # DÍA DE DESCANSO
                 }
                 new_schedule = advanced_plan
                 break
@@ -294,29 +297,32 @@ class TrainingPlanModule(BaseTrainer):
         instructions = {
             # PECHO
             'Press de Banca con Mancuernas': "Acuéstate en el banco, baja las mancuernas lentamente hasta sentir estiramiento en el pecho, empuja hacia arriba con control.",
-            'Press de Banca con Barra': "Acostado en el banco, presiona la barra hacia arriba con control total",
+            'Flexiones de Pecho': "Posición de plancha, baja el pecho hasta casi tocar el suelo, mantén el core contraído, empuja hacia arriba.",
+            'Press de Banca con Barra': "Acostado en el banco, presiona la barra hacia arriba con control total.",
             'Aperturas con Mancuernas': "Acostado en el banco, abre los brazos en arco amplio manteniendo codos ligeramente flexionados, baja hasta sentir estiramiento en pecho.",
-            'Press Inclinado con Barra': "En banco inclinado, presiona la barra trabajando pecho superior",
-            'Flexiones en el Suelo': "Posición de plancha, baja el pecho hasta casi tocar el suelo, mantén el core contraído, empuja hacia arriba.",
+            'Press Inclinado con Barra': "En banco inclinado, presiona la barra trabajando pecho superior.",
+            'Flexiones con Mancuernas': "Flexiones con las manos apoyadas en mancuernas para aumentar el rango de movimiento, baja profundo y sube con control.",
 
             # ESPALDA
             'Remo con Mancuernas': "Torso paralelo al suelo, tira del codo hacia atrás llevando la mancuerna hacia las costillas.",
+            'Remo Inclinado con Mancuernas': "De pie inclinado hacia adelante, rema con ambas mancuernas simultáneamente hacia el abdomen.",
             'Peso Muerto con Mancuernas': "Pies separados, baja las mancuernas manteniendo la espalda recta, empuja con los talones para subir.",
-            'Remo a Una Mano': "Apoyo en banco con una mano, tira de la mancuerna hacia la cadera manteniendo el torso estable.",
+            'Remo con Barra': "Inclinado hacia adelante, tira la barra hacia el abdomen apretando los omóplatos.",
+            'Peso Muerto con Barra': "Levanta la barra desde el suelo manteniendo la espalda recta, empuja con las piernas y caderas.",
 
             # HOMBROS
             'Press Militar con Mancuernas': "De pie, mancuernas a la altura de los hombros, empuja hacia arriba hasta extensión completa.",
             'Elevaciones Laterales': "De pie, eleva los brazos lateralmente hasta la altura de los hombros con control.",
             'Elevaciones Frontales': "De pie, eleva las mancuernas al frente hasta la altura de los hombros alternando brazos.",
-            'Pájaros con Mancuernas': "Inclinado hacia adelante, abre los brazos lateralmente apretando los omóplatos.",
+            'Press Arnold': "Combina rotación y press vertical, inicia con palmas hacia ti y rota mientras presionas hacia arriba.",
+            'Elevaciones Posteriores': "Inclinado hacia adelante, eleva las mancuernas hacia atrás trabajando el deltoides posterior.",
 
             # BRAZOS
             'Curl de Bíceps': "Brazos extendidos, codos pegados al torso, flexiona llevando las mancuernas hacia los hombros.",
             'Curl Martillo': "Como el curl normal pero con agarre neutro (palmas enfrentadas), movimiento controlado.",
             'Extensiones de Tríceps': "Acostado, codos fijos apuntando al techo, baja la mancuerna hacia la frente flexionando antebrazos.",
             'Fondos en Silla': "Manos en el borde de una silla/banco, codos hacia atrás, baja controlado y sube extendiendo tríceps.",
-            'Curl Concentrado': "Sentado, codo apoyado en la pierna, flexiona el brazo con concentración total en el bíceps.",
-            'Patada de Tríceps': "Inclinado, brazo superior paralelo al suelo, extiende el antebrazo hacia atrás.",
+            'Curl 21s': "7 repeticiones parciales de la mitad inferior, 7 de la mitad superior y 7 completas sin descanso.",
 
             # ANTEBRAZOS
             'Curl de Muñeca': "Sentado, antebrazos apoyados, palmas hacia arriba; flexiona solo las muñecas elevando la mancuerna y baja controlado.",
@@ -325,24 +331,26 @@ class TrainingPlanModule(BaseTrainer):
 
             # PIERNAS
             'Sentadillas con Mancuernas': "Pies separados, baja como si te sentaras en una silla, mantén el pecho erguido.",
+            'Sentadillas Sin Peso': "Igual que sentadillas con mancuernas pero sin peso, enfócate en perfeccionar la técnica.",
             'Zancadas con Mancuernas': "Paso largo adelante, baja hasta que ambas rodillas estén a 90 grados.",
-            'Sentadillas Búlgaras': "Un pie elevado atrás, baja con la pierna delantera hasta 90 grados",
-            'Peso Muerto Rumano': "Piernas ligeramente flexionadas, baja las mancuernas manteniendo la curva lumbar.",
-            'Sentadillas Sumo': "Pies muy separados, puntas hacia afuera, baja manteniendo rodillas alineadas con pies.",
+            'Sentadillas Búlgaras': "Un pie elevado atrás, baja con la pierna delantera hasta 90 grados.",
+            'Sentadillas Pistol (Asistidas)': "Sentadilla a una pierna con apoyo ligero para equilibrio, baja controlado con una sola pierna.",
 
             # GEMELOS
-            'Elevaciones de Gemelos de Pie': "De pie con mancuernas, elévate en puntillas contrayendo los gemelos",
-            'Elevaciones de Gemelos Sentado': "Sentado en el banco, mancuernas en los muslos, elévate en puntillas",
-            'Elevación de Talones': "De pie, elévate sobre las puntas de los pies contrayendo las pantorrillas.",
+            'Elevaciones de Gemelos de Pie': "De pie con mancuernas, elévate en puntillas contrayendo los gemelos.",
+            'Elevaciones de Gemelos Sin Peso': "Igual que elevaciones de gemelos de pie pero sin peso, enfócate en la contracción.",
+            'Elevaciones de Gemelos Sentado': "Sentado en el banco, mancuernas en los muslos, elévate en puntillas.",
+            'Elevaciones de Gemelos a Una Pierna': "De pie en una pierna, elévate en puntillas para trabajo unilateral intenso.",
+            'Saltos de Gemelos': "Saltos explosivos usando principalmente los gemelos, aterriza suave y repite.",
 
             # ABDOMINALES
-            'Abdominales Tradicionalales': "Acostado, rodillas flexionadas, eleva el torso hacia las rodillas sin tirar del cuello.",
+            'Abdominales Tradicionales': "Acostado, rodillas flexionadas, eleva el torso hacia las rodillas sin tirar del cuello.",
             'Plancha': "Antebrazos en el suelo, cuerpo en línea recta, mantén la posición.",
+            'Plancha Lateral': "De lado, apoyado en antebrazo, mantén el cuerpo recto lateralmente.",
+            'Plancha con Elevación de Brazos': "Desde plancha, alterna elevando un brazo al frente manteniendo la estabilidad del core.",
             'Abdominales Bajas': "Acostado boca arriba, manos bajo la espalda baja, eleva las piernas hacia el pecho manteniendo control.",
             'Abdominales Laterales': "De lado, eleva el torso hacia la cadera, trabajando los oblicuos con movimiento controlado.",
-            'Abdominales con Mancuerna': "Acostado, sujeta mancuerna en el pecho, realiza abdominales con peso adicional.",
-            'Russian Twists': "Sentado, inclínate hacia atrás, rota el torso de lado a lado con mancuerna.",
-            'Plancha Lateral': "De lado, apoyado en antebrazo, mantén el cuerpo recto lateralmente.",
+            'V-Ups': "Acostado, eleva simultáneamente piernas y torso formando una V, ejercicio avanzado de core.",
 
             # CARDIO
             'Bicicleta Estática': "Ajusta el asiento, mantén la espalda recta, pedalea con movimiento fluido."
@@ -354,29 +362,32 @@ class TrainingPlanModule(BaseTrainer):
         tips = {
             # PECHO
             'Press de Banca con Mancuernas': "Mantén los omóplatos retraídos, no arquees excesivamente la espalda. Respiración: inhala al bajar, exhala al subir.",
+            'Flexiones de Pecho': "Mantén línea recta del cuerpo, si es difícil hazlas de rodillas. Progresa gradualmente.",
             'Press de Banca con Barra': "Agarre ligeramente más ancho que los hombros. Baja la barra al pecho controladamente.",
             'Aperturas con Mancuernas': "No bajes demasiado para evitar lesiones en el hombro. Mantén codos ligeramente flexionados siempre.",
             'Press Inclinado con Barra': "Enfócate en la parte superior del pecho. No uses un agarre demasiado ancho.",
-            'Flexiones en el Suelo': "Mantén línea recta del cuerpo, si es difícil hazlas de rodillas. Progresa gradualmente.",
+            'Flexiones con Mancuernas': "Ideal para aumentar rango de movimiento. No desciendas más de lo cómodo para tus hombros.",
 
             # ESPALDA
             'Remo con Mancuernas': "Inicia el movimiento con los músculos de la espalda, no gires el torso. Aprieta omóplatos al final.",
+            'Remo Inclinado con Mancuernas': "Mantén la espalda recta durante todo el movimiento. No uses impulso.",
             'Peso Muerto con Mancuernas': "Mantén la barra cerca del cuerpo, pecho arriba, peso en los talones.",
-            'Remo a Una Mano': "Mantén la espalda neutral, no uses impulso. El codo debe ir hacia atrás, no hacia afuera.",
+            'Remo con Barra': "Espalda recta, no redondees la columna. El movimiento viene de los codos, no de los brazos.",
+            'Peso Muerto con Barra': "Ejercicio muy técnico. Empieza con poco peso y perfecciona la técnica. Bisagra de cadera, no sentadilla.",
 
             # HOMBROS
             'Press Militar con Mancuernas': "Core contraído, no uses impulso con las piernas. Cuidado con la posición del cuello.",
             'Elevaciones Laterales': "Movimiento lento y controlado, no uses peso excesivo. Evita balancear el cuerpo.",
             'Elevaciones Frontales': "Alterna los brazos para mejor estabilidad. No subas más allá de la altura del hombro.",
-            'Pájaros con Mancuernas': "Mantén rodillas ligeramente flexionadas. Enfócate en apretar los omóplatos.",
+            'Press Arnold': "Ejercicio avanzado. Combina rotación con press, requiere mucho control. Empieza con peso ligero.",
+            'Elevaciones Posteriores': "Mantente inclinado durante todo el movimiento. Enfoca en deltoides posterior, no en trápezos.",
 
             # BRAZOS
             'Curl de Bíceps': "Mantén los codos fijos, no balancees el cuerpo. Contracción completa en la parte superior.",
             'Curl Martillo': "Variación excelente para el braquial. Alterna brazos para mejor concentración.",
             'Extensiones de Tríceps': "Mantén los brazos superiores fijos, cuidado con el peso cerca de la cabeza.",
             'Fondos en Silla': "Hombros abajo y atrás; evita encogerte. No desciendas más de lo cómodo para tus hombros.",
-            'Curl Concentrado': "Ideal para máxima concentración. No uses impulso, movimiento muy controlado.",
-            'Patada de Tríceps': "Mantén el brazo superior inmóvil. Extensión completa pero sin bloquear agresivamente.",
+            'Curl 21s': "Técnica avanzada muy exigente. Sin descanso entre las 3 fases. Prepara brazos para congestión intensa.",
 
             # ANTEBRAZOS
             'Curl de Muñeca': "Recorrido corto y controlado, pausa 1s arriba. No flexiones los codos; solo muñecas.",
@@ -385,24 +396,26 @@ class TrainingPlanModule(BaseTrainer):
 
             # PIERNAS
             'Sentadillas con Mancuernas': "Peso en los talones, no dejes que las rodillas se vayan hacia adentro. Profundidad completa.",
+            'Sentadillas Sin Peso': "Usa este ejercicio para perfeccionar tu técnica antes de añadir peso. Profundidad es clave.",
             'Zancadas con Mancuernas': "Mantén el equilibrio, rodilla delantera no debe sobrepasar el pie. Tronco erguido.",
             'Sentadillas Búlgaras': "Mantén el torso erguido. La rodilla de atrás casi toca el suelo.",
-            'Peso Muerto Rumano': "Excelente para isquiotibiales. Mantén las mancuernas cerca de las piernas.",
-            'Sentadillas Sumo': "Activa los glúteos al subir. Rodillas siguen la dirección de los pies.",
+            'Sentadillas Pistol (Asistidas)': "Ejercicio muy avanzado. Usa apoyo hasta dominar la técnica. Requiere mucha fuerza y equilibrio.",
 
             # GEMELOS
             'Elevaciones de Gemelos de Pie': "Rango de movimiento completo. Estira abajo y contrae arriba.",
+            'Elevaciones de Gemelos Sin Peso': "Perfecta para dominar la técnica. Enfoca en contracción máxima.",
             'Elevaciones de Gemelos Sentado': "Enfócate en el sóleo. Pausa en la contracción máxima.",
-            'Elevación de Talones': "Pausa 1-2 segundos arriba. Baja controladamente para máximo estiramiento.",
+            'Elevaciones de Gemelos a Una Pierna': "Trabajo unilateral muy intenso. Corrige desbalances entre piernas.",
+            'Saltos de Gemelos': "Ejercicio explosívo. Aterriza suave para evitar lesión. Gran para potencia.",
 
             # ABDOMINALES
             'Abdominales Tradicionales': "El movimiento viene del abdomen, calidad sobre cantidad. No tires del cuello.",
-            'Plancha': "Mantén la línea recta, si duele la espalda baja detente. Respira normalmente.",
+            'Plancha': "Mantén la línea recta, si duele la espalda baja deténte. Respira normalmente.",
+            'Plancha Lateral': "Progresa desde rodillas si es necesario. Mantén caderas elevadas.",
+            'Plancha con Elevación de Brazos': "Ejercicio avanzado de estabilidad. Mantén las caderas sin rotar.",
             'Abdominales Bajas': "Enfócate en la parte baja del abdomen, no uses impulso. Movimiento lento y controlado.",
             'Abdominales Laterales': "Contrae los oblicuos, no hagas movimientos bruscos. Alterna los lados uniformemente.",
-            'Abdominales con Mancuerna': "Peso moderado, enfócate en la técnica. Progresa gradualmente.",
-            'Russian Twists': "Mantén los pies elevados para mayor dificultad. Control en la rotación.",
-            'Plancha Lateral': "Progresa desde rodillas si es necesario. Mantén caderas elevadas.",
+            'V-Ups': "Ejercicio muy avanzado. Requiere mucha fuerza de core. No uses impulso, todo debe ser controlado.",
 
             # CARDIO
             'Bicicleta Estática': "Cadencia constante, no te encorves sobre el manillar. Ajusta resistencia gradualmente."
@@ -445,13 +458,16 @@ class TrainingPlanModule(BaseTrainer):
                     st.info(f"📋 {exercise_name} marcado como pendiente ({day_date})")
                 st.rerun()
         
-        # Mostrar estado y progresión dinámica para antebrazo
+        # Mostrar estado y progresión dinámica
         display_sets = exercise.get('sets', 1)
-        display_reps = exercise.get('reps', '')
+        base_reps = exercise.get('reps', '')
+        level = self.get_week_info(week_number).get('level', 1)
+        
         if exercise.get('category') == 'forearm':
-            level = self.get_week_info(week_number).get('level', 1)
             s, r = self.get_forearm_progression(level)
             display_sets, display_reps = s, r
+        else:
+            display_reps = self.get_general_progression(level, str(base_reps))
         
         with col_title:
             # Mostrar estado visual del ejercicio

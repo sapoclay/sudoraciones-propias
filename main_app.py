@@ -19,6 +19,8 @@ from modules.training_plan import TrainingPlanModule
 from modules.progress_calendar import ProgressModule
 from modules.statistics import StatisticsModule
 from modules.info import InfoModule
+from modules.exercise_library import ExerciseLibraryModule
+from modules.nutrition import NutritionModule
 
 # CSS personalizado para mejorar el diseño 
 st.markdown("""
@@ -147,6 +149,8 @@ class ModernHeavyDutyTrainer:
         self.progress_module = ProgressModule()
         self.statistics_module = StatisticsModule()
         self.info_module = InfoModule()
+        self.exercise_library_module = ExerciseLibraryModule()
+        self.nutrition_module = NutritionModule()
         
         # Sincronizar datos entre módulos
         self._sync_modules()
@@ -168,6 +172,12 @@ class ModernHeavyDutyTrainer:
         
         self.info_module.config = config
         self.info_module.progress_data = progress_data
+        
+        self.exercise_library_module.config = config
+        self.exercise_library_module.progress_data = progress_data
+        
+        self.nutrition_module.config = config
+        self.nutrition_module.progress_data = progress_data
         
         # Forzar actualización de entrenamientos completados
         self.training_module.update_completed_workouts()
@@ -405,14 +415,16 @@ class ModernHeavyDutyTrainer:
     
     def render_tabs(self):
         """Renderizar pestañas principales"""
-        tab1, tab2, tab3, tab4 = st.tabs([
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🏋️ Plan de Entrenamiento", 
             "📊 Progreso", 
             "📈 Estadísticas",
+            "📚 Biblioteca de Ejercicios",
+            "🍎 Nutrición",
             "ℹ️ Información"
         ])
         
-        return tab1, tab2, tab3, tab4
+        return tab1, tab2, tab3, tab4, tab5, tab6
     
     def run(self):
         """Ejecutar la aplicación principal"""
@@ -429,7 +441,7 @@ class ModernHeavyDutyTrainer:
             show_videos, show_instructions, show_tips = self.render_sidebar()
             
             # Renderizar pestañas principales
-            tab1, tab2, tab3, tab4 = self.render_tabs()
+            tab1, tab2, tab3, tab4, tab5, tab6 = self.render_tabs()
             
             with tab1:
                 # Pestaña de Plan de Entrenamiento con fechas calendario
@@ -449,6 +461,14 @@ class ModernHeavyDutyTrainer:
                 self.statistics_module.render_statistics_tab()
             
             with tab4:
+                # Pestaña de Biblioteca de Ejercicios
+                self.exercise_library_module.render_library_tab()
+            
+            with tab5:
+                # Pestaña de Nutrición
+                self.nutrition_module.render_nutrition_tab()
+            
+            with tab6:
                 # Pestaña de Información
                 self.info_module.render_info_tab()
             
@@ -458,7 +478,7 @@ class ModernHeavyDutyTrainer:
             # Pie de página
             st.markdown("---")
             st.markdown(
-                "💪 **Sudoraciones Propias v1.2.6** - Sistema de Entrenamiento con Mapeo Calendario  \n"
+                "💪 **Sudoraciones Propias v1.2.7** - Sistema de Entrenamiento con Mapeo Calendario  \n"
                 "🚀 Desarrollado con ☕ Python & Streamlit  \n"
                 "📅 **Nuevo**: Semanas de entrenamiento sincronizadas con fechas reales  \n"
                 "**Creado por entreunosyceros**",

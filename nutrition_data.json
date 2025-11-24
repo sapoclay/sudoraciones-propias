@@ -1,0 +1,27 @@
+{
+  "profile": {
+    "age": 43,
+    "weight": 115.0,
+    "height": 190,
+    "sex": "M",
+    "activity_level": "moderate",
+    "goal": "cut"
+  },
+  "targets": {
+    "calories": 2798,
+    "protein_g": 279.8,
+    "carbs_g": 209.8,
+    "fat_g": 93.3
+  },
+  "daily_logs": {
+    "2025-11-24": {
+      "meals": [],
+      "total": {
+        "calories": 0,
+        "protein_g": 0.0,
+        "carbs_g": 0.0,
+        "fat_g": 0.0
+      }
+    }
+  }
+}
