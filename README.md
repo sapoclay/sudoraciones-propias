@@ -7,28 +7,26 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 ## 🆕 Novedades (v1.2.7)
 
-### 📚 **Biblioteca de Ejercicios Extendida**
+### 📚 **Biblioteca de ejercicios extendida**
 - **25 nuevos ejercicios añadidos** (total: 67 ejercicios)
   - 7 ejercicios de **calentamiento**
   - 10 ejercicios de **estiramiento**
   - 8 ejercicios de **movilidad**
-- **Nueva pestaña "📚 Biblioteca de Ejercicios"**
+- **Nueva pestaña "📚 Biblioteca de ejercicios"**
   - Filtros por nivel, equipamiento y categoría
   - Búsqueda por nombre
   - Videos de YouTube integrados
 
-### 🍎 **Módulo de Nutrición Completo**
+### 🍎 **Módulo de nutrición completo**
 - **Nueva pestaña "🍎 Nutrición"**
   - Calculadora de calorías (fórmula Mifflin-St Jeor)
   - Calculadora de macronutrientes
   - Tracking diario de comidas con historial
   - Persistencia de datos en `nutrition_data.json`
 
-### 🐛 **Correcciones y Mejoras**
+### 🐛 **Correcciones y mejoras**
 - Corregidos errores de sintaxis en módulos
 - Documentación completa de todos los ejercicios
-- Script wrapper del .deb mejorado
-- Changelog detallado añadido
 
 ## 🏋️ Sistema de progresión inteligente
 
