@@ -2,12 +2,12 @@
 
 <img width="200" height="200" alt="logo" src="https://github.com/user-attachments/assets/7993007a-557c-4e8f-8613-73968ad25b74" />
 
-## 🎯 Descripción
+## Descripción
 Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
 ## 🆕 Novedades (v1.2.7)
 
-### 📚 **Biblioteca de ejercicios extendida**
+### **Biblioteca de ejercicios extendida**
 - **25 nuevos ejercicios añadidos** (total: 67 ejercicios)
   - 7 ejercicios de **calentamiento**
   - 10 ejercicios de **estiramiento**
@@ -24,13 +24,13 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
   - Tracking diario de comidas con historial
   - Persistencia de datos en `nutrition_data.json`
 
-### 🐛 **Correcciones y mejoras**
+### **Correcciones y mejoras**
 - Corregidos errores de sintaxis en módulos
 - Documentación completa de todos los ejercicios
 
-## 🏋️ Sistema de progresión inteligente
+## Sistema de progresión inteligente
 
-### 📈 **Niveles de entrenamiento (20 Semanas)**
+### **Niveles de entrenamiento (20 Semanas)**
 
 #### 🟢 **Nivel 1 - Principiante (Semanas 1-4)**
 - **Entrenamientos:** 4 días por semana (Lunes, Miércoles, Viernes, Sábado)
@@ -56,7 +56,7 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 - **Enfoque:** Máxima intensidad y plan de élite
 - **Abdominales:** Alternancia completa básicos/avanzados
 
-### 📅 **Distribución semanal por nivel**
+### **Distribución semanal por nivel**
 
 | Día | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4+ |
 |-----|---------|---------|---------|----------|
@@ -68,7 +68,7 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 | **Sábado** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Domingo** | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso |
 
-### 💪 **Principios de progresión**
+### **Principios de progresión**
 - **Recuperación garantizada:** Siempre al menos 1 día de descanso
 - **Progresión gradual:** De 4 a 6 entrenamientos semanales
 - **Cardio progresivo:** De 2 a 4+ sesiones semanales según nivel
@@ -77,7 +77,7 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 ## 🔧 Configuración manual (OPCIONAL) o personalizado optimizado para principiantes y expertos, con progresión automática inteligente y arquitectura modular.
 
-## 🚀 Instalación paquete .deb
+## Instalación paquete .deb
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
@@ -95,7 +95,7 @@ En caso de que encontremos dependencias faltantes, en la misma terminal solo es 
 
 Tras la instalación, ya se puede buscar el lanzador en el sistema.
 
-### ⚙️ Detalles del paquete .deb
+### Detalles del paquete .deb
 - **Paquete muy ligero (~115 KB)**: No incluye el entorno virtual ni dependencias para reducir tamaño.
 - **Primer arranque más lento**: Al iniciarse por primera vez crea `venv_sudoraciones` en `/opt/sudoraciones` e instala dependencias.
 - **Arranques siguientes rápidos**: El entorno ya queda reutilizable.
@@ -103,7 +103,7 @@ Tras la instalación, ya se puede buscar el lanzador en el sistema.
 - **Desactivar apertura del navegador**: Ejecuta con `NO_BROWSER=1 sudoraciones start`.
 - **Logs**: Salida en `/tmp/sudoraciones.log` (útil para diagnosticar problemas).
 
-### ⏯️ Comandos rápidos (terminal)
+### Comandos rápidos (terminal)
 ```bash
 sudoraciones start      # Iniciar (crea entorno si no existe)
 sudoraciones stop       # Parar
@@ -156,7 +156,7 @@ Una vez iniciada, accede desde tu navegador:
 - **URL Local**: http://localhost:8508
 - **URL Externa**: http://0.0.0.0:8508
 
-## 🗂️ Archivos del sistema
+## Archivos del sistema
 
 ### Archivos principales
 - `run_app.py` - Launcher principal automático
@@ -173,19 +173,19 @@ Una vez iniciada, accede desde tu navegador:
 - `img/` - Imágenes y logos (opcional)
 - `modules/` - Módulos de la aplicación modular
 
-## 🏗️ Arquitectura modular
+## Arquitectura modular
 
 ### Estructura de módulos
 ```
 modules/
 ├── __init__.py              # Configuración del paquete
-├── base_trainer.py         # Funcionalidad core del sistema
-├── training_plan.py        # Lógica del plan de entrenamiento
-├── progress_calendar.py    # Progreso y calendario
-├── statistics.py           # Análisis y estadísticas
-├── exercise_library.py     # Biblioteca de ejercicios
-├── nutrition.py            # Módulo de nutrición
-└── info.py                # Información del programa
+├── base_trainer.py          # Funcionalidad core del sistema
+├── exercise_library.py      # Biblioteca de ejercicios
+├── info.py                  # Información del programa
+├── nutrition.py             # Módulo de nutrición
+├── progress_calendar.py     # Progreso y calendario
+├── statistics.py            # Análisis y estadísticas
+└── training_plan.py         # Lógica del plan de entrenamiento
 ```
 
 ### Beneficios de la modularización
@@ -195,7 +195,7 @@ modules/
 - ✅ **Testing individual** de cada módulo
 - ✅ **Reutilización de código** entre módulos
 
-## 💪 Características principales
+## Características principales
 
 ### Entrenamiento
 - **67 ejercicios especializados** organizados en 11 categorías con progresión graduada
@@ -220,9 +220,9 @@ modules/
 - 📚 **Biblioteca de ejercicios** con filtros y búsqueda
 - 🍎 **Módulo de nutrición** con calculadoras y tracking
 
-## 📊 Grupos musculares y progresión
+## Grupos musculares y progresión
 
-### 🎯 **Distribución de ejercicios (67 Total)**
+### **Distribución de ejercicios (67 Total)**
 
 Se incluyen variantes progresivas y movimientos avanzados que el sistema introduce según el nivel y la semana. Los ejercicios de antebrazo y abdominales se alternan inteligentemente para evitar saturación y mejorar la recuperación.
 
@@ -321,14 +321,14 @@ Se incluyen variantes progresivas y movimientos avanzados que el sistema introdu
 - Dead Hang
 - Hip Circles
 
-**📈 Distribución de cardio (adaptativa):**
+** Distribución de cardio (adaptativa):**
 - **Semanas 1-2**: 2 sesiones (miércoles + viernes)
 - **Semanas 3-4**: 3 sesiones (lunes + miércoles + viernes)
 - **Semanas 5+**: Ajuste inteligente según nivel y carga acumulada
 
-## 🔄 Funcionamiento del programa
+## Funcionamiento del programa
 
-### 📅 Sistema de progresión semanal
+### Sistema de progresión semanal
 
 El programa utiliza un **sistema inteligente de progresión por niveles** que cambia automáticamente cada 4 semanas:
 
@@ -364,7 +364,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
   - Entrenamientos de élite personalizados
   - Progresión continua sin límite
 
-### 🔄 **Cambios entre semanas**
+### **Cambios entre semanas**
 
 **¿Qué sucede al cambiar de semana?**
 
@@ -373,7 +373,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 3. **Ciclo base**: Se repite cada 4 semanas pero con **mayor intensidad** en cada nivel
 4. **Sin reseteo**: Tu progreso se mantiene - ejercicios completados, estadísticas y calendario se conservan
 
-### 🎯 **Control de progresión**
+### **Control de progresión**
 
 #### **Progresión automática**:
 - El programa avanza automáticamente cada semana
@@ -386,7 +386,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 - Posibilidad de saltar a semanas futuras
 - Información detallada de cada nivel
 
-### 📊 **Seguimiento del progreso**
+### **Seguimiento del progreso**
 
 #### **Por ejercicio**:
 - Marca individual cada ejercicio como "Completado"
@@ -400,7 +400,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
   - 🟠 Naranja: 1-79% completado
   - ⚪ Blanco: 0% completado
 
-#### **🆕 Vistas del calendario por semana**:
+#### ** Vistas del calendario por semana**:
 - **Vista acumulativa** (por defecto): Muestra progreso combinado de todas las semanas
 - **Vista por semana específica**: Filtra solo el progreso de una semana en particular
 - **Días de descanso adaptativos**: Cambian según el nivel de dificultad de cada semana
@@ -420,7 +420,7 @@ El programa utiliza un **sistema inteligente de progresión por niveles** que ca
 - Gráficos mensuales (solo días completos) y promedio/semana
 - Recomendaciones personalizadas basadas en grupos menos trabajados
 
-### 🏋️ **Métodos de intensificación**
+### **Métodos de intensificación**
 
 El sistema utiliza tres métodos para intensificar los entrenamientos:
 
@@ -428,14 +428,14 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 2. **Volumen**: Convierte días de descanso en días de entrenamiento activo
 3. **Avanzado**: Combina ambos métodos para máxima intensidad
 
-### 💾 **Persistencia de datos**
+### **Persistencia de datos**
 
 - **Configuración**: `config.json` - Ejercicios, planes de entrenamiento, URLs de videos
 - **Progreso**: `progress_data.json` - Ejercicios completados, estadísticas, historial
 - **Sincronización**: Los datos se guardan automáticamente entre sesiones
 - **Respaldo**: El progreso nunca se pierde al cambiar de semana o nivel
 
-## 🎯 Metodología de entrenamiento
+## Metodología de entrenamiento
 
 ### Principios a seguir
 - **Alta Intensidad**: Cada serie hasta el fallo muscular
@@ -451,7 +451,7 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 4. **🔴 Nivel 4 (Semanas 13-16)**: Plan avanzado completo
 5. **🔥 Nivel 5+ (Semanas 17+)**: Entrenamiento de élite
 
-## 🔄 Sistema de seguimiento
+## Sistema de seguimiento
 
 ### Automático
 - **Progreso por ejercicio**: Marca individual cada ejercicio
@@ -464,9 +464,9 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 - Solo necesitas marcar ejercicios como "Completado"
 - El sistema calcula automáticamente todo lo demás
 
-## 📱 Guía de uso práctica
+## Guía de uso práctica
 
-### 🚀 **Primer uso**
+### **Primer uso**
 1. **Iniciar aplicación**: Ejecuta `python3 run_app.py`
 2. **Acceder**: Abre http://localhost:8508 en tu navegador
 3. **Revisar barra lateral**: Verifica que estás en "Semana 1" (🟢 Principiante)
@@ -484,13 +484,13 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
    - Verde = día completado, Amarillo = parcial, etc.
    - Las estadísticas se actualizan instantáneamente
 
-### 📅 **Progresión semanal**
+### **Progresión semanal**
 1. **Semana actual**: Se muestra en la barra lateral
 2. **Cambio automático**: Cada 7 días reales o manual con el selector
 3. **Nuevos entrenamientos**: El sistema genera automáticamente nuevos ejercicios (semana 5+)
 4. **Sin pérdida de datos**: Tu progreso anterior se mantiene siempre
 
-### 📊 **Monitorización del progreso**
+### **Monitorización del progreso**
 1. **Pestaña "Progreso"**: 
    - Calendario visual con historial acumulado y vista semanal filtrada
    - Días de entrenamiento completos (≥80%) y porcentaje por día
@@ -599,32 +599,6 @@ pip install -r requirements.txt
 
 ### Puerto ocupado
 Si el puerto 8508 está ocupado, el sistema intentará automáticamente terminar procesos previos.
-
-## 🏆 Resultados Esperados
-
-### Semanas 1-4 (Principiante)
-- Adaptación al ejercicio regular
-- Mejora de la técnica básica
-- Establecimiento de rutina
-- Aumento inicial de resistencia
-
-### Semanas 5-8 (Intermedio)
-- Incremento notable de fuerza
-- Mejor definición muscular
-- Mayor resistencia cardiovascular
-- Confianza en ejercicios complejos
-
-### Semanas 9-12 (Avanzado)
-- Desarrollo muscular visible
-- Mejora significativa de la forma física
-- Capacidad para entrenamientos intensos
-- Dominio técnico avanzado
-
-### Semanas 13-20 (Experto)
-- Transformación física completa
-- Fuerza y resistencia de élite
-- Hábitos de entrenamiento consolidados
-- Capacidad de mantener resultados
 
 ---
 
