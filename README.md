@@ -5,21 +5,32 @@
 ## 🎯 Descripción
 Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
-## 🆕 Novedades (v1.2.6)
-Resumen de mejoras recientes:
-- 📅 Calendario reordenado bajo selector y controles de mes en expander.
-- 🗂️ Vista semanal filtrada (solo días de entrenamiento, sin descansos) con badges de porcentaje.
-- 🔄 Independencia estricta entre semanas para cálculos de porcentaje.
-- 🔥 Racha: solo días ≥80% y sin contar descansos; hoy incompleto no rompe.
-- 📊 Estadísticas: “Días Entrenamiento Completos” sustituye a entrenamientos totales incluyendo descansos.
-- 💪 Rotación y progresión de antebrazos aplicada internamente a cómputos diarios.
-- 🧮 Día completo = ≥80% ejercicios planificados de su semana.
-- ⏫ Botón “Volver arriba” al final de la página.
-- ♻️ Refactor unifica lógica de rachas y días completos entre módulos.
+## 🆕 Novedades (v1.2.7)
 
-> Nota: Puede bajar tu cifra histórica respecto a versiones previas porque se excluyen descansos.
+### 📚 **Biblioteca de Ejercicios Extendida**
+- **25 nuevos ejercicios añadidos** (total: 67 ejercicios)
+  - 7 ejercicios de **calentamiento**
+  - 10 ejercicios de **estiramiento**
+  - 8 ejercicios de **movilidad**
+- **Nueva pestaña "📚 Biblioteca de Ejercicios"**
+  - Filtros por nivel, equipamiento y categoría
+  - Búsqueda por nombre
+  - Videos de YouTube integrados
 
-## �🏋️ Sistema de progresión inteligente
+### 🍎 **Módulo de Nutrición Completo**
+- **Nueva pestaña "🍎 Nutrición"**
+  - Calculadora de calorías (fórmula Mifflin-St Jeor)
+  - Calculadora de macronutrientes
+  - Tracking diario de comidas con historial
+  - Persistencia de datos en `nutrition_data.json`
+
+### 🐛 **Correcciones y Mejoras**
+- Corregidos errores de sintaxis en módulos
+- Documentación completa de todos los ejercicios
+- Script wrapper del .deb mejorado
+- Changelog detallado añadido
+
+## 🏋️ Sistema de progresión inteligente
 
 ### 📈 **Niveles de entrenamiento (20 Semanas)**
 
@@ -42,8 +53,8 @@ Resumen de mejoras recientes:
 - **Abdominales:** Introduce ejercicios avanzados
 
 #### 🔴 **Nivel 4+ - Experto (Semanas 13-20)**
-- **Entrenamientos:** 6 días por semana (Lunes-Sábado)
-- **Descanso:** 1 día (Solo Domingo)
+- **Entrenamientos:** 5 días por semana (Lunes, Martes, Jueves, Viernes, Sábado)
+- **Descanso:** 2 días (Miércoles, Domingo)
 - **Enfoque:** Máxima intensidad y plan de élite
 - **Abdominales:** Alternancia completa básicos/avanzados
 
@@ -53,7 +64,7 @@ Resumen de mejoras recientes:
 |-----|---------|---------|---------|----------|
 | **Lunes** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Martes** | 🛌 Descanso | ✅ Entreno | ✅ Entreno | ✅ Entreno |
-| **Miércoles** | ✅ Entreno | 🛌 Descanso | 🛌 Descanso | ✅ Entreno |
+| **Miércoles** | ✅ Entreno | 🛌 Descanso | 🛌 Descanso | 🛌 Descanso |
 | **Jueves** | 🛌 Descanso | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Viernes** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
 | **Sábado** | ✅ Entreno | ✅ Entreno | ✅ Entreno | ✅ Entreno |
@@ -72,12 +83,12 @@ Resumen de mejoras recientes:
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.6/sudoraciones_1.2.6_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.7/sudoraciones_1.2.7_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
 ```bash
-   sudo dpkg -i sudoraciones_1.2.6_amd64.deb
+   sudo dpkg -i sudoraciones_1.2.7_amd64.deb
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash
@@ -154,6 +165,7 @@ Una vez iniciada, accede desde tu navegador:
 - `main_app.py` - Aplicación modular principal
 - `config.json` - Configuración de ejercicios y planes
 - `progress_data.json` - Datos de progreso del usuario
+- `nutrition_data.json` - Datos de nutrición y comidas
 
 ### Archivos de configuración
 - `requirements.txt` - Dependencias de Python
@@ -173,6 +185,8 @@ modules/
 ├── training_plan.py        # Lógica del plan de entrenamiento
 ├── progress_calendar.py    # Progreso y calendario
 ├── statistics.py           # Análisis y estadísticas
+├── exercise_library.py     # Biblioteca de ejercicios
+├── nutrition.py            # Módulo de nutrición
 └── info.py                # Información del programa
 ```
 
@@ -186,11 +200,12 @@ modules/
 ## 💪 Características principales
 
 ### Entrenamiento
-- **47 ejercicios especializados** organizados en 8 grupos musculares con progresión graduada
+- **67 ejercicios especializados** organizados en 11 categorías con progresión graduada
 - **Progresión automática inteligente** hasta 20 semanas
 - **Sistema de 4 niveles** con días de descanso adaptativos
 - **Seguimiento automático** por ejercicio individual
 - **Distribución inteligente de abdominales** (básicos vs avanzados)
+- **Biblioteca de ejercicios** con filtros y búsqueda avanzada
 
 ### Tecnología
 - **Streamlit 1.47.1** para la interfaz web
@@ -204,12 +219,23 @@ modules/
 - 📊 **Estadísticas avanzadas** con gráficos Plotly
 - 💡 **Instrucciones detalladas** y consejos de técnica
 - 🏆 **Sistema de progresión** automático e inteligente
+- 📚 **Biblioteca de ejercicios** con filtros y búsqueda
+- 🍎 **Módulo de nutrición** con calculadoras y tracking
 
 ## 📊 Grupos musculares y progresión
 
-### 🎯 **Distribución de ejercicios (47 Total)**
+### 🎯 **Distribución de ejercicios (67 Total)**
 
 Se incluyen variantes progresivas y movimientos avanzados que el sistema introduce según el nivel y la semana. Los ejercicios de antebrazo y abdominales se alternan inteligentemente para evitar saturación y mejorar la recuperación.
+
+#### Calentamiento (7 ejercicios)
+- Rotaciones de Cuello
+- Rotaciones de Hombros
+- Círculos de Brazos
+- Rotaciones de Cadera
+- Flexiones de Tronco
+- Jumping Jacks Suaves
+- Marcha en el Sitio
 
 #### Pecho (6 ejercicios)
 - Press de Banca con Mancuernas
@@ -271,12 +297,31 @@ Se incluyen variantes progresivas y movimientos avanzados que el sistema introdu
 - Abdominales Laterales
 - V-Ups
 
-#### Cardio (5 ejercicios)
+#### Cardio (2 ejercicios)
 - Bicicleta Estática
 - Saltos de Tijera
-- Intervalos en Bicicleta
-- HIIT en Bicicleta
-- Burpees
+
+#### Estiramiento (10 ejercicios)
+- Estiramiento de Pectorales
+- Estiramiento de Dorsales
+- Estiramiento de Tríceps
+- Estiramiento de Bíceps
+- Estiramiento de Hombros
+- Estiramiento de Cuádriceps
+- Estiramiento de Isquiotibiales
+- Estiramiento de Gemelos
+- Estiramiento de Psoas
+- Estiramiento de Glúteos
+
+#### Movilidad (8 ejercicios)
+- Gato-Camello
+- Bird Dog
+- 90/90 Hip Switch
+- Rotación Torácica
+- Movilidad de Tobillos
+- Círculos de Muñecas
+- Dead Hang
+- Hip Circles
 
 **📈 Distribución de cardio (adaptativa):**
 - **Semanas 1-2**: 2 sesiones (miércoles + viernes)
@@ -427,7 +472,7 @@ El sistema utiliza tres métodos para intensificar los entrenamientos:
 1. **Iniciar aplicación**: Ejecuta `python3 run_app.py`
 2. **Acceder**: Abre http://localhost:8508 en tu navegador
 3. **Revisar barra lateral**: Verifica que estás en "Semana 1" (🟢 Principiante)
-4. **Explorar pestañas**: Familiarízate con las 4 secciones principales
+4. **Explorar pestañas**: Familiarízate con las 7 secciones principales
 
 ### 🏋️ **Durante el entrenamiento**
 1. **Pestaña "plan de entrenamiento"**:
