@@ -1,4 +1,6 @@
-# 💪 Sudoraciones propias
+# 💪 Sudoraciones propias 💪
+
+<img width="1073" height="1808" alt="sudoraciones_propias" src="https://github.com/user-attachments/assets/bb27c8a1-1c5b-430b-b3df-f2f8352882f7" />
 
 Sistema personal de entrenamiento en Python + Streamlit con progresión automática, calendario de progreso y módulo de nutrición.
 
