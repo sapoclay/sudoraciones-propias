@@ -14,7 +14,7 @@ Aplicación modular para planificar y seguir entrenamientos durante 20 semanas, 
 - Biblioteca de ejercicios
 - Nutrición (calorías y macros)
 
-## 🆕 Novedades v1.2.8
+## 🆕 Novedades de la versión 1.2.8
 
 - Corrección del calendario: la fecha de inicio respeta exactamente el día elegido por el usuario (sin forzar lunes).
 - Corrección del mapeo semana-fecha para evitar desplazamientos en vistas semanales.
