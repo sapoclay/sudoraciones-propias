@@ -29,10 +29,12 @@ class ProgressModule(BaseTrainer):
         """Obtener nombre del mes en español"""
         return self.MONTH_NAMES_ES.get(month, f'Mes {month}')
     
-    def get_day_completion_stats_filtered(self, date_str: str, filter_week: int = None) -> Dict[str, Any]:
+    def get_day_completion_stats_filtered(self, date_str: str, filter_week: int | None = None) -> Dict[str, Any]:
         """Obtener estadísticas de completado de un día filtradas por semana"""
         if filter_week is None:
-            filter_week = st.session_state.get('current_week', 1)
+            week_num = int(st.session_state.get('current_week', 1))
+        else:
+            week_num = filter_week
         
         # Determinar si según el plan de la semana este día debería ser de descanso
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
@@ -41,15 +43,15 @@ class ProgressModule(BaseTrainer):
         
         # Obtener plan de la semana correspondiente
         week_plan = {}
-        if filter_week <= 4:
-            week_key = f"semana{filter_week}"
+        if week_num <= 4:
+            week_key = f"semana{week_num}"
             week_plan = self.config.get('weekly_schedule', {}).get(week_key, {})
         else:
             from .training_plan import TrainingPlanModule
             trainer = TrainingPlanModule()
             trainer.config = self.config
             trainer.progress_data = self.progress_data
-            week_plan = trainer.generate_advanced_week(filter_week)
+            week_plan = trainer.generate_advanced_week(week_num)
         
         muscle_groups_planned = week_plan.get(day_key, []) or []
         is_rest_day_planned = len(muscle_groups_planned) == 0
@@ -74,7 +76,7 @@ class ProgressModule(BaseTrainer):
             # Calcular ejercicios esperados según el plan del día
             expected_total = 0
             for mg in muscle_groups_planned:
-                planned_list = self.get_planned_exercises_for_group(mg, day_key, filter_week)
+                planned_list = self.get_planned_exercises_for_group(mg, day_key, week_num)
                 expected_total += len(planned_list)
             
             return {
@@ -88,7 +90,7 @@ class ProgressModule(BaseTrainer):
             }
         
         # Filtrar solo ejercicios de la semana especificada
-        week_suffix = f"_week{filter_week}"
+        week_suffix = f"_week{week_num}"
         filtered_exercises = {}
         
         for exercise_id, is_completed in exercises_data.items():
@@ -100,7 +102,7 @@ class ProgressModule(BaseTrainer):
             # Calcular ejercicios esperados según el plan del día
             expected_total = 0
             for mg in muscle_groups_planned:
-                planned_list = self.get_planned_exercises_for_group(mg, day_key, filter_week)
+                planned_list = self.get_planned_exercises_for_group(mg, day_key, week_num)
                 expected_total += len(planned_list)
             
             return {
@@ -144,7 +146,7 @@ class ProgressModule(BaseTrainer):
         """Obtener abreviación del mes en español"""
         return self.MONTH_ABBR_ES.get(month, f'M{month}')
 
-    def get_month_stats(self, year: int, month: int) -> Dict[str, int]:
+    def get_month_stats(self, year: int, month: int) -> Dict[str, Any]:
         """Obtener estadísticas del mes"""
         month_key = f"{year:04d}-{month:02d}"
         completed_days = self.progress_data.get('completed_workouts', {}).get(month_key, [])
@@ -289,7 +291,7 @@ class ProgressModule(BaseTrainer):
         # Fallback: usar la semana actual SOLO si no se pudo inferir de ninguna forma
         return st.session_state.get('current_week', 1)
 
-    def get_day_completion_stats(self, date_str: str, week_number: int = None) -> Dict[str, Any]:
+    def get_day_completion_stats(self, date_str: str, week_number: int | None = None) -> Dict[str, Any]:
         """Obtener estadísticas de finalización para un día específico"""
         # Si no se proporciona week_number, usar el mapeo calendario
         if week_number is None:
@@ -380,7 +382,7 @@ class ProgressModule(BaseTrainer):
         }
 
     # Wrapper simple para la vista acumulativa (todas semanas) reutilizando la lógica existente
-    def get_day_completion_stats(self, date_str: str) -> Dict[str, Any]:
+    def get_day_completion_stats_accumulated(self, date_str: str) -> Dict[str, Any]:
         """Obtener estadísticas combinadas para un día (acumulativo).
 
         La idea: identificar semana correspondiente y reutilizar la lógica del módulo de plan.
@@ -392,7 +394,7 @@ class ProgressModule(BaseTrainer):
         tp.progress_data = self.progress_data
         return tp.get_day_completion_stats(date_str, week_num)
 
-    def render_calendar(self, year: int, month: int, view_week: int = None):
+    def render_calendar(self, year: int, month: int, view_week: int | None = None):
         """Renderizar calendario con porcentajes filtrados por semana específica o acumulativo"""
         current_week = st.session_state.get('current_week', 1)
         month_name = self.get_month_name_es(month)
@@ -516,7 +518,7 @@ class ProgressModule(BaseTrainer):
                         # Usar función específica según la vista seleccionada
                         if view_week is None:
                             # Vista acumulativa: mostrar progreso de todas las semanas
-                            day_stats = self.get_day_completion_stats(date_str)
+                            day_stats = self.get_day_completion_stats_accumulated(date_str)
                         else:
                             # Vista específica: mostrar solo progreso de la semana seleccionada
                             day_stats = self.get_day_completion_stats_filtered(date_str, view_week)

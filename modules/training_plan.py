@@ -80,9 +80,14 @@ class TrainingPlanModule(BaseTrainer):
             'is_rest_day': False
         }
 
-    def get_week_completion_stats(self, week_number: int) -> Dict[str, Any]:
+    def get_week_completion_stats(self, week_number: int | None = None) -> Dict[str, Any]:
         """Obtener estadísticas de finalización para una semana específica"""
-        week_dates = self.get_week_dates(week_number)
+        if week_number is None:
+            week_num = int(st.session_state.get('current_week', 1))
+        else:
+            week_num = week_number
+
+        week_dates = self.get_week_dates(week_num)
         if not week_dates or 'dates' not in week_dates:
             return {'completed': 0, 'total': 0, 'percentage': 0, 'days': []}
         
@@ -93,7 +98,7 @@ class TrainingPlanModule(BaseTrainer):
         for date_str in week_dates['dates']:
             # Recalcular stats en tiempo real para asegurar datos actualizados
             self.reload_progress_data()
-            day_stat = self.get_day_completion_stats(date_str, week_number)
+            day_stat = self.get_day_completion_stats(date_str, week_num)
             day_stats.append({
                 'date': date_str,
                 'completed': day_stat['completed'],
@@ -228,6 +233,8 @@ class TrainingPlanModule(BaseTrainer):
         elif level >= 4:  # Semanas 13+: Plan avanzado completo
             return self.intensify_schedule(base_schedule, "advanced")
 
+        return base_schedule
+
     def intensify_schedule(self, base_schedule: Dict[str, List[str]], mode: str) -> Dict[str, List[str]]:
         """Intensificar horario según el modo de progresión"""
         new_schedule = {}
@@ -249,7 +256,10 @@ class TrainingPlanModule(BaseTrainer):
                 elif muscle_groups:  # Intensificar días existentes
                     # Añadir cardio a lunes y sábado si no lo tienen
                     if day in ['lunes', 'sabado'] and 'cardio' not in muscle_groups:
-                        new_schedule[day] = muscle_groups + ['cardio']
+                        updated_groups = muscle_groups + ['cardio']
+                        if day == 'sabado' and 'abs' not in updated_groups:
+                            updated_groups.append('abs')
+                        new_schedule[day] = updated_groups
                     # Añadir un grupo muscular extra a días que ya tienen entrenamiento
                     elif 'abs' not in muscle_groups and len(muscle_groups) < 3:
                         new_schedule[day] = muscle_groups + ['abs']
@@ -262,11 +272,11 @@ class TrainingPlanModule(BaseTrainer):
                 # Nivel 4+: 2 días de descanso (miércoles y domingo) con entrenamiento intensificado
                 advanced_plan = {
                     'lunes': ['pecho', 'hombros', 'abs'],
-                    'martes': ['espalda', 'brazos', 'cardio'],
+                    'martes': ['espalda', 'brazos', 'cardio', 'abs'],
                     'miercoles': [],  # DÍA DE DESCANSO
                     'jueves': ['piernas', 'gemelos', 'abs'],
-                    'viernes': ['pecho', 'espalda', 'cardio'],
-                    'sabado': ['brazos', 'hombros', 'cardio'],
+                    'viernes': ['pecho', 'espalda', 'cardio', 'abs'],
+                    'sabado': ['brazos', 'hombros', 'cardio', 'abs'],
                     'domingo': []  # DÍA DE DESCANSO
                 }
                 new_schedule = advanced_plan
@@ -422,18 +432,20 @@ class TrainingPlanModule(BaseTrainer):
         }
         return tips.get(exercise_name, f"Consejos para '{exercise_name}' próximamente disponibles.")
 
-    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None, day_date: str | None = None):
+    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int | None = None, day_date: str | None = None):
         """Renderizar detalles de un ejercicio completo"""
         if week_number is None:
-            week_number = st.session_state.get('current_week', 1)
+            current_week = int(st.session_state.get('current_week', 1))
+        else:
+            current_week = week_number
             
         exercise_name = exercise['name']
-        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{week_number}"
+        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{current_week}"
         
         # Fecha asociada al día mostrado (si no se pasa, usar hoy)
         if day_date is None:
             day_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        is_completed = self.is_exercise_completed(day_date, exercise_id, week_number)
+        is_completed = self.is_exercise_completed(day_date, exercise_id, current_week)
         
         # Checkbox de completado prominente
         col_checkbox, col_title = st.columns([1, 4])
@@ -447,7 +459,7 @@ class TrainingPlanModule(BaseTrainer):
             
             # Actualizar estado si cambió
             if completed != is_completed:
-                self.mark_exercise_completed(day_date, exercise_id, completed, week_number)
+                self.mark_exercise_completed(day_date, exercise_id, completed, current_week)
                 
                 # Recargar datos para asegurar persistencia
                 self.reload_progress_data()
@@ -461,7 +473,7 @@ class TrainingPlanModule(BaseTrainer):
         # Mostrar estado y progresión dinámica
         display_sets = exercise.get('sets', 1)
         base_reps = exercise.get('reps', '')
-        level = self.get_week_info(week_number).get('level', 1)
+        level = self.get_week_info(current_week).get('level', 1)
         
         if exercise.get('category') == 'forearm':
             s, r = self.get_forearm_progression(level)
@@ -495,10 +507,11 @@ class TrainingPlanModule(BaseTrainer):
                 key=input_key,
                 placeholder="Ej: https://www.youtube.com/shorts/35_gCUE3SmM"
             )
+            url_input = (new_url or "").strip()
             
             # Validación en tiempo real
-            if new_url.strip():
-                is_valid, url_type = self.validate_youtube_url(new_url)
+            if url_input:
+                is_valid, url_type = self.validate_youtube_url(url_input)
                 if is_valid:
                     if url_type == "shorts":
                         st.success("✅ YouTube Short válido")
@@ -514,9 +527,9 @@ class TrainingPlanModule(BaseTrainer):
             # Botón para guardar URL
             button_key = self.generate_unique_key("save_url", muscle_group, exercise_name, day_key, st.session_state.current_week)
             if st.button(f"💾 Guardar URL", key=button_key):
-                is_valid, url_type = self.validate_youtube_url(new_url)
+                is_valid, url_type = self.validate_youtube_url(url_input)
                 if is_valid:
-                    if self.update_exercise_youtube_url(muscle_group, exercise_name, new_url):
+                    if self.update_exercise_youtube_url(muscle_group, exercise_name, url_input):
                         st.success("✅ URL guardada correctamente")
                         st.rerun()
                     else:
@@ -672,19 +685,17 @@ class TrainingPlanModule(BaseTrainer):
             'domingo': '⚪ DOMINGO'
         }
         day_order = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
-        for day_index, day_key in enumerate(day_order):
+        for day_index, day_date in enumerate(dates_list):
+            try:
+                date_obj = datetime.datetime.strptime(day_date, '%Y-%m-%d')
+                day_key = day_order[date_obj.weekday()]
+                formatted_date = date_obj.strftime('%d-%m-%Y')
+            except ValueError:
+                continue
+
             muscle_groups = week_plan.get(day_key, [])
-            day_date = dates_list[day_index] if day_index < len(dates_list) else None
             day_display = day_names.get(day_key, day_key.upper())
-            if day_index < len(dates_list):
-                try:
-                    date_obj = datetime.datetime.strptime(dates_list[day_index], '%Y-%m-%d')
-                    formatted_date = date_obj.strftime('%d-%m-%Y')
-                    day_display_with_date = f"{day_display} - {formatted_date}"
-                except:
-                    day_display_with_date = day_display
-            else:
-                day_display_with_date = day_display
+            day_display_with_date = f"{day_display} - {formatted_date}"
             st.markdown(f"### {day_display_with_date}")
             if not muscle_groups:
                 st.markdown("""
@@ -734,13 +745,19 @@ class TrainingPlanModule(BaseTrainer):
             st.progress(week_percentage / 100, text=f"Progreso semanal: {week_percentage:.0f}%")
             with st.expander("📅 Detalle por días de la semana seleccionada", expanded=False):
                 day_names_full = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                for i, day_stat in enumerate(week_stats['days']):
+                for day_stat in week_stats['days']:
+                    try:
+                        date_obj = datetime.datetime.strptime(day_stat['date'], '%Y-%m-%d')
+                        day_label = day_names_full[date_obj.weekday()]
+                    except ValueError:
+                        day_label = 'Día'
+
                     if day_stat['is_rest_day']:
-                        st.markdown(f"**{day_names_full[i]}**: 🛌 Día de descanso")
+                        st.markdown(f"**{day_label}**: 🛌 Día de descanso")
                     else:
                         completion_text = f"{day_stat['completed']}/{day_stat['total']} ejercicios ({day_stat['percentage']:.1f}%)"
                         status_emoji = "✅" if day_stat['percentage'] >= 80 else "🔄" if day_stat['percentage'] > 0 else "⏳"
-                        st.markdown(f"**{day_names_full[i]}**: {status_emoji} {completion_text}")
+                        st.markdown(f"**{day_label}**: {status_emoji} {completion_text}")
 
     def _show_available_exercises_info(self, current_level: int):
         """Mostrar información sobre ejercicios disponibles según el nivel actual"""

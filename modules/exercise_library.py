@@ -92,8 +92,8 @@ class ExerciseLibraryModule(BaseTrainer):
         )
         
         # Filtro por equipamiento
-        equipment_options = ['Todos', 'floor_space', 'dumbbells_8kg', 'dumbbell_12kg', 'bench_press_30kg', 'stationary_bike']
-        equipment_labels = {
+        equipment_options: List[str] = ['Todos', 'floor_space', 'dumbbells_8kg', 'dumbbell_12kg', 'bench_press_30kg', 'stationary_bike']
+        equipment_labels: Dict[str, str] = {
             'Todos': 'Todos',
             'floor_space': 'Solo suelo',
             'dumbbells_8kg': 'Mancuernas 8kg',
@@ -101,11 +101,14 @@ class ExerciseLibraryModule(BaseTrainer):
             'bench_press_30kg': 'Banco con barra 30kg',
             'stationary_bike': 'Bicicleta estática'
         }
+
+        def format_equipment(option: str) -> str:
+            return equipment_labels.get(option, option)
         
-        selected_equipment = st.sidebar.selectbox(
+        selected_equipment: str = st.sidebar.selectbox(
             "Equipamiento:",
             equipment_options,
-            format_func=lambda x: equipment_labels.get(x, x)
+            format_func=format_equipment
         )
         filters['equipment'] = selected_equipment if selected_equipment != 'Todos' else None
         

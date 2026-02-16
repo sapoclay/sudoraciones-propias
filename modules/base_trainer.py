@@ -6,6 +6,7 @@ import json
 import os
 import datetime
 import hashlib
+import shutil
 from typing import Dict, List, Any
 import streamlit as st
 
@@ -80,8 +81,12 @@ class BaseTrainer:
         
         day_names = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
         
-        for day_index, date_str in enumerate(week_dates['dates']):
-            day_key = day_names[day_index]
+        for date_str in week_dates['dates']:
+            try:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                day_key = day_names[date_obj.weekday()]
+            except ValueError:
+                continue
             
             # Verificar si es día de entrenamiento según el nivel
             week_info = self.get_week_info(week_number)
@@ -236,7 +241,7 @@ class BaseTrainer:
         
         return filtered_exercises
     
-    def _choose_forearm_exercise_by_level(self, day_key: str, week_number: int, forearm_exercises: list[dict]) -> dict:
+    def _choose_forearm_exercise_by_level(self, day_key: str, week_number: int, forearm_exercises: list[dict]) -> dict | None:
         """Elegir ejercicio de antebrazo según nivel y rotación"""
         if not forearm_exercises:
             return None
@@ -265,11 +270,8 @@ class BaseTrainer:
         Calcular progresión general de repeticiones según el nivel.
         Aumenta las repeticiones base según el nivel del usuario.
         """
-        # Si no es un rango numérico simple (ej: "20km", "30-60 segundos"), devolver original
+        # Si no hay dígitos, devolver original
         if not any(c.isdigit() for c in original_reps):
-            return original_reps
-            
-        if "km" in original_reps or "segundos" in original_reps or "min" in original_reps:
             return original_reps
 
         try:
@@ -312,7 +314,18 @@ class BaseTrainer:
                     suffix = " " + " ".join(reps_part.split(' ')[1:])
                     reps = int(reps_num_str)
                 else:
-                    reps = int(reps_part)
+                    # Soportar formatos como "20km"
+                    reps_num_str = ""
+                    for char in reps_part:
+                        if char.isdigit():
+                            reps_num_str += char
+                        else:
+                            suffix += char
+
+                    if not reps_num_str:
+                        return original_reps
+
+                    reps = int(reps_num_str)
                 
                 increase = (level - 1) * 2
                 new_reps = reps + increase
@@ -401,10 +414,9 @@ class BaseTrainer:
         if 'calendar_mapping' not in self.progress_data:
             # Configurar fecha de inicio del programa si no existe
             if 'program_start_date' not in self.progress_data:
-                # Por defecto, empezar desde el lunes de esta semana (solo inicialización)
+                # Por defecto, empezar desde la fecha actual (sin ajustar a lunes)
                 today = datetime.datetime.now()
-                monday_this_week = today - datetime.timedelta(days=today.weekday())
-                self.progress_data['program_start_date'] = monday_this_week.strftime('%Y-%m-%d')
+                self.progress_data['program_start_date'] = today.strftime('%Y-%m-%d')
             
             # Crear mapeo de semanas usando la fecha exacta configurada
             self.progress_data['calendar_mapping'] = {}
@@ -428,7 +440,7 @@ class BaseTrainer:
                     date = week_start + datetime.timedelta(days=day_offset)
                     week_dates.append(date.strftime('%Y-%m-%d'))
                 
-                mapping[week_num] = {
+                mapping[str(week_num)] = {
                     'start_date': week_start.strftime('%Y-%m-%d'),
                     'end_date': (week_start + datetime.timedelta(days=6)).strftime('%Y-%m-%d'),
                     'dates': week_dates
@@ -452,7 +464,6 @@ class BaseTrainer:
             # Si no hay mapeo, calcular basándose en la fecha de inicio
             if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
                 start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d')
-                start_date = start_date - datetime.timedelta(days=start_date.weekday())  # Asegurar lunes
                 
                 days_diff = (target_date - start_date).days
                 week_num = (days_diff // 7) + 1
@@ -479,19 +490,20 @@ class BaseTrainer:
         except ValueError:
             return date_str  # Devolver original si no se puede convertir
 
-    def get_week_dates(self, week_number: int) -> Dict[str, str]:
+    def get_week_dates(self, week_number: int) -> Dict[str, Any]:
         """Obtener las fechas (Lunes a Domingo) para una semana de entrenamiento específica"""
         mapping = self.progress_data.get('calendar_mapping', {})
         week_key = str(week_number)
         
         if week_key in mapping:
             return mapping[week_key]
+        if week_number in mapping:
+            return mapping[week_number]
         
         # Si no hay mapeo, calcularlo dinámicamente
         if 'program_start_date' in self.progress_data and self.progress_data['program_start_date'] is not None:
             try:
                 start_date = datetime.datetime.strptime(self.progress_data['program_start_date'], '%Y-%m-%d')
-                start_date = start_date - datetime.timedelta(days=start_date.weekday())  # Asegurar lunes
                 
                 week_start = start_date + datetime.timedelta(weeks=week_number - 1)
                 week_dates = []
@@ -507,17 +519,16 @@ class BaseTrainer:
             except Exception as e:
                 st.error(f"Error calculando fechas para semana {week_number}: {e}")
         
-        # Fallback: semana actual
+        # Fallback: semana actual basada en hoy
         today = datetime.datetime.now()
-        monday = today - datetime.timedelta(days=today.weekday())
         dates = []
         for i in range(7):
-            date = monday + datetime.timedelta(days=i)
+            date = today + datetime.timedelta(days=i)
             dates.append(date.strftime('%Y-%m-%d'))
         
         return {
-            'start_date': monday.strftime('%Y-%m-%d'),
-            'end_date': (monday + datetime.timedelta(days=6)).strftime('%Y-%m-%d'),
+            'start_date': today.strftime('%Y-%m-%d'),
+            'end_date': (today + datetime.timedelta(days=6)).strftime('%Y-%m-%d'),
             'dates': dates
         }
 
@@ -655,7 +666,6 @@ class BaseTrainer:
         try:
             # Crear backup antes de guardar
             if os.path.exists('progress_data.json'):
-                import shutil
                 shutil.copy('progress_data.json', 'progress_data_backup.json')
             
             with open('progress_data.json', 'w', encoding='utf-8') as f:
@@ -678,7 +688,6 @@ class BaseTrainer:
             st.error(f"❌ Error guardando progress_data.json: {e}")
             # Restaurar backup si existe
             if os.path.exists('progress_data_backup.json'):
-                import shutil
                 shutil.copy('progress_data_backup.json', 'progress_data.json')
 
     def reload_progress_data(self):
@@ -742,7 +751,7 @@ class BaseTrainer:
             "total_weeks_completed": week_number - 1
         }
 
-    def mark_exercise_completed(self, date_str: str, exercise_id: str, completed: bool, week_number: int = None):
+    def mark_exercise_completed(self, date_str: str, exercise_id: str, completed: bool, week_number: int | None = None):
         """Marcar ejercicio específico como completado"""
         if 'completed_exercises' not in self.progress_data:
             self.progress_data['completed_exercises'] = {}
@@ -882,17 +891,19 @@ class BaseTrainer:
             'is_rest_day': False
         }
 
-    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int = None):
+    def render_exercise_details(self, exercise: Dict[str, Any], muscle_group: str, day_key: str, show_videos: bool, show_instructions: bool, show_tips: bool, week_number: int | None = None):
         """Renderizar detalles de un ejercicio completo"""
         if week_number is None:
-            week_number = st.session_state.get('current_week', 1)
+            current_week = int(st.session_state.get('current_week', 1))
+        else:
+            current_week = week_number
         
         exercise_name = exercise['name']
-        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{week_number}"
+        exercise_id = f"{muscle_group}_{exercise_name}_{day_key}_week{current_week}"
         
         # Obtener fecha actual para marcar progreso
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        is_completed = self.is_exercise_completed(current_date, exercise_id, week_number)
+        is_completed = self.is_exercise_completed(current_date, exercise_id, current_week)
         
         # Checkbox de completado prominente
         col_checkbox, col_title = st.columns([1, 4])
@@ -904,7 +915,7 @@ class BaseTrainer:
                 help=f"Marcar {exercise_name} como completado hoy"
             )
             if completed != is_completed:
-                self.mark_exercise_completed(current_date, exercise_id, completed, week_number)
+                self.mark_exercise_completed(current_date, exercise_id, completed, current_week)
                 # Forzar recarga del progreso para asegurar persistencia
                 self.reload_progress_data()
                 # Forzar actualización de la interfaz para mostrar el progreso actualizado
@@ -920,7 +931,7 @@ class BaseTrainer:
         display_sets = exercise.get('sets', 1)
         display_reps = exercise.get('reps', '')
         if exercise.get('category') == 'forearm':
-            level = self._get_level_for_week(week_number)
+            level = self._get_level_for_week(current_week)
             s, r = self.get_forearm_progression(level)
             display_sets, display_reps = s, r
         

@@ -5,28 +5,18 @@
 ## Descripción
 Esto es un sistema básico para llevar un control de entrenamiento, y de paso practicar un poco Python y Streamlit.
 
-## 🆕 Novedades (v1.2.7)
+## 🆕 Novedades (v1.2.8)
 
-### **Biblioteca de ejercicios extendida**
-- **25 nuevos ejercicios añadidos** (total: 67 ejercicios)
-  - 7 ejercicios de **calentamiento**
-  - 10 ejercicios de **estiramiento**
-  - 8 ejercicios de **movilidad**
-- **Nueva pestaña "📚 Biblioteca de ejercicios"**
-  - Filtros por nivel, equipamiento y categoría
-  - Búsqueda por nombre
-  - Videos de YouTube integrados
+### ✅ **Correcciones clave de la versión 1.2.8**
+- **Calendario fijo respetado:** la fecha de inicio del programa ahora se ajusta exactamente al día elegido por el usuario (sin forzar inicio en lunes).
+- **Mapeo semana-fecha corregido:** se evita el desplazamiento de fechas en calendario y en la vista semanal.
+- **Consistencia de tipado y estabilidad:** corregidos avisos/errores en `main_app.py`, `base_trainer.py`, `training_plan.py`, `exercise_library.py` y `progress_calendar.py`.
+- **Empaquetado actualizado:** versión `.deb` alineada a `1.2.8` con referencias internas y documentación sincronizadas.
 
-### 🍎 **Módulo de nutrición completo**
-- **Nueva pestaña "🍎 Nutrición"**
-  - Calculadora de calorías (fórmula Mifflin-St Jeor)
-  - Calculadora de macronutrientes
-  - Tracking diario de comidas con historial
-  - Persistencia de datos en `nutrition_data.json`
-
-### **Correcciones y mejoras**
-- Corregidos errores de sintaxis en módulos
-- Documentación completa de todos los ejercicios
+### 🧩 **Novedades funcionales previas (v1.2.7)**
+- Biblioteca de ejercicios extendida (+25 ejercicios: calentamiento, estiramiento y movilidad).
+- Nueva pestaña **📚 Biblioteca de ejercicios** con filtros y búsqueda.
+- Nueva pestaña **🍎 Nutrición** con cálculo de calorías/macros y tracking diario.
 
 ## Sistema de progresión inteligente
 
@@ -81,12 +71,12 @@ Esto es un sistema básico para llevar un control de entrenamiento, y de paso pr
 
 El usuario puede descargarse el paquete .deb desde la página de lanzamientos, o escribiendo en la terminal:
 ```bash
-   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.7/sudoraciones_1.2.7_amd64.deb
+   wget https://github.com/sapoclay/sudoraciones-propias/releases/download/v1.2.8/sudoraciones_1.2.8_amd64.deb
 ```
 
 Después solo hay que instalar el paquete .deb escribiendo en una terminal el comando:
 ```bash
-   sudo dpkg -i sudoraciones_1.2.7_amd64.deb
+   sudo dpkg -i sudoraciones_1.2.8_amd64.deb
 ```
 En caso de que encontremos dependencias faltantes, en la misma terminal solo es necesario escribir:
 ```bash

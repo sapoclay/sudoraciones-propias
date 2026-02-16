@@ -219,7 +219,7 @@ class ModernHeavyDutyTrainer:
         # Limpiar todos los estados de ejercicios marcados en session_state
         exercise_keys_to_remove = []
         for key in st.session_state.keys():
-            if key.startswith('exercise_state_') or key.startswith('exercise_completed_'):
+            if isinstance(key, str) and (key.startswith('exercise_state_') or key.startswith('exercise_completed_')):
                 exercise_keys_to_remove.append(key)
         
         for key in exercise_keys_to_remove:
@@ -228,7 +228,7 @@ class ModernHeavyDutyTrainer:
         # Limpiar también estados de avance de semana
         week_keys_to_remove = []
         for key in st.session_state.keys():
-            if key.startswith('week_') and ('_advanced' in key or '_celebrated' in key):
+            if isinstance(key, str) and key.startswith('week_') and ('_advanced' in key or '_celebrated' in key):
                 week_keys_to_remove.append(key)
         
         for key in week_keys_to_remove:
@@ -478,7 +478,7 @@ class ModernHeavyDutyTrainer:
             # Pie de página
             st.markdown("---")
             st.markdown(
-                "💪 **Sudoraciones Propias v1.2.7** - Sistema de Entrenamiento con Mapeo Calendario  \n"
+                "💪 **Sudoraciones Propias v1.2.8** - Sistema de Entrenamiento con Mapeo Calendario  \n"
                 "🚀 Desarrollado con ☕ Python & Streamlit  \n"
                 "📅 **Nuevo**: Semanas de entrenamiento sincronizadas con fechas reales  \n"
                 "**Creado por entreunosyceros**",
